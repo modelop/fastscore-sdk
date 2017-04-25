@@ -6,7 +6,7 @@ from titus.util import ts
 import titus.errors
 import avro.schema
 import re
-from codec import jsonDecoder
+from _jsondecoder import jsonDecoder
 
 def _R_to_json(datum, schema):
     """
