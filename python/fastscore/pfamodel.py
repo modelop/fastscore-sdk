@@ -1,7 +1,9 @@
 from model import Model
 import yaml
+import json
 from titus.genpy import PFAEngine
 from titus.prettypfa import jsonNode
+from titus.datatype import checkData
 import time
 import collections
 from itertools import izip_longest
@@ -124,8 +126,12 @@ class PFAModel(Model):
                 else:
                     checkData(datum, self.input_schema)
             except TypeError:
-                print 'Invalid Input: Expecting type ' + str(self.input_schema) \
-                      + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
+                if use_json:
+                    print 'Invalid Input: Expecting type ' + str(self.input_schema) \
+                          + ', found ' + str(datum)
+                else:
+                    print 'Invalid Input: Expecting type ' + str(self.input_schema) \
+                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
                 return False
 
         # step 2: check the output schema
@@ -136,8 +142,12 @@ class PFAModel(Model):
                 else:
                     checkData(datum, self.output_schema)
             except TypeError:
-                print 'Invalid Output: Expecting type ' + str(self.output_schema) \
-                      + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
+                if use_json:
+                    print 'Invalid Output: Expecting type ' + str(self.output_schema) \
+                          + ', found ' + str(datum)
+                else:
+                    print 'Invalid Output: Expecting type ' + str(self.output_schema) \
+                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
                 return False
 
         # step 3: run the model on the data
@@ -166,3 +176,14 @@ class PFAModel(Model):
         - model_str: A string of code defining the model.
         """
         return PFAModel(model_str)
+
+    @staticmethod
+    def from_ppfa(model_str):
+        """
+        Creates a PFAModel object from a PrettyPFA string. The string must be a
+        valid PrettyPFA document.
+
+        Required fields:
+        - model_str: A string of code defining the model.
+        """
+        return PFAModel(str(jsonNode(model_str)))

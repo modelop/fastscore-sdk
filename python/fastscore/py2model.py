@@ -193,8 +193,12 @@ class Py2Model(Model):
                 else:
                     checkData(datum, self.input_schema)
             except TypeError:
-                print 'Invalid Input: Expecting type ' + str(self.input_schema) \
-                      + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
+                if use_json:
+                    print 'Invalid Input: Expecting type ' + str(self.input_schema) \
+                          + ', found ' + str(datum)
+                else:
+                    print 'Invalid Input: Expecting type ' + str(self.input_schema) \
+                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
                 return False
 
         # step 2: check the output schema
@@ -205,8 +209,12 @@ class Py2Model(Model):
                 else:
                     checkData(datum, self.output_schema)
             except TypeError:
-                print 'Invalid Output: Expecting type ' + str(self.output_schema) \
-                      + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
+                if use_json:
+                    print 'Invalid Output: Expecting type ' + str(self.output_schema) \
+                          + ', found ' + str(datum)
+                else:
+                    print 'Invalid Output: Expecting type ' + str(self.output_schema) \
+                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
                 return False
 
         # step 3: run the model on the data

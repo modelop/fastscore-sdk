@@ -26,11 +26,21 @@ class IPMagic(Magics):
     @cell_magic
     def pfamodel(self, line, cell):
         """
-        Magic used to indicate a cell where a Python2 model is defined.
+        Magic used to indicate a cell where a PFA model is defined.
         """
-        mymodel = PFAModel.from_string(cell)
-        main_mod.__dict__['_model']
+        mymodel = PFAModel.from_string(str(cell))
+        main_mod.__dict__['_model'] = mymodel
         print 'PFA model loaded, and bound to the \'_model\' variable.'
+        return mymodel
+
+    @cell_magic
+    def ppfamodel(self, line, cell):
+        """
+        Magic used to indicate a cell where a PrettyPFA model is defined.
+        """
+        mymodel = PFAModel.from_ppfa(str(cell))
+        main_mod.__dict__['_model'] = mymodel
+        print 'PrettyPFA model loaded, and bound to the \'_model\' variable.'
         return mymodel
 
 
