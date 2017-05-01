@@ -2,6 +2,7 @@ from IPython.core.magic import (Magics, magics_class, line_magic,
                                 cell_magic, line_cell_magic)
 import types
 from py2model import Py2Model
+from pfamodel import PFAModel
 
 # import the main module...
 # we need to do this to access the global namespace.
@@ -11,15 +12,25 @@ import __main__ as main_mod
 class IPMagic(Magics):
 
     @cell_magic
-    def model_def(self, line, cell):
+    def py2model(self, line, cell):
         """
-        Magic used to indicate a cell where a model is defined.
+        Magic used to indicate a cell where a Python2 model is defined.
         Note that the code in the cell is also evaluated, and is
         globally accesible.
         """
         mymodel = Py2Model.from_string(cell, main_mod.__dict__)
         main_mod.__dict__['_model'] = mymodel
-        print 'Model loaded, and bound to the \'_model\' variable.'
+        print 'Python2 Model loaded, and bound to the \'_model\' variable.'
+        return mymodel
+
+    @cell_magic
+    def pfamodel(self, line, cell):
+        """
+        Magic used to indicate a cell where a Python2 model is defined.
+        """
+        mymodel = PFAModel.from_string(cell)
+        main_mod.__dict__['_model']
+        print 'PFA model loaded, and bound to the \'_model\' variable.'
         return mymodel
 
 

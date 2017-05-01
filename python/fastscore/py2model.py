@@ -14,7 +14,7 @@ import re
 
 class Py2Model(Model):
 
-    def __init__(self, action, input_schema, output_schema, options=[], begin=None, end=None, functions=[],
+    def __init__(self, action, input_schema, output_schema, options={}, begin=None, end=None, functions=[],
                  attachments=[], imports=[], name=None):
         """
         A Python2 Model's constructor.
@@ -228,7 +228,7 @@ class Py2Model(Model):
     @staticmethod
     def from_string(model_str, outer_namespace=None):
         """
-        Creates a Model object from a string.
+        Creates a Py2Model object from a string.
 
         Required fields:
         - model_str: A string of code defining the model.

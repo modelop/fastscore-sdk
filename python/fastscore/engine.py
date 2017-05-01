@@ -20,6 +20,12 @@ class Engine(object):
         """
         api.connect(proxy_prefix)
         self.model = model
+        if self.model:
+            self.input_schema = self.model.input_schema
+            self.output_schema = self.model.output_schema
+        else:
+            self.input_schema = None
+            self.output_schema = None
         self.container = container
 
     def deploy(self, model):
@@ -30,9 +36,11 @@ class Engine(object):
         - model: The model object to deploy.
         """
         api.stop_job(self.container)
-        self.model = model
         if not model.model_type:
             raise AttributeError('Unknown model type!')
+        self.model = model
+        self.input_schema = model.input_schema
+        self.output_schema = model.output_schema
         api.add_model(model.name, model.to_string(), model_type=model.model_type)
         api.add_schema(model.options['input'], model.input_schema.toJson())
         api.add_schema(model.options['output'], model.output_schema.toJson())

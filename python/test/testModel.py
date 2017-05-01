@@ -1,9 +1,10 @@
 import unittest
 from fastscore import Py2Model
+from fastscore import PFAModel
 import pandas as pd
 
 class TestModel(unittest.TestCase):
-    def test_from_string(self):
+    def test_py2_from_string(self):
         # Test the creation of models
         # from strings
         model_string = '''
@@ -22,7 +23,7 @@ def action(x):
         model = Py2Model.from_string(model_string, namespace)
         self.assertEqual(model.score(3), 6)
         self.assertEqual(model.score('3', use_json=True), '6')
-    def test_from_string_with_recordsets(self):
+    def test_py2_from_string_with_recordsets(self):
         model_string = '''
 # fastscore.input: schin
 # fastscore.output: schout
@@ -40,3 +41,26 @@ def action(df):
         mydf = pd.DataFrame({'x':[1, 2, 3], 'y':[1, 2, 3]})
         outdf = pd.DataFrame({'x':[1, 2, 3], 'y':[1, 2, 3], 'z':[0, 0, 0]})
         self.assertEqual(outdf.equals(model.score(mydf)), True)
+    def test_pfa_from_string(self):
+        model_string = '''
+input: int
+output: int
+action:
+  - {m.abs: input}
+'''
+        model = PFAModel.from_string(model_string)
+        self.assertEqual(model.score(3), 3)
+        self.assertEqual(model.score(-3), 3)
+        self.assertEqual(model.score('3', use_json=True), '3')
+    def test_pfa_from_string_emit(self):
+        model_string = '''
+input: int
+output: int
+method: emit
+action:
+  - {emit: {m.abs: input}}
+'''
+        model = PFAModel.from_string(model_string)
+        self.assertEqual(model.score(3), 3)
+        self.assertEqual(model.score(-3), 3)
+        self.assertEqual(model.score('3', use_json=True), '3')
