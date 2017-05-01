@@ -8,10 +8,11 @@ setup(
   author="Open Data Group",
   author_email="support@opendatagroup.com",
   install_requires = [
-    "iso8601==0.1.11",
-    "PyYAML==3.11",
-    "requests==2.11.1",
-    "tabulate==0.7.5",
-    "websocket-client==0.37.0"
-  ]
+    "iso8601>=0.1.11",
+    "PyYAML>=3.11",
+    "requests>=2.11.1",
+    "tabulate>=0.7.5",
+    "websocket-client>=0.37.0"
+  ],
+  test_suite="test"
 )
