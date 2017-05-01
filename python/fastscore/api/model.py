@@ -19,6 +19,10 @@ def add_model(model_name, model_content, model_type='python2'):
         ctype = 'application/vnd.fastscore.model-python3'
     elif model_type == 'r' or model_type == 'R':
         ctype = 'application/vnd.fastscore.model-r'
+    elif model_type == 'pfa' or model_type == 'PFA':
+        ctype = 'application/vnd.fastscore.model-pfa-json'
+    elif model_type == 'PrettyPFA':
+        ctype = 'application/vnd.fastscore.model-pfa-pretty'
     else:
         raise ValueError('Unknown model type: %s' % model_type)
 

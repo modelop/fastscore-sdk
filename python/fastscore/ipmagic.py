@@ -1,7 +1,7 @@
 from IPython.core.magic import (Magics, magics_class, line_magic,
                                 cell_magic, line_cell_magic)
 import types
-from model import Model
+from py2model import Py2Model
 
 # import the main module...
 # we need to do this to access the global namespace.
@@ -17,7 +17,7 @@ class IPMagic(Magics):
         Note that the code in the cell is also evaluated, and is
         globally accesible.
         """
-        mymodel = Model.from_string(cell, main_mod.__dict__)
+        mymodel = Py2Model.from_string(cell, main_mod.__dict__)
         main_mod.__dict__['_model'] = mymodel
         print 'Model loaded, and bound to the \'_model\' variable.'
         return mymodel

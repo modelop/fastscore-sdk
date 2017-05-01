@@ -31,7 +31,9 @@ class Engine(object):
         """
         api.stop_job(self.container)
         self.model = model
-        api.add_model(model.name, model.to_string(), model_type='python2')
+        if not model.model_type:
+            raise AttributeError('Unknown model type!')
+        api.add_model(model.name, model.to_string(), model_type=model.model_type)
         api.add_schema(model.options['input'], model.input_schema.toJson())
         api.add_schema(model.options['output'], model.output_schema.toJson())
 
