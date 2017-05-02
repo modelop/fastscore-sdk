@@ -186,4 +186,4 @@ class PFAModel(Model):
         Required fields:
         - model_str: A string of code defining the model.
         """
-        return PFAModel(str(jsonNode(model_str)))
+        return PFAModel(json.dumps(jsonNode(model_str)))

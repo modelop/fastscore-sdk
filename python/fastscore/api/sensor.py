@@ -42,7 +42,7 @@ def get_sensor(sensor_name):
     if code == 200:
         return body.decode('utf-8'),
     elif code == 404:
-        raise KeyError("Sensor '%s' not found in Model Manage." % senor_name)
+        raise KeyError("Sensor '%s' not found in Model Manage." % sensor_name)
     else:
         raise Exception(body.decode('utf-8'))
 
