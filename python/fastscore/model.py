@@ -2,7 +2,7 @@
 from inspect import getsource
 import json
 import collections
-from titus.datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
+from datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
 from itertools import izip_longest
 from utils import compare_items
 from codec import to_json, from_json, recordset_from_json
@@ -48,7 +48,7 @@ class Model(object):
         elif isinstance(input_schema, Type):
             self.__input_schema = input_schema
         else:
-            raise TypeError("Model input schema must be either a JSON string or Titus AvroType")
+            raise TypeError("Model input schema must be either a JSON string or AvroType")
 
     @input_schema.deleter
     def input_schema(self):
@@ -65,7 +65,7 @@ class Model(object):
         elif isinstance(output_schema, Type):
             self.__output_schema = output_schema
         else:
-            raise TypeError("Model output schema must be either a JSON string or Titus AvroType")
+            raise TypeError("Model output schema must be either a JSON string or AvroType")
 
     @output_schema.deleter
     def output_schema(self):

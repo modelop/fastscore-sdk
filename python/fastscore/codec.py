@@ -1,10 +1,10 @@
 import json
-import titus.datatype
-from titus.datatype import jsonEncoder, avroTypeToSchema, jsonToAvroType
-from titus.util import ts
-import titus.errors
+import datatype
+from datatype import jsonEncoder, jsonDecoder, avroTypeToSchema, jsonToAvroType
+from utils import ts
+import errors
 import avro.schema
-from _jsondecoder import jsonDecoder
+# from _jsondecoder import jsonDecoder
 # record sets:
 import pandas as pd
 import numpy as np
@@ -17,7 +17,7 @@ def to_json(data, schema):
     Required fields:
     - data: an iterator, numpy.matrix, pandas.Series, or pandas.DataFrame
             of items to serialize to JSON.
-    - schema: The AVRO schema to use (titus.AvroType)
+    - schema: The AVRO schema to use (datatype.AvroType)
     """
     if isinstance(data, np.matrix):
         for x in data.tolist():
@@ -39,7 +39,7 @@ def from_json(data, schema):
 
     Required fields:
     - data: a list of the items to deserialize (JSON strings)
-    - schema: the AVRO schema to use (titus.AvroType)
+    - schema: the AVRO schema to use (datatype.AvroType)
     """
     for datum in data:
         yield jsonDecoder(schema, json.loads(datum))
@@ -54,7 +54,7 @@ def recordset_from_json(data, schema):
 
     Required fields:
     - data: a list of the items to deserialize (JSON strings)
-    - schema: the AVRO schema to use (titus.AvroType)
+    - schema: the AVRO schema to use (datatype.AvroType)
     """
     recordset = [x for x in from_json(data, schema)]
     if len(recordset) == 0:
@@ -72,6 +72,6 @@ def recordset_to_json(recordset, schema):
 
     Required fields:
     - recordset: a pandas.DataFrame, pandas.Series, or numpy.matrix
-    - schema: the Avro schema to use (titus.AvroType)
+    - schema: the Avro schema to use (datatype.AvroType)
     """
     return [x for x in to_json(recordset, schema)]

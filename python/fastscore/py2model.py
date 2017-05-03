@@ -2,7 +2,7 @@
 from inspect import getsource
 import json
 import collections
-from titus.datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
+from datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
 from itertools import izip_longest
 from utils import compare_items
 from codec import to_json, from_json, recordset_from_json

@@ -6,6 +6,8 @@ from titus.prettypfa import jsonNode
 from titus.datatype import checkData
 import time
 import collections
+from titus.datatype import jsonToAvroType, checkData, avroTypeToSchema
+import datatype
 from itertools import izip_longest
 from utils import compare_items
 from codec import to_json, from_json
@@ -28,8 +30,8 @@ class PFAModel(Model):
             self.__pfaengine, = PFAEngine.fromJson(pfa)
         else:
             raise TypeError('PFAModel field is not a PFA document.')
-        self.input_schema = self.__pfaengine.inputType
-        self.output_schema = self.__pfaengine.outputType
+        self.input_schema = _titus_to_fastscore_avrotype(self.__pfaengine.inputType)
+        self.output_schema = _titus_to_fastscore_avrotype(self.__pfaengine.outputType)
         self.model_type = 'pfa'
         if name:
             self.name = name
@@ -187,3 +189,13 @@ class PFAModel(Model):
         - model_str: A string of code defining the model.
         """
         return PFAModel(json.dumps(jsonNode(model_str)))
+
+def _titus_to_fastscore_avrotype(dtype):
+    """
+    Utility function to translate from Titus datatype to FastScore datatype.
+    Returns the equivalent fastscore.datatype.AvroType object.
+
+    Required fields:
+    - dtype: titus.datatype.AvroType object
+    """
+    return datatype.schemaToAvroType(dtype.schema)

@@ -2,7 +2,7 @@
 import json
 import api
 import time
-from titus.datatype import avroTypeToSchema, checkData
+from datatype import avroTypeToSchema, checkData
 from codec import to_json, recordset_from_json
 
 class Engine(object):
