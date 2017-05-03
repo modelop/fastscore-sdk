@@ -35,7 +35,7 @@ def compare_items(obj1, obj2, f_error):
                 return False
         return True
     if type(obj1) is float:
-        matches = compare_floats(float1, float2)
+        matches = compare_floats(obj1, obj2, f_error)
         if not matches:
             print 'Outside error margin'
         return matches
