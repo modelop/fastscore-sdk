@@ -1,10 +1,6 @@
 import json
-import datatype
-from datatype import jsonEncoder, jsonDecoder, avroTypeToSchema, jsonToAvroType
-from utils import ts
-import errors
+from fastscore.datatype import jsonEncoder, jsonDecoder, avroTypeToSchema, jsonToAvroType
 import avro.schema
-# from _jsondecoder import jsonDecoder
 # record sets:
 import pandas as pd
 import numpy as np

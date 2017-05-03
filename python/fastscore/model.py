@@ -2,10 +2,9 @@
 from inspect import getsource
 import json
 import collections
-from datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
-from itertools import izip_longest
-from utils import compare_items
-from codec import to_json, from_json, recordset_from_json
+from fastscore.datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
+from fastscore.utils import compare_items
+from fastscore.codec import to_json, from_json, recordset_from_json
 import types
 import time
 
@@ -114,7 +113,7 @@ class Model(object):
         raise NotImplementedError('Model validation methods must be implemented by child classes.')
 
 
-    @staticmethod
+    @classmethod
     def from_string(model_str):
         """
         Creates a Model object from a string.

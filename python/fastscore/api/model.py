@@ -1,4 +1,4 @@
-import _service as service
+from . import _service as service
 import json
 
 def add_model(model_name, model_content, model_type='python2'):
@@ -29,10 +29,10 @@ def add_model(model_name, model_content, model_type='python2'):
     code,body = service.put('model-manage', '/1/model/%s' % model_name,
                             ctype, model_content)
     if code == 201:
-        print 'Model \'%s\' added to Model Manage.' % model_name
+        print('Model \'%s\' added to Model Manage.' % model_name)
         return True
     elif code == 204:
-        print 'Model \'%s\' updated in Model Manage.' % model_name
+        print('Model \'%s\' updated in Model Manage.' % model_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))
@@ -72,7 +72,7 @@ def remove_model(model_name):
     if code == 404:
         raise KeyError('Model not found: \'%s\'' % model_name)
     elif code == 204:
-        print 'Model \'%s\' removed from Model Manage.' % model_name
+        print('Model \'%s\' removed from Model Manage.' % model_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))

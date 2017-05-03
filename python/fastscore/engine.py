@@ -1,9 +1,9 @@
 ## -- Engine class -- ##
 import json
-import api
+import fastscore.api as api
 import time
-from datatype import avroTypeToSchema, checkData
-from codec import to_json, recordset_from_json
+from fastscore.datatype import avroTypeToSchema, checkData
+from fastscore.codec import to_json, recordset_from_json
 
 class Engine(object):
     def __init__(self, proxy_prefix, model=None, container=None):
@@ -81,7 +81,7 @@ class Engine(object):
         """
         Stop all running jobs on the engine.
         """
-        print 'Engine stopped.'
+        print('Engine stopped.')
         api.stop_job(self.container)
 
     def score(self, data, use_json=False):

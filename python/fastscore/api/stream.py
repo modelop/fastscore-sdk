@@ -1,4 +1,4 @@
-import _service as service
+from . import _service as service
 import json
 
 def list_streams():
@@ -24,10 +24,10 @@ def add_stream(stream_name, stream_content):
     code,body = service.put('model-manage', '/1/stream/%s' % stream_name,
                             ctype, stream_content)
     if code == 201:
-        print 'Stream \'%s\' added to Model Manage.' % stream_name
+        print('Stream \'%s\' added to Model Manage.' % stream_name)
         return True
     elif code == 204:
-        print 'Stream \'%s\' updated in Model Manage.' % stream_name
+        print('Stream \'%s\' updated in Model Manage.' % stream_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))
@@ -60,7 +60,7 @@ def remove_stream(stream_name):
     if code == 404:
         raise KeyError('Stream \'%s\' not found in Model Manage' % stream_name)
     elif code == 204:
-        print 'Stream \'%s\' removed from Model Manage.' % stream_name
+        print('Stream \'%s\' removed from Model Manage.' % stream_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))

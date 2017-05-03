@@ -3,7 +3,7 @@ from fastscore.pymodel import PyModel
 
 import re
 
-class Py2Model(PyModel):
+class Py3Model(PyModel):
 
     def __init__(self, action, input_schema, output_schema, options={}, begin=None, end=None, functions=[],
                  attachments=[], imports=[], name=None):
@@ -25,7 +25,7 @@ class Py2Model(PyModel):
         - imports: a list of import statements made by the model (as strings)
         - name: a name for this model
         """
-        super(Py2Model, self).__init__(action=action,
+        super(Py3Model, self).__init__(action=action,
                                        input_schema=input_schema,
                                        output_schema=output_schema,
                                        options=options,
@@ -35,7 +35,7 @@ class Py2Model(PyModel):
                                        attachments=attachments,
                                        imports=imports,
                                        name=name)
-        self.model_type = 'python2'
+        self.model_type = 'python3'
     @staticmethod
     def from_string(model_str, outer_namespace=None):
-        return PyModel.from_string(model_str, outer_namespace, Py2Model)
+        return PyModel.from_string(model_str, outer_namespace, Py3Model)

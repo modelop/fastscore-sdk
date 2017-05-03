@@ -4,7 +4,7 @@ import requests
 from time import sleep
 import getpass
 
-import _service as service
+from . import _service as service
 
 def connect(proxy_prefix, sec_creds=None):
     """
@@ -33,7 +33,7 @@ def connect(proxy_prefix, sec_creds=None):
         ask_password = password == None
         while True:
             if ask_username:
-                username = raw_input("Username: ")
+                username = input("Username: ")
             if ask_password:
                 password = getpass.getpass()
             login_url = proxy_prefix + "/1/login"
@@ -51,7 +51,7 @@ def connect(proxy_prefix, sec_creds=None):
     if last_status == 200:
         service.options["proxy-prefix"] = proxy_prefix
         service.update_config()
-        print "Proxy prefix set, connected to FastScore fleet."
+        print("Proxy prefix set, connected to FastScore fleet.")
         return True
     elif last_status == 401:
         raise Exception("Access denied (bad credentials?)")
@@ -73,7 +73,7 @@ def ping_url(test_url):
             sys.stdout.write(progress_char)
             sys.stdout.flush()
             sleep(0.5)
-        print " done"
+        print(" done")
     else:
         r = requests.get(test_url, verify=False)
     return r.status_code

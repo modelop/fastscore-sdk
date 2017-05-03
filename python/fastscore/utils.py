@@ -13,11 +13,11 @@ def compare_items(obj1, obj2, f_error):
     - f_error: A margin of error
     """
     if type(obj1) != type(obj2):
-        print 'Type mismatch: ' + str(type(obj1)) + ' != ' + str(type(obj2))
+        print('Type mismatch: ' + str(type(obj1)) + ' != ' + str(type(obj2)))
         return False
     if type(obj1) is list:
         if len(obj1) != len(obj2):
-            print 'Length mismatch: ' + str(len(obj1)) + ' != ' + str(len(obj2))
+            print('Length mismatch: ' + str(len(obj1)) + ' != ' + str(len(obj2)))
             return False
         length = len(obj1)
         for i in range(0, length):
@@ -37,7 +37,7 @@ def compare_items(obj1, obj2, f_error):
     if type(obj1) is float:
         matches = compare_floats(obj1, obj2, f_error)
         if not matches:
-            print 'Outside error margin'
+            print('Outside error margin')
         return matches
     return obj1 == obj2
 

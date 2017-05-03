@@ -1,4 +1,4 @@
-from model import Model
+from fastscore.model import Model
 import yaml
 import json
 from titus.genpy import PFAEngine
@@ -7,10 +7,10 @@ from titus.datatype import checkData
 import time
 import collections
 from titus.datatype import jsonToAvroType, checkData, avroTypeToSchema
-import datatype
-from itertools import izip_longest
-from utils import compare_items
-from codec import to_json, from_json
+import fastscore.datatype
+from fastscore.utils import compare_items
+from fastscore.codec import to_json, from_json
+from six.moves import zip_longest # izip_longest renamed
 
 class PFAModel(Model):
     def __init__(self, pfa, name=None):
@@ -66,7 +66,7 @@ class PFAModel(Model):
             self.__pfaengine.begin()
 
         iterable = isinstance(inputs, collections.Iterable) \
-                   and not isinstance(inputs, basestring)   \
+                   and not isinstance(inputs, str)   \
                    and not isinstance(inputs, dict) # a dict is a record in our world
 
         input_data = []
@@ -129,11 +129,11 @@ class PFAModel(Model):
                     checkData(datum, self.input_schema)
             except TypeError:
                 if use_json:
-                    print 'Invalid Input: Expecting type ' + str(self.input_schema) \
-                          + ', found ' + str(datum)
+                    print(('Invalid Input: Expecting type ' + str(self.input_schema) \
+                          + ', found ' + str(datum)))
                 else:
-                    print 'Invalid Input: Expecting type ' + str(self.input_schema) \
-                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
+                    print(('Invalid Input: Expecting type ' + str(self.input_schema) \
+                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'))
                 return False
 
         # step 2: check the output schema
@@ -145,24 +145,24 @@ class PFAModel(Model):
                     checkData(datum, self.output_schema)
             except TypeError:
                 if use_json:
-                    print 'Invalid Output: Expecting type ' + str(self.output_schema) \
-                          + ', found ' + str(datum)
+                    print(('Invalid Output: Expecting type ' + str(self.output_schema) \
+                          + ', found ' + str(datum)))
                 else:
-                    print 'Invalid Output: Expecting type ' + str(self.output_schema) \
-                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'
+                    print(('Invalid Output: Expecting type ' + str(self.output_schema) \
+                          + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'))
                 return False
 
         # step 3: run the model on the data
         model_outputs = self.score(inputs, complete=True, use_json=use_json)
-        for model_out, exp_out in izip_longest(model_outputs, outputs):
+        for model_out, exp_out in zip_longest(model_outputs, outputs):
             if model_out == None and exp_out != None or model_out != None and exp_out == None:
-                print 'Differing number of outputs: ' + str(model_out) + ' != ' + str(exp_out)
+                print(('Differing number of outputs: ' + str(model_out) + ' != ' + str(exp_out)))
                 return False
             item1 = json.loads(model_out) if use_json else json.loads(json.dumps(model_out))
             item2 = json.loads(exp_out) if use_json else json.loads(json.dumps(exp_out))
             same = compare_items(item1, item2, 0.01)
             if not same:
-                print 'Different outputs: ' + str(model_out) + ' != ' + str(exp_out)
+                print(('Different outputs: ' + str(model_out) + ' != ' + str(exp_out)))
                 return False
 
         # all items match schema and expected values
@@ -198,4 +198,4 @@ def _titus_to_fastscore_avrotype(dtype):
     Required fields:
     - dtype: titus.datatype.AvroType object
     """
-    return datatype.schemaToAvroType(dtype.schema)
+    return fastscore.datatype.schemaToAvroType(dtype.schema)

@@ -1,5 +1,5 @@
 import json
-import _service as service
+from . import _service as service
 
 def list_sensors():
     """
@@ -22,10 +22,10 @@ def add_sensor(sensor_name, sensor_content):
     ctype = "application/json"
     code,body = service.put("model-manage", "/1/sensor/%s" % sensor_name, ctype, sensor_content)
     if code == 201:
-        print "Sensor '%s' added to Model Manage." % sensor_name
+        print("Sensor '%s' added to Model Manage." % sensor_name)
         return True
     elif code == 204:
-        print "Sensor '%s' updated in Model Manage." %  sensor_name
+        print("Sensor '%s' updated in Model Manage." %  sensor_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))
@@ -57,7 +57,7 @@ def remove_sensor(sensor_name):
     if code == 404:
         raise KeyError("Sensor '%s' not found in Model Manage." % sensor_name)
     elif code == 204:
-        print "Sensor '%s' removed from Model Manage." % sensor_name
+        print("Sensor '%s' removed from Model Manage." % sensor_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))

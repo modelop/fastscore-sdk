@@ -1,6 +1,6 @@
-import _service as service
-from stream import get_stream
-from model import get_model
+from . import _service as service
+from .stream import get_stream
+from .model import get_model
 
 def run_job(model, input_stream, output_stream, container=None):
     """
@@ -22,7 +22,7 @@ def run_job(model, input_stream, output_stream, container=None):
     input_set = deploy_input_stream(input_desc, input_stream, container)
     model_set = deploy_model(model_desc, model, ctype, container)
     if output_set and input_set and model_set:
-        print 'Engine is ready to score.'
+        print('Engine is ready to score.')
     return output_set and input_set and model_set
 
 def deploy_model(model_content, model_name, ctype, container=None):
@@ -46,7 +46,7 @@ def deploy_model(model_content, model_name, ctype, container=None):
     if code_model != 204:
         raise Exception('Error setting model: ' + body_model.decode('utf-8'))
     else:
-        print 'Model deployed to engine.'
+        print('Model deployed to engine.')
         return True
     return
 
@@ -69,7 +69,7 @@ def deploy_input_stream(stream_content, stream_name, container=None):
     if code_in != 204:
         raise Exception('Error setting input stream: ' + body_in.decode('utf-8'))
     else:
-        print 'Input stream set.'
+        print('Input stream set.')
         return True
 
 def deploy_output_stream(stream_content, stream_name, container=None):
@@ -91,7 +91,7 @@ def deploy_output_stream(stream_content, stream_name, container=None):
     if code_out != 204:
         raise Exception('Error setting output stream: ' + body_out.decode('utf-8'))
     else:
-        print 'Output stream set.'
+        print('Output stream set.')
         return True
 
 def job_input(input_data, container=None):
@@ -112,7 +112,7 @@ def job_input(input_data, container=None):
                 preferred=preferred)
     if code != 204:
         raise Exception(body.decode('utf-8'))
-    chip = ""
+    chip = ''
     pig_received = False
     outputs = []
     while not pig_received:
@@ -120,17 +120,18 @@ def job_input(input_data, container=None):
                     preferred=preferred)
         if code != 200:
             raise Exception(body.decode('utf-8'))
-        chunk = chip + body
+        chunk = chip + body.decode('utf-8')
         while True:
             x = chunk.split("\n", 1)
             if len(x) > 1:
                 rec = x[0]
+                print('record:' + rec)
                 chunk = x[1]
                 if rec == pig:
                     pig_received = True
                     break
                 elif rec != "": # an artifact of delimited framing
-                    outputs.append(rec.decode('utf-8'))
+                    outputs.append(rec)
             else:
                 chip = x[0]
                 if chip == pig:

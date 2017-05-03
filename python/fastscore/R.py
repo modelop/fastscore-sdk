@@ -1,12 +1,11 @@
 # Python utils used by the R package.
 import json
-import titus.datatype
-from titus.datatype import jsonEncoder, avroTypeToSchema, jsonToAvroType, checkData
-from titus.util import ts
-import titus.errors
+import fastscore.datatype
+from fastscore.datatype import jsonEncoder, jsonDecoder, avroTypeToSchema, jsonToAvroType, checkData
+from fastscore.utils import ts
+import fastscore.errors
 import avro.schema
 import re
-from _jsondecoder import jsonDecoder
 
 def _R_to_json(datum, schema):
     """
