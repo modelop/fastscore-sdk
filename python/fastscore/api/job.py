@@ -125,7 +125,6 @@ def job_input(input_data, container=None):
             x = chunk.split("\n", 1)
             if len(x) > 1:
                 rec = x[0]
-                print('record:' + rec)
                 chunk = x[1]
                 if rec == pig:
                     pig_received = True
