@@ -28,7 +28,7 @@ def compare_items(obj1, obj2, f_error):
         keys1 = sorted(obj1.keys())
         keys2 = sorted(obj2.keys())
         if keys1 != keys2:
-            print 'Key mismatch'
+            print('Key mismatch')
             return False
         for key in keys1:
             if compare_items(obj1[key], obj2[key], f_error) == False:
