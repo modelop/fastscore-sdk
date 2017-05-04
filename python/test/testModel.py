@@ -1,10 +1,16 @@
 import unittest
-from fastscore import Py2Model
-from fastscore import PFAModel
+import six
+if six.PY2:
+    from fastscore import Py2Model
+    from fastscore import PFAModel
+elif six.PY3:
+    from fastscore import Py3Model
 import pandas as pd
 
 class TestModel(unittest.TestCase):
     def test_py2_from_string(self):
+        if six.PY3: # skip if Python3
+            return
         # Test the creation of models
         # from strings
         model_string = '''
@@ -23,7 +29,12 @@ def action(x):
         model = Py2Model.from_string(model_string, namespace)
         self.assertEqual(model.score(3), 6)
         self.assertEqual(model.score('3', use_json=True), '6')
+        return
+
     def test_py2_from_string_with_recordsets(self):
+        if six.PY3: # skip if Python3
+            return
+
         model_string = '''
 # fastscore.input: schin
 # fastscore.output: schout
@@ -42,6 +53,9 @@ def action(df):
         outdf = pd.DataFrame({'x':[1, 2, 3], 'y':[1, 2, 3], 'z':[0, 0, 0]})
         self.assertEqual(outdf.equals(model.score(mydf)), True)
     def test_pfa_from_string(self):
+        if six.PY3:
+            return
+
         model_string = '''
 input: int
 output: int
@@ -53,6 +67,9 @@ action:
         self.assertEqual(model.score(-3), 3)
         self.assertEqual(model.score('3', use_json=True), '3')
     def test_pfa_from_string_emit(self):
+        if six.PY3:
+            return
+        
         model_string = '''
 input: int
 output: int

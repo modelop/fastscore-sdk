@@ -42,6 +42,8 @@ class Engine(object):
         self.input_schema = model.input_schema
         self.output_schema = model.output_schema
         api.add_model(model.name, model.to_string(), model_type=model.model_type)
+        for attachment in model.attachments:
+            api.add_attachment(model.name, attachment)
         api.add_schema(model.options['input'], model.input_schema.toJson())
         api.add_schema(model.options['output'], model.output_schema.toJson())
 

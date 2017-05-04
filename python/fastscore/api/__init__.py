@@ -9,3 +9,4 @@ from .stream import add_stream, get_stream, remove_stream, list_streams
 from .schema import add_schema, get_schema, remove_schema, list_schemata
 from .job import run_job, job_input, stop_job, deploy_model, deploy_input_stream, deploy_output_stream
 from .sensor import add_sensor, get_sensor, remove_sensor, list_sensors
+from .attachment import list_attachments, add_attachment, get_attachment, remove_attachment
