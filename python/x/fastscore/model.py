@@ -21,13 +21,26 @@ class Model(object):
         def __delitem__(self, name):
             self.model.remove_attachment(name)
 
+    class SnapshotBag(object):
+        def __init__(self, model):
+            self.model = model
+
+        def browse(self, date1=None, date2=None, count=None):
+            return self.model.list_snapshots(date1, date2, count)
+
+        def __get__(self, snapid):
+            return self.model.get_snapshot(snapid)
+
+        def __delitem__(self, snapid):
+            self.model.remove_snapshot(snapid)
+
     def __init__(self, name, mtype='python', source=None, model_manage=None):
         self._name = name
         self.mtype = mtype
         self.source = source
         self._mm = model_manage
         self._attachments = Model.AttachmentBag(self)
-        #self._snapshots = SnapshotBag(self)
+        self._snapshots = Model.SnapshotBag(self)
 
     @property
     def name(self):
@@ -56,19 +69,18 @@ class Model(object):
 
     @property
     def snapshots(self):
-        pass
-        #return self._snapshots
+        return self._snapshots
 
     def update(self, model_manage=None):
         if model_manage == None and self._mm == None:
-            raise FastScore("Model '%s' not associated with a Model Manage instance" % self.name)
+            raise FastScore("Model '%s' not associated with Model Manage" % self.name)
         if self._mm == None:
             self._mm = model_manage
-        self._mm.update(self)
+        self._mm.save_model(self)
 
     def saved(self):
         if self._mm == None:
-            raise FastScore("Model '%s' not associated with a Model Manage instance" % self.name)
+            raise FastScore("Model '%s' not saved (use update() method)" % self.name)
 
     def list_attachments(self):
         self.saved()
@@ -116,10 +128,35 @@ class Model(object):
            raise FastScoreError("Cannot upload attachment '%s'" % att.name, \
                    caused_by=e)
 
-    def update(self, model_manage=None):
-        if model_manage == None and self._mm == None:
-            raise FastScore("Model '%s' not saved (use update() method)" % self.name)
-        if self._mm == None:
-            self._mm = model_manage
-        self._mm.update(self)
+    def list_snapshots(self, date1, date2, count):
+        self.saved()
+        try:
+            params = {}
+            if date1 or date2:
+                date_range = ''
+                if date1:
+                    date_range += date1.isoformat()
+                date_range += '--'
+                if date2:
+                    date_range += date2.isoformat()
+                params['date_range'] = date_range
+            if count:
+                params['count'] = count
+            return self._mm.api.snapshot_list(self._mm.name, self.name, **params)
+        except Exception as e:
+            raise FastScoreError("Cannot list snapshots", caused_by=e)
+
+    def get_snapshot(self, snapid):
+        self.saved()
+        try:
+            return self._mm.api.snapshot_get_metadata(self._mm.name, self.name, snapid)
+        except Exception as e:
+            raise FastScoreError("Cannot retrieve snapshot '%s' metadata" % snapid, caused_by=e)
+
+    def remove_snapshot(self, snapid):
+        self.saved()
+        try:
+            self._mm.api.snapshot_delete(self._mm.name, self.name, snapid)
+        except Exception as e:
+            raise FastScoreError("Cannot remove snapshot '%s'" % snapid, caused_by=e)
 

@@ -9,14 +9,13 @@ class InstanceBase(object):
         self.name = name
         self.api = api
 
-    def inspect(self):
+    def check_health(self):
         """Retrieve information about the instance including its health.
         """
         try:
             return self.api.health_get(self.name)
         except Exception as e:
-            m = "Cannot retrieve instance info"
-            raise FastScoreError(m, caused_by=e)
+            raise FastScoreError("Cannot retrieve instance info", caused_by=e)
 
     def get_swagger(self):
         """Retrieves the Swagger API specification.
@@ -24,6 +23,5 @@ class InstanceBase(object):
         try:
             return self.api.swagger_get(self.name)
         except Exception as e:
-            m = "Cannot retrieve Swagger specification"
-            raise FastScoreError(m, caused_by=e)
+            raise FastScoreError("Cannot retrieve Swagger specification", caused_by=e)
 

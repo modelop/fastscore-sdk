@@ -125,6 +125,14 @@ class Connect(InstanceBase):
             m = "Cannot read the FastScore configuration"
             raise FastScoreError(m, caused_by=e)
 
+    def fleet(self):
+        """Retrieve metadata of all running instances.
+        """
+        try:
+            return self.api.connect_get(self.name)
+        except Exception as e:
+            raise FatsScoreError("Cannot retrieve fleet info", caused_by=e)
+
 def make_instance(api, name):
     if api == 'model-manage':
         return ModelManage(name)
