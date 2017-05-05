@@ -4,12 +4,27 @@
 #' @param attachment_file The path to the file.
 #' @export
 api.add_attachment <- function(model_name, attachment_file){
-    python.exec('import fastscore.api')
-    result <- python.call('fastscore.api.add_attachment', model_name, attachment_file)
-    if(result){
-        message(paste('Attachment', attachment_file, 'added to model', model_name))
+    if(!file.exists(attachment_file)){
+      stop(paste('Attachment', attachment_file, 'not found'))
     }
-    return(result)
+    att_name <- basename(attachment_file)
+    candb <- service.put('model-manage',
+                paste('/1/model/', model_name,
+                      '/attachment', att_name, sep=''),
+                guess_att_ctype(attachment_file), upload_file(attachment_file))
+    code <- candb[[1]]
+    if(code == 201){
+      message(paste('Attachment', att_name, 'added to model', model_name))
+      return(TRUE)
+    }
+    else if(code == 204){
+      message(paste('Attachment', att_name, 'updated in model', model_name))
+      return(TRUE)
+    }
+    else{
+      stop(candb[[2]])
+    }
+
 }
 
 #' Retrieve an attachment from a model, and save it to a file.
@@ -20,13 +35,22 @@ api.add_attachment <- function(model_name, attachment_file){
 #'                        defaults to current working directory)
 #' @export
 api.get_attachment <- function(model_name, attachment_name, attachment_path=''){
-    python.exec('import fastscore.api')
-    result <- python.call('fastscore.api.get_attachment', model_name,
-                          attachment_name, attachment_path)
-    if(result){
-        message(paste('Attachment', attachment_name, 'saved to', attachment_path))
+    result <- service.get('model-manage', paste('/1/model/', model_name, '/attachment', sep=''))
+    code <- result[[1]]
+    body <- result[[2]]
+    if(code == 200){
+      f <- file(paste(attachment_path, attachment_name, sep=''))
+      writeBin(body, f)
+      close(f)
+      return(TRUE)
     }
-    return(result)
+    else if(code == 404){
+      message(paste('Attachment', attachment_name, 'not found'))
+      return(FALSE)
+    }
+    else{
+      stop(body)
+    }
 }
 
 #' Remove the named attachment from the specified model.
@@ -35,12 +59,21 @@ api.get_attachment <- function(model_name, attachment_name, attachment_path=''){
 #' @param attachment_name The name of the attachment
 #' @export
 api.remove_attachment <- function(model_name, attachment_name){
-    python.exec('import fastscore.api')
-    result <- python.call('fastscore.api.remove_attachment', model_name, attachment_name)
-    if(result){
-        message(paste('Attachment', attachment_name, 'removed from', model_name))
+    result <- service.delete('model-manage',
+                paste('/1/model/', model_name, '/attachment/', attachment_name, sep=''))
+    code <- result[[1]]
+    body <- result[[2]]
+    if(code == 204){
+      message(paste('Attachment', attachment_name, 'removed from', model_name))
+      return(TRUE)
     }
-    return(result)
+    else if(code == 404){
+      message(paste('Attachment', attachment_name, 'not found'))
+      return(FALSE)
+    }
+    else{
+      stop(body)
+    }
 }
 
 #' List the names of all the attachments associated with the given model.
@@ -48,6 +81,25 @@ api.remove_attachment <- function(model_name, attachment_name){
 #' @param model_name The name of the model.
 #' @export
 api.list_attachments <- function(model_name){
-    python.exec('import fastscore.api')
-    as.list(python.call('fastscore.api.list_attachments', model_name))
+    result <- service.get('model-manage', paste('/1/model/', model_name, 'attachment', sep=''))
+    code <- result[[1]]
+    if(code == 200){
+      return(result[[2]])
+    }
+    else{
+      stop(result[[2]])
+    }
+}
+
+guess_att_ctype <- function(resource){
+    ext <- tools::file_ext(resource)
+    if(ext == '.zip'){
+        return('application/zip')
+    }
+    else if(ext=='.gz'){
+        return('application/gzip')
+    }
+    else{
+        stop(paste('Attachment', resource, 'does not have a known file type (.zip or .gz)'))
+    }
 }
