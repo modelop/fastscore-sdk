@@ -2,8 +2,9 @@
 import json
 import fastscore.api as api
 import time
-from fastscore.datatype import avroTypeToSchema, checkData
+from fastscore.datatype import avroTypeToSchema, checkData, jsonNodeToAvroType
 from fastscore.codec import to_json, recordset_from_json
+import fastscore.errors as errors
 
 class Engine(object):
     def __init__(self, proxy_prefix, model=None, container=None):
@@ -23,6 +24,7 @@ class Engine(object):
         if self.model:
             self.input_schema = self.model.input_schema
             self.output_schema = self.model.output_schema
+            self.deploy(model)
         else:
             self.input_schema = None
             self.output_schema = None
@@ -97,17 +99,25 @@ class Engine(object):
         - use_json: If True, each datum in data is expected to be a JSON string.
                     (Default: False)
         """
+        job_status = api.job_status(self.container)
+        if 'model' not in job_status or not job_status['model']:
+            raise errors.FastScoreException('No currently running model.')
+        input_schema = jsonNodeToAvroType(job_status['model']['input_schema'])
+        output_schema = jsonNodeToAvroType(job_status['model']['output_schema'])
+
+        self.input_schema = input_schema
+        self.output_schema = output_schema
+
         input_list = []
         inputs = []
         if use_json:
             inputs = [x for x in data]
         else:
-            input_schema = self.model.input_schema
             inputs = [x for x in to_json(data, input_schema)]
-            if 'recordsets' in self.model.options:
+            if 'recordsets' in job_status['model']:
                 # automatically add a {"$fastscore":"set"} message to the end
-                if self.model.options['recordsets'] == 'input' or \
-                   self.model.options['recordsets'] == 'both':
+                if job_status['model']['recordsets'] == 'input' or \
+                   job_status['model']['recordsets'] == 'both':
                     inputs += ['{"$fastscore":"set"}']
 
         for datum in inputs:
@@ -118,9 +128,9 @@ class Engine(object):
         else:
             if json.loads(outputs[-1]) == {"$fastscore": "set"}:
                 outputs = outputs[:-1]
-            if 'recordsets' in self.model.options and \
-            (self.model.options['recordsets'] == 'output' or \
-             self.model.options['recordsets'] == 'both'):
-                return recordset_from_json(outputs, self.model.output_schema)
+            if 'recordsets' in job_status['model'] and \
+            (job_status['model']['recordsets'] == 'output' or \
+             job_status['model']['recordsets'] == 'both'):
+                return recordset_from_json(outputs, output_schema)
             else:
-                return [checkData(json.loads(output), self.model.output_schema) for output in outputs]
+                return [checkData(json.loads(output), output_schema) for output in outputs]

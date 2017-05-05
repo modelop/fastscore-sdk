@@ -14,7 +14,7 @@ def list_attachments(model_name):
     if code == 200:
         return [x for x in json.loads(body.decode('utf-8'))]
     else:
-        raise FastScoreException(body.decode('utf-8'))
+        raise errors.FastScoreException(body.decode('utf-8'))
 
 def add_attachment(model_name, attachment_file):
     """
@@ -39,7 +39,7 @@ def add_attachment(model_name, attachment_file):
         print('Attachment \'%s\' updated in model \'%s\'' % (att_name, model_name))
         return True
     else:
-        raise FastScoreException(body.decode('utf-8'))
+        raise errors.FastScoreException(body.decode('utf-8'))
 
 def get_attachment(model_name, attachment_name, attachment_path=''):
     """
@@ -65,7 +65,7 @@ def get_attachment(model_name, attachment_name, attachment_path=''):
         print('Attachment \'%s\' not found' % attachment_name)
         return False
     else:
-        raise FastScoreException(att_str.decode('utf-8'))
+        raise errors.FastScoreException(att_str.decode('utf-8'))
 
 def remove_attachment(model_name, attachment_name):
     """
@@ -84,7 +84,7 @@ def remove_attachment(model_name, attachment_name):
         print('Attachment \'%s\' not found' % attachment_name)
         return False
     else:
-        raise FastScoreException(body.decode('utf-8'))
+        raise errors.FastScoreException(body.decode('utf-8'))
 
 def _guess_att_ctype(resource):
     _,ext = os.path.splitext(resource)
@@ -93,4 +93,4 @@ def _guess_att_ctype(resource):
     elif ext == '.gz':
         return 'application/gzip'
     else:
-        raise FastScoreException('Attachment %s must have the extension .zip or .gz' % resource)
+        raise errors.FastScoreException('Attachment %s must have the extension .zip or .gz' % resource)

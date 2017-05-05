@@ -83,3 +83,13 @@ api.stop_job <- function(container=NULL){
   result <- python.call('fastscore.api.stop_job', container)
   return(result)
 }
+
+#' Retrieve the status of the currently running job on the specified engine.
+#' @return A JSON object whose top-level fields are 'jets', 'model', 'input',
+#'         and 'output'
+#' @param container The name of the container to use (optional)
+#' @export
+api.job_status <- function(container=NULL){
+  python.exec('import fastscore.api')
+  python.call('fastscore.api.job_status', container)
+}

@@ -1,6 +1,8 @@
 from . import _service as service
 from .stream import get_stream
 from .model import get_model
+from .. import errors
+import json
 
 def run_job(model, input_stream, output_stream, container=None):
     """
@@ -150,3 +152,47 @@ def stop_job(container=None):
     if code != 204:
         raise Exception(body.decode('utf-8'))
     return True
+
+def job_status(container=None):
+    """
+    Retrieve the status of the currently running job on the specified engine.
+    The result is a JSON object whose top-level fields are:
+    * 'jets': Information about the current jets. Each jet has the following
+            fields:
+            * 'busy': A boolean indicating if the jet is currently busy.
+            * 'total_consumed': An integer counting the total number of inputs.
+            * 'total_produced': An integer counting the total number of outputs.
+            * 'pid': An integer indicating the process ID for this jet.
+            * 'sandbox': An integer indicating the sandbox used by this jet.
+            * 'run_time': A float indicating how long, in seconds, this jet has been running.
+            * 'memory': An integer indicating how much memory this jet is using.
+    * 'model': The content of the currently running model. Fields:
+            * 'name': The name of the current model.
+            * 'input_schema': The model's input Avro schema.
+            * 'output_schema': The model's output Avro schema.
+            * 'source': The source code of the model.
+            * 'recordsets': Whether the model uses record sets.
+            * 'type': The language of the model (e.g., 'python')
+            * 'attachments': A list of the model's attachments.
+    * 'input': Information about the model's input. Fields:
+            * 'records': The number of input records received.
+            * 'rej_sample': A sample of the rejected input records.
+            * 'bytes': The number of bytes of input records received.
+            * 'name': The name of the input stream descriptor.
+            * 'rej_records': The number of records rejected from this stream.
+    * 'output': Information about the model's output. Fields:
+            * 'records': The number of input records received.
+            * 'rej_sample': A sample of the rejected input records.
+            * 'bytes': The number of bytes of output records received.
+            * 'name': The name of the output stream descriptor.
+            * 'rej_records': The number of records rejected from this stream.
+
+    Optional fields:
+    - container: The name of the engine container to use, e.g., 'engine-x-1'
+    """
+    preferred = {service.engine_api_name():container} if container else {}
+    code,body = service.get(service.engine_api_name(), '/1/job/status', preferred=preferred)
+    if code == 200:
+        return json.loads(body.decode('utf-8'))
+    else:
+        raise errors.FastScoreException(body.decode('utf-8'))
