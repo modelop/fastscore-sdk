@@ -1,5 +1,5 @@
 
-from .mimetypes import ATTACHMENT_CONTENT_TYPES
+from .constants import ATTACHMENT_CONTENT_TYPES
 
 from .errors import FastScoreError
 

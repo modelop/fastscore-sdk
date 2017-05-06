@@ -3,8 +3,9 @@ from .instance import InstanceBase
 from ..model import Model
 from ..stream import Stream
 from ..sensor import Sensor
+from ..errors import FastScoreError
 
-from ..mimetypes import MODEL_CONTENT_TYPES
+from ..constants import MODEL_CONTENT_TYPES
 
 from fastscore.v1 import ModelManageApi
 
@@ -18,15 +19,22 @@ class ModelManage(InstanceBase):
 
         def names(self):
             try:
-                return self.mm.api.model_list(self.mm.name)
+                return self.mm.swg.model_list(self.mm.name)
             except Exception as e:
                 raise FastScoreError("Cannot list models", caused_by=e)
 
+        def __iter__(self):
+            for x in self.mm.swg.model_list(self.mm.name, _return='type'):
+                yield x
+
         def __getitem__(self, name):
             try:
-                (source,_,headers) = self.mm.api.model_get_with_http_info(self.mm.name, name)
+                (source,_,headers) = self.mm.swg.model_get_with_http_info(self.mm.name, name)
             except Exception as e:
-                raise FastScoreError("Cannot retrieve '%s' model" % name, caused_by=e)
+                if e.status == 404: # less scary
+                    raise FastScoreError("Model '%s' not found" % name)
+                else:
+                    raise FastScoreError("Cannot retrieve '%s' model" % name, caused_by=e)
             ct = headers['content-type']
             for mtype,ct1 in MODEL_CONTENT_TYPES.items():
                 if ct1 == ct:
@@ -35,7 +43,7 @@ class ModelManage(InstanceBase):
 
         def __delitem__(self, name):
             try:
-                self.mm.api.model_delete(self.mm.name, name)
+                self.mm.swg.model_delete(self.mm.name, name)
             except Exception as e:
                 raise FastScoreError("Cannot remove model '%s'" % name, caused_by=e)
 
@@ -45,20 +53,20 @@ class ModelManage(InstanceBase):
 
         def names(self):
             try:
-                return self.mm.api.stream_list(self.mm.name)
+                return self.mm.swg.stream_list(self.mm.name)
             except Exception as e:
                 raise FastScoreError("Cannot list streams", caused_by=e)
 
         def __getitem__(self, name):
             try:
-                desc = self.mm.api.stream_get(self.mm.name, name)
+                desc = self.mm.swg.stream_get(self.mm.name, name)
             except Exception as e:
                 raise FastScoreError("Cannot retrieve '%s' stream" % name, caused_by=e)
             return Stream(name, desc=desc, model_manage=self.mm)
 
         def __delitem__(self, name):
             try:
-                self.mm.api.stream_delete(self.mm.name, name)
+                self.mm.swg.stream_delete(self.mm.name, name)
             except Exception as e:
                 raise FastScoreError("Cannot remove stream '%s'" % name, caused_by=e)
 
@@ -68,25 +76,25 @@ class ModelManage(InstanceBase):
 
         def names(self):
             try:
-                return self.mm.api.sensor_list(self.mm.name)
+                return self.mm.swg.sensor_list(self.mm.name)
             except Exception as e:
                 raise FastScoreError("Cannot list sensors", caused_by=e)
 
         def __getitem__(self, name):
             try:
-                desc = self.mm.api.sensor_get(self.mm.name, name)
+                desc = self.mm.swg.sensor_get(self.mm.name, name)
             except Exception as e:
                 raise FastScoreError("Cannot retrieve '%s' sensor" % name, caused_by=e)
             return Sensor(name, desc=desc, model_manage=self.mm)
 
         def __delitem__(self, name):
             try:
-                self.mm.api.sensor_delete(self.mm.name, name)
+                self.mm.swg.sensor_delete(self.mm.name, name)
             except Exception as e:
                 raise FastScoreError("Cannot remove sensor '%s'" % name, caused_by=e)
 
     def __init__(self, name):
-        super(ModelManage, self).__init__(name, ModelManageApi())
+        super(ModelManage, self).__init__(name, 'model-manage', ModelManageApi())
         self._models = ModelManage.ModelBag(self)
         self._streams = ModelManage.StreamBag(self)
         self._sensors = ModelManage.SensorBag(self)
@@ -108,7 +116,9 @@ class ModelManage(InstanceBase):
             raise FastScoreError("Model source property not set")
         ct = MODEL_CONTENT_TYPES[model.mtype]
         try:
-            self.api.model_put(self.name, model.name, model.source, content_type=ct)
+            (_,status,_) = self.swg.model_put_with_http_info(self.name,
+                    model.name, model.source, content_type=ct)
+            return status == 204
         except Exception as e:
            raise FastScoreError("Cannot save model '%s'" % model.name)
 
@@ -116,7 +126,7 @@ class ModelManage(InstanceBase):
         if stream.desc == None:
             raise FastScoreError("Stream descriptor property not set")
         try:
-            self.api.stream_put(self.name, stream.name, stream.desc)
+            self.swg.stream_put(self.name, stream.name, stream.desc)
         except Exception as e:
            raise FastScoreError("Cannot save stream '%s'" % model.name)
 
@@ -124,7 +134,7 @@ class ModelManage(InstanceBase):
         if sensor.desc == None:
             raise FastScoreError("Sensor descriptor property not set")
         try:
-            self.api.sensor_put(self.name, sensor.name, sensor.desc)
+            self.swg.sensor_put(self.name, sensor.name, sensor.desc)
         except Exception as e:
            raise FastScoreError("Cannot save sensor '%s'" % model.name)
 

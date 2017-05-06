@@ -1,11 +1,15 @@
 
-from .mimetypes import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES
+from .constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES
 
 from .attachment import Attachment
 
 from .errors import FastScoreError
 
 class Model(object):
+
+    @property
+    def TYPES():
+        return MODEL_CONTENT_TYPES.keys()
 
     class AttachmentBag(object):
         def __init__(self, model):
@@ -76,7 +80,7 @@ class Model(object):
             raise FastScore("Model '%s' not associated with Model Manage" % self.name)
         if self._mm == None:
             self._mm = model_manage
-        self._mm.save_model(self)
+        return self._mm.save_model(self)
 
     def saved(self):
         if self._mm == None:
@@ -85,7 +89,7 @@ class Model(object):
     def list_attachments(self):
         self.saved()
         try:
-            return self._mm.api.attachment_list(self._mm.name, self.name)
+            return self._mm.swg.attachment_list(self._mm.name, self.name)
         except Exception as e:
             raise FastScoreError("Cannot list attachments", caused_by=e)
 
@@ -93,7 +97,7 @@ class Model(object):
         self.saved()
         try:
             (datafile,_,headers) = \
-                    self._mm.api.attachment_get_with_http_info(self._mm.name, \
+                    self._mm.swg.attachment_get_with_http_info(self._mm.name, \
                             self.name, name)
             ct = headers['content-type']
             for atype,ct1 in ATTACHMENT_CONTENT_TYPES.items():
@@ -106,7 +110,7 @@ class Model(object):
     def remove_attachment(self, name):
         self.saved()
         try:
-            self._mm.api.attachment_delete(self._mm.name, self.name, name)
+            self._mm.swg.attachment_delete(self._mm.name, self.name, name)
         except Exception as e:
             raise FastScoreError("Cannot remove attachment '%s'" % name, caused_by=e)
 
@@ -122,7 +126,7 @@ class Model(object):
             with open(att.datafile) as f:
                 data = f.read()
 
-            self._mm.api.attachment_put(self._mm.name, \
+            self._mm.swg.attachment_put(self._mm.name, \
                     self.name, att.name, data=data, content_type=ct)
         except Exception as e:
            raise FastScoreError("Cannot upload attachment '%s'" % att.name, \
@@ -142,21 +146,21 @@ class Model(object):
                 params['date_range'] = date_range
             if count:
                 params['count'] = count
-            return self._mm.api.snapshot_list(self._mm.name, self.name, **params)
+            return self._mm.swg.snapshot_list(self._mm.name, self.name, **params)
         except Exception as e:
             raise FastScoreError("Cannot list snapshots", caused_by=e)
 
     def get_snapshot(self, snapid):
         self.saved()
         try:
-            return self._mm.api.snapshot_get_metadata(self._mm.name, self.name, snapid)
+            return self._mm.swg.snapshot_get_metadata(self._mm.name, self.name, snapid)
         except Exception as e:
             raise FastScoreError("Cannot retrieve snapshot '%s' metadata" % snapid, caused_by=e)
 
     def remove_snapshot(self, snapid):
         self.saved()
         try:
-            self._mm.api.snapshot_delete(self._mm.name, self.name, snapid)
+            self._mm.swg.snapshot_delete(self._mm.name, self.name, snapid)
         except Exception as e:
             raise FastScoreError("Cannot remove snapshot '%s'" % snapid, caused_by=e)
 

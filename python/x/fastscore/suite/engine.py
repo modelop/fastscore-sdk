@@ -8,5 +8,5 @@ class Engine(InstanceBase):
     """
 
     def __init__(self, name):
-        super(Engine, self).__init__(name, EngineApi())
+        super(Engine, self).__init__(name, 'engine', EngineApi())
 
