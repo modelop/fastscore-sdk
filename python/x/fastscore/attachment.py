@@ -1,18 +1,18 @@
 
-from .constants import ATTACHMENT_CONTENT_TYPES
+from os.path import getsize
 
+from .constants import ATTACHMENT_CONTENT_TYPES
 from .errors import FastScoreError
 
 class Attachment(object):
-    def __init__(self, name, atype=None, datafile=None, model=None):
-        if datafile == None:
-            datafile = name
-        if atype == None:
-            atype = guess_type(datafile)
+    def __init__(self, name, atype=None, datafile=None, datasize=None, model=None):
         self._name = name
         self.atype = atype
+        self._datasize = datasize
         self.datafile = datafile
         self._model = model
+        if atype == None and datafile != None:
+            atype = guess_type(datafile)
 
     @property
     def name(self):
@@ -29,11 +29,19 @@ class Attachment(object):
 
     @property
     def datafile(self):
+        if self._datafile == None:
+            self._datafile = self._model.download_attachment(self.name)
         return self._datafile
 
     @datafile.setter
     def datafile(self, datafile):
         self._datafile = datafile
+        if datafile:
+            self._datasize = getsize(datafile)
+
+    @property
+    def datasize(self):
+        return self._datasize
 
     def upload(self, model=None):
         if model == None and self._model == None:

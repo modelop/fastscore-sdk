@@ -22,5 +22,5 @@ class Sensor(object):
             raise FastScore("Sensor '%s' not associated with Model Manage" % self.name)
         if self._mm == None:
             self._mm = model_manage
-        self._mm.save_sensor(self)
+        return self._mm.save_sensor(self)
 

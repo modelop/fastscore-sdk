@@ -18,9 +18,14 @@ class Model(object):
         def names(self):
             return self.model.list_attachments()
 
+        def __iter__(self):
+            for x in self.model.list_attachments():
+                (atype,sz) = self.model.get_attachment(x)
+                yield Attachment(x, atype, None, datasize=sz, model=self.model)
+
         def __getitem__(self, name):
-            (datafile,atype) = self.model.get_attachment(name)
-            return Attachment(name, atype=atype, datafile=datafile, model=self.model)
+            (atype,sz) = self.model.get_attachment(name)
+            return Attachment(name, atype, None, datasize=sz, model=self.model)
 
         def __delitem__(self, name):
             self.model.remove_attachment(name)
@@ -96,16 +101,24 @@ class Model(object):
     def get_attachment(self, name):
         self.saved()
         try:
-            (datafile,_,headers) = \
-                    self._mm.swg.attachment_get_with_http_info(self._mm.name, \
+            (_,_,headers) = \
+                    self._mm.swg.attachment_head_with_http_info(self._mm.name, \
                             self.name, name)
             ct = headers['content-type']
+            sz = int(headers['content-length'])
             for atype,ct1 in ATTACHMENT_CONTENT_TYPES.items():
                 if ct1 == ct:
-                    return (datafile,atype)
+                    return (atype,sz)
             raise FastScoreError("Unrecognized attachment MIME type '%s'" % ct)
         except Exception as e:
             raise FastScoreError("Cannot retrieve attachment '%s'" % name, caused_by=e)
+
+    def download_attachment(self, name):
+        self.saved()
+        try:
+            return self._mm.swg.attachment_get(self._mm.name, self.name, name)
+        except Exception as e:
+            raise FastScoreError("Cannot download attachment '%s'" % name, caused_by=e)
 
     def remove_attachment(self, name):
         self.saved()
