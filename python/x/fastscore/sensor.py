@@ -17,6 +17,9 @@ class Sensor(object):
     def desc(self, desc):
         self._desc = desc
 
+    def install(where):
+        where.install_sensor(self)
+
     def update(self, model_manage=None):
         if model_manage == None and self._mm == None:
             raise FastScore("Sensor '%s' not associated with Model Manage" % self.name)
