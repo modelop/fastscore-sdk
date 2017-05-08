@@ -1,3 +1,5 @@
+#' @include datatype.R
+
 #' Runs the named model using the specified input and output streams.
 #' @return True, if successful.
 #' @param model The name of the model in Model Manage.
@@ -109,8 +111,51 @@ api.deploy_output_stream <- function(stream_content, stream_name, container=NULL
 #' @return A list of output records (JSON strings).
 #' @export
 api.job_input <- function(input_data, container=NULL){
-  python.exec('import fastscore.api')
-  as.list(python.call('fastscore.api.job_input', input_data, container))
+  preferred = list()
+  if(!is.null(container)){
+    preferred[[service.engine_api_name()]] <- container
+  }
+  pig <- '{"$fastscore":"pig"}'
+  data <- paste(input_data, collapse='\n')
+  data <- paste(data, '\n', pig, '\n', sep='')
+
+  result <- service.post(service.engine_api_name(), '/1/job/input', data=data,
+                         preferred=preferred)
+  if(result[[1]] != 204){
+    stop(result[[2]])
+  }
+  chip = ''
+  pig_received <- FALSE
+  outputs <- list()
+  while(!pig_received){
+    result <- service.get(service.engine_api_name(), '/1/job/input', preferred=preferred)
+    if(result[[1]] != 200){
+      stop(result[[2]])
+    }
+    chunk <- paste(chip, result[[2]], sep='')
+    while(TRUE){
+      x <- regmatches(chunk, regexpr("\n", chunk), invert = TRUE)[[1]]
+      if(length(x) > 1){
+        rec <- x[[1]]
+        chunk <- x[[2]]
+        if(rec == pig){
+          pig_received <- TRUE
+          break
+        }
+        else if(length(rec) > 0){
+          outputs[[length(outputs) + 1]] <- rec
+        }
+      }
+      else{
+        chip <- x[[1]]
+        if(chip == pig){
+          pig_received <- TRUE
+        }
+        break
+      }
+    }
+  }
+  return(outputs)
 }
 
 #' Stop the current job.
@@ -118,9 +163,15 @@ api.job_input <- function(input_data, container=NULL){
 #' @param container The name of the container to use (optional)
 #' @export
 api.stop_job <- function(container=NULL){
-  python.exec('import fastscore.api')
-  result <- python.call('fastscore.api.stop_job', container)
-  return(result)
+  preferred = list()
+  if(!is.null(container)){
+    preferred[[service.engine_api_name()]] <- container
+  }
+  result <- service.delete(service.engine_api_name(), '/1/job', preferred=preferred)
+  if(result[[1]] != 204){
+    stop(result[[2]])
+  }
+  return(TRUE)
 }
 
 #' Retrieve the status of the currently running job on the specified engine.
