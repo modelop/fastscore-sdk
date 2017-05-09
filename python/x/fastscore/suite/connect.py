@@ -7,6 +7,8 @@ from .model_manage import ModelManage
 from .engine import Engine
 from ..errors import FastScoreError
 
+from ..pneumo import PneumoSock
+
 from urlparse import urlparse
 import yaml
 
@@ -38,6 +40,12 @@ class Connect(InstanceBase):
         self.prefer(instance.api, instance.name)
         self._target = instance
 
+    def pneumo(self):
+        try:
+            return PneumoSock(self._proxy_prefix)
+        except Exception as e:
+            raise FastScoreError("Unable to open Pneumo connection", caused_by=e)
+
     def lookup(self, sname):
         """Retrieves an preferred/default instance of a named service.
 
@@ -51,8 +59,7 @@ class Connect(InstanceBase):
         try:
             xx = self.swg.connect_get(self.name, api=sname)
         except Exception as e:
-            m = "Cannot retrieve fleet info"
-            raise FastScoreError(m, caused_by=e)
+            raise FastScoreError("Cannot retrieve fleet info", caused_by=e)
         for x in xx:
             if x.health == 'ok':
                 return self.get(x.name)
@@ -79,8 +86,7 @@ class Connect(InstanceBase):
         try:
             xx = self.swg.connect_get(self.name, name=name)
         except Exception as e:
-            m = "Cannot retrieve '%s' instance info" % name
-            raise FastScoreError(m, caused_by=e)
+            raise FastScoreError("Cannot retrieve '%s' instance info" % name, caused_by=e)
         if len(xx) > 0 and xx[0].health == 'ok':
             x = xx[0]
             instance = Connect.make_instance(x.api, name)
@@ -111,12 +117,11 @@ class Connect(InstanceBase):
         """
         try:
             (_,status,_) = self.swg.config_put_with_http_info(self.name, \
-                config=yaml.dump(config), \
+                config=config, \
                 content_type='application/x-yaml')
             return status == 204
         except Exception as e:
-            m = "Cannot set the FastScore configuration"
-            raise FastScoreError(m, caused_by=e)
+            raise FastScoreError("Cannot set the FastScore configuration", caused_by=e)
 
     def get_config(self, section=None):
         """Retrieves the current FastScore configuration.
@@ -165,7 +170,7 @@ class Connect(InstanceBase):
             with open(savefile, "w") as f:
                 yaml.dump(cap, stream = f)
         except Exception as e:
-            raise FastScoreError('Unable to save Connect info', caused_by=e)
+            raise FastScoreError("Unable to save Connect info", caused_by=e)
 
     @staticmethod
     def load(savefile):
@@ -178,5 +183,5 @@ class Connect(InstanceBase):
                     co.target = co.get(cap['target-name'])
                 return co
         except Exception as e:
-            raise FastScoreError('Unable to recreate a Connect instance', caused_by=e)
+            raise FastScoreError("Unable to recreate a Connect instance", caused_by=e)
         
