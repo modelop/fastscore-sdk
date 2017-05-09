@@ -1,5 +1,3 @@
-#' @include datatype.R
-
 #' Runs the named model using the specified input and output streams.
 #' @return True, if successful.
 #' @param model The name of the model in Model Manage.
@@ -10,12 +8,12 @@
 api.run_job <- function(model, input_stream, output_stream, container=NULL){
   input_desc <- api.get_stream(input_stream)
   output_desc <- api.get_stream(output_stream)
-  model_and_ctype <- get_model(model, include_ctype=TRUE)
+  model_and_ctype <- api.get_model(model, include_ctype=TRUE)
   model_desc <- model_and_ctype[[1]]
   ctype <- model_and_ctype[[2]]
-  output_set <- deploy_output_stream(output_desc, output_stream, container)
-  input_set <- deploy_input_stream(input_desc, input_stream, container)
-  model_set <- deploy_model(model_desc, model, ctype, container)
+  output_set <- api.deploy_output_stream(output_desc, output_stream, container)
+  input_set <- api.deploy_input_stream(input_desc, input_stream, container)
+  model_set <- api.deploy_model(model_desc, model, ctype, container)
   if(output_set && input_set && model_set){
     message('Engine is ready to score.')
   }
@@ -100,7 +98,7 @@ api.deploy_output_stream <- function(stream_content, stream_name, container=NULL
     stop(paste('Error setting output stream:', result[[2]]))
   }
   else{
-    message('Input stream set.')
+    message('Output stream set.')
     return(TRUE)
   }
 }

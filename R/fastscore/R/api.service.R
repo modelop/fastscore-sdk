@@ -1,14 +1,13 @@
 RELEASE <- '1.4'
 API_NAMES <- list('engine', 'model-manage', 'engine-x')
-options <- list(
-  'engine-api'='engine-x',
-  'verbose'=0,
-  'wait'=FALSE
-  )
+options <- new.env()
 
 resolved <- list()
 
 .onLoad <- function(libname, pkgname){
+  options[['engine-api']] <- 'engine-x'
+  options[['verbose']] <- 0
+  options[['wait']] <- FALSE
   # stopifnot(file.exists('.fastscore')))
   if(file.exists('.fastscore')){
     loaded <- yaml.load_file('.fastscore')
@@ -35,46 +34,47 @@ proxy_prefix <- function(){
   {
     stop('Not connected - set the proxy prefix!')
   }
+  return(options[['proxy-prefix']])
 }
 
 service.head <- function(name, path, generic=TRUE, preferred=list()){
   r <- HEAD(paste(lookup(name, generic, preferred), path, sep=''))
-  return(c(status_code(r), headers(r)))
+  return(list(status_code(r), headers(r)))
 }
 
 service.get <- function(name, path, generic=TRUE, preferred=list()){
   r <- GET(paste(lookup(name, generic, preferred), path, sep=''))
-  return(c(status_code(r), content(r)))
+  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
 service.get_str <- function(name, path, generic=TRUE, preferred=list()){
   r <- GET(paste(lookup(name, generic, preferred), path, sep=''))
-  return(c(status_code(r), content(r)))
+  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
 service.get_with_ct <- function(name, path, generic=TRUE, preferred=list()){
   r <- GET(paste(lookup(name, generic, preferred), path, sep=''))
-  return(c(status_code(r), content(r), headers(r)[['content-type']]))
+  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8'), headers(r)[['content-type']]))
 }
 
 service.put <- function(name, path, ctype, data, generic=TRUE, preferred=list()){
   r <- PUT(paste(lookup(name, generic, preferred), path, sep=''),
       add_headers('content-type'=ctype), body=data)
-  return(c(status_code(r), content(r)))
+  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
 service.put_with_headers <- function(name, path, headers, data, generic=TRUE, preferred=list()){
   r <- PUT(paste(lookup(name, generic, preferred), path, sep=''),
       add_headers(headers),
       body=data)
-  return(c(status_code(r), content(r)))
+  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
 service.put_multi <- function(name, path, parts, generic=TRUE, preferred=list()){
   r <- PUT(paste(lookup(name, generic, preferred), path, sep=''),
            body=data,
            encode='multipart')
-  return(c(status_code(r), content(r)))
+  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
 service.post <- function(name, path, ctype=NULL, data=NULL, generic=TRUE, preferred=list()){
@@ -82,12 +82,12 @@ service.post <- function(name, path, ctype=NULL, data=NULL, generic=TRUE, prefer
     r <- POST(paste(lookup(name, generic, preferred), path, sep=''),
               add_headers('content-type'=ctype),
               body=data)
-    return(c(status_code(r), content(r)))
+    return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
   }
   else{
     r <- POST(paste(lookup(name, generic, preferred), path, sep=''),
               body=data)
-    return(c(status_code(r), content(r)))
+    return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
   }
 }
 
@@ -96,18 +96,18 @@ service.post_with_ct <- function(name, path, ctype=NULL, data=NULL, generic=TRUE
     r <- POST(paste(lookup(name, generic, preferred), path, sep=''),
               add_headers('content-type'=ctype),
               body=data)
-    return(c(status_code(r), content(r), headers(r)[['content-type']]))
+    return(list(status_code(r), content(r, 'text', encoding = 'UTF-8'), headers(r)[['content-type']]))
   }
   else{
     r <- POST(paste(lookup(name, generic, preferred), path, sep=''),
               body=data)
-    return(c(status_code(r), content(r), headers(r)[['content-type']]))
+    return(list(status_code(r), content(r, 'text', encoding = 'UTF-8'), headers(r)[['content-type']]))
   }
 }
 
 service.delete <- function(name, path, generic=TRUE, preferred=list()){
   r <- DELETE(paste(lookup(name, generic, preferred), path, sep=''))
-  return(c(status_code(r), content(r)))
+  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
 lookup <- function(name, generic, preferred=list()){
@@ -130,7 +130,7 @@ lookup_api <- function(api, preferred=list()){
     if(length(fleet) == 0){
       stop(paste('No instances of', name, 'found!'))
     }
-    x <- fleet[[0]]
+    x <- fleet[[1]]
     if(x[['health']] == 'ok'){
       prefix <- paste(proxy_prefix(), '/api/1/service/', name, sep='')
       resolved[[api]] <- prefix
@@ -164,6 +164,6 @@ lookup_api <- function(api, preferred=list()){
   }
 }
 
-engine_api_name <- function(){
+service.engine_api_name <- function(){
   return('engine-x')
 }

@@ -9,7 +9,7 @@ to_json(datum, schema)
 \arguments{
 \item{datum}{An R object to encode.}
 
-\item{schema}{An Avro schema to use to encode (a string).}
+\item{schema}{An Avro schema to use to encode.}
 }
 \value{
 A JSON string.
@@ -19,5 +19,5 @@ Convert the specified datum into JSON strings using the schema
 }
 \examples{
 mylist <- as.list(c(1, 2, 3, 4))
-lapply(mylist, to_json, schema='["null", "int"]')
+lapply(mylist, to_json, schema=jsonNodeToAvroType('["null", "int"]'))
 }

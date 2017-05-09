@@ -314,22 +314,22 @@ jsonDecoder <- function(avroType, value, fromString=TRUE){
     }
   }
   if(class(avroType) == 'AvroInt'){
-    if(value == as.integer(value)){
+    if(is.numeric(value) && value == as.integer(value)){
       return(as.integer(value))
     }
   }
   if(class(avroType) == 'AvroLong'){
-    if(value == as.integer(value)){
+    if(is.numeric(value) && value == as.integer(value)){
       return(as.integer(value))
     }
   }
   if(class(avroType) == 'AvroFloat'){
-    if(value == as.double(value)){
+    if(is.numeric(value) && value == as.double(value)){
       return(as.double(value))
     }
   }
   if(class(avroType) == 'AvroDouble'){
-    if(value == as.double(value)){
+    if(is.numeric(value) && value == as.double(value)){
       return(as.double(value))
     }
   }
@@ -401,7 +401,7 @@ jsonDecoder <- function(avroType, value, fromString=TRUE){
       }
     }
   }
-  stop(paste(value, 'does not match schema', avroType))
+  stop(paste(value, 'does not match schema', avroType$name))
 }
 
 #' Encode an object as JSON, given fastscore.datatype.AvroType.
@@ -507,4 +507,114 @@ jsonEncoder <- function(avroType, value, tagged=TRUE, toString=TRUE){
     return(result)
   }
 
+}
+
+#' Check whether the given data matches the given schema.
+#' @return TRUE if data satisfies avroType, and FALSE otherwise.
+#' @param data The datum to test.
+#' @param avroType An AvroType object.
+#' @export
+checkData <- function(data, avroType){
+  if(class(avroType) == 'AvroNull'){
+    if(is.null(data)){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroBoolean'){
+    if(isTRUE(data) || isFALSE(data)){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroInt'){
+    if(is.numeric(data) || (data == as.integer(data))){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroLong'){
+      if(is.numeric(data) || (data == as.integer(data))){
+        return(TRUE)
+      }
+      else{
+        return(FALSE)
+      }
+  }
+  if(class(avroType) == 'AvroFloat'){
+    if(is.numeric(data) || (data == as.double(data))){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroDouble'){
+    if(is.numeric(data) || (data == as.double(data))){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroBytes' || class(avroType) == 'AvroFixed' || class(avroType) == 'avroString'){
+    if(is.character(data)){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroEnum'){
+    if(is.character(data) && data %in% avroType$values){
+      return(TRUE)
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroArray'){
+    if(is.list(data) || is.vector(data)){
+      return(all(lapply(data, checkData, avroType=avroType$items)))
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroMap'){
+    if(is.list(data) || is.vector(data)){
+      return(all(lapply(data, checkData, avroType=avroType$values)))
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroRecord'){
+    if(is.list(data) || is.vector(data)){
+      result <- list()
+      for(field in avroType$fields){
+        value <- data[[field$name]]
+        result[[field$name]] <- checkData(value, field$avroType)
+      }
+      return(all(result))
+    }
+    else{
+      return(FALSE)
+    }
+  }
+  if(class(avroType) == 'AvroUnion'){
+    for(type in avroType$types){
+      if(checkData(data, type)){
+        return(TRUE)
+      }
+    }
+    return(FALSE)
+  }
+  return(FALSE)
 }

@@ -86,7 +86,7 @@ api.remove_model <- function(model_name){
 api.list_models <- function(){
   result <- service.get('model-manage', '/1/model?return=type')
   if(result[[1]] == 200){
-    return(result[[2]])
+    return(rjson::fromJSON(result[[2]]))
   }
   else{
     stop(result[[2]])

@@ -9,8 +9,8 @@ setClassUnion("characterOrNull", c("character", "NULL"))
 Model <- setRefClass("Model",
     fields=list(
         action="function",
-        input_schema="character",
-        output_schema="character",
+        input_schema="AvroType",
+        output_schema="AvroType",
         options = "list",
         begin = "functionOrNull",
         end = "functionOrNull",
@@ -76,20 +76,23 @@ Model <- setRefClass("Model",
             return(output_data)
         },
         validate = function(inputs, outputs, use_json = FALSE){
-            python.exec('from fastscore.R import _R_checkData')
-            checkData <- function(datum, schema, use_json){
-                python.call('_R_checkData', datum, schema, use_json)
+            input_data <- inputs
+            output_data <- outputs
+            if(use_json){
+                input_data <- lapply(inputs, rjson::fromJSON)
+                output_data <- lapply(outputs, rjson::fromJSON)
             }
-            checked_inputs <- sapply(inputs, checkData, schema=input_schema, use_json=use_json)
+            checked_inputs <- as.logical(sapply(input_data, checkData, avroType=input_schema))
+            message(checked_inputs)
             if(!all(checked_inputs)){
                 message("Invalid input(s) encountered:")
-                message(inputs[which(checked_inputs == FALSE)])
+                message(inputs[which(checked_inputs != TRUE)])
                 return(FALSE)
             }
-            checked_outputs <- sapply(outputs, checkData, schema=output_schema, use_json=use_json)
+            checked_outputs <- as.logical(sapply(output_data, checkData, avroType=output_schema))
             if(!all(checked_outputs)){
                 message("Invalid expected output(s) encountered:")
-                message(outputs[which(checked_outputs == FALSE)])
+                message(outputs[which(checked_outputs != TRUE)])
                 return(FALSE)
             }
             scored_outputs <- .self$score(inputs, complete=TRUE, use_json=use_json)
@@ -157,8 +160,7 @@ Model <- setRefClass("Model",
 #' @export
 Model_from_string <- function(model_str, outer_namespace=new.env()){
     stopifnot(is.environment(outer_namespace))
-    python.exec('from fastscore.R import _R_split_functions')
-    dictionary <- python.call('_R_split_functions', model_str)
+    dictionary <- split_functions(model_str)
     model_code <- eval(parse(text=model_str), outer_namespace)
     options <- dictionary[['options']]
     libs <- dictionary[['libs']]
@@ -188,15 +190,63 @@ Model_from_string <- function(model_str, outer_namespace=new.env()){
     if(!is.null(options[['input']])){
         input_sch_name <- options[['input']]
         if(!is.null(outer_namespace[[input_sch_name]])){
-            model$input_schema <- outer_namespace[[input_sch_name]]
+            model$input_schema <- jsonNodeToAvroType(outer_namespace[[input_sch_name]])
         }
     }
     if(!is.null(options[['output']])){
         output_sch_name <- options[['output']]
         if(!is.null(outer_namespace[[output_sch_name]])){
-            model$output_schema <- outer_namespace[[output_sch_name]]
+            model$output_schema <- jsonNodeToAvroType(outer_namespace[[output_sch_name]])
         }
     }
 
     return(model)
+}
+
+# split a single R source string into its component import statements,
+# functions, and FastScore options.
+split_functions <- function(r_str){
+  model_options <- list()
+  model_libs <- list()
+  model_fcns <- list()
+  lines <- strsplit(r_str, '\n')[[1]]
+  fcn_str <- ''
+  fcn_name <- ''
+  levels <- 0
+  for(line in lines){
+    option <- regmatches(line,regexec('# *fastscore\\.(.*):(.*)',line))[[1]]
+    if(length(option) > 0){
+      option_name <- trimws(option[[2]])
+      option_value <- trimws(option[[3]])
+      model_options[[option_name]] <- option_value
+    }
+    lib <- regmatches(line, regexec('library\\(.*\\)', line))[[1]]
+    if(length(lib) > 0){
+      model_libs[[length(model_libs) + 1]] <- lib[[1]]
+    }
+    clean_line <- line # line may be empty string...
+    if(nchar(line) > 0){
+      clean_line <- strsplit(line, '#')[[1]][[1]]
+    }
+    match <- regmatches(clean_line, regexec('(.*)<-.*function\\(', clean_line))[[1]]
+    if(length(match) > 0 || grepl('\\{', clean_line)){
+      if(levels == 0){
+        fcn_name <- trimws(match[[2]])
+      }
+      levels <- levels + 1
+    }
+    if(levels > 0){
+      fcn_str <- paste(fcn_str, line, sep='\n')
+    }
+    if(grepl('\\}', clean_line)){
+      levels <- levels - 1
+      if(levels == 0){
+        fcn_str <- trimws(regmatches(fcn_str, regexpr('<-', fcn_str), invert=TRUE)[[1]][[2]])
+        model_fcns[[length(model_fcns) + 1]] <- list(name=fcn_name, def=fcn_str)
+        fcn_str <- ''
+        fcn_name <- ''
+      }
+    }
+  }
+  return(list('fcns'=model_fcns, 'options'=model_options, 'libs'=model_libs))
 }

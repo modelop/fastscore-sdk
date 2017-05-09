@@ -26,8 +26,8 @@ Engine <- setRefClass("Engine",
 
             # add the model, streams, and schemata to model manage
             api.add_model(model$name, model$to_string(), model_type='R')
-            api.add_schema(model$options[['input']], model$input_schema)
-            api.add_schema(model$options[['output']], model$output_schema)
+            api.add_schema(model$options[['input']], avroTypeToJsonNode(model$input_schema))
+            api.add_schema(model$options[['output']], avroTypeToJsonNode(model$output_schema))
 
             input_stream_name <- paste(model$name, '_in', sep='')
             output_stream_name <- paste(model$name, '_out', sep='')
@@ -47,6 +47,7 @@ Engine <- setRefClass("Engine",
             input_stream_desc <- paste('{"Schema": {"$ref": "', model$options[['input']], '"}, ',
             '"Envelope": "delimited", "Transport": {"Type": "REST"}, "Encoding": "json"',
             input_stream_batch, '}', sep='')
+            message(input_stream_desc)
 
             output_stream_desc <- paste('{"Schema": {"$ref": "', model$options[['output']], '"}, ',
             '"Envelope": "delimited", "Transport": {"Type": "REST"}, "Encoding": "json"',
