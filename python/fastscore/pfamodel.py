@@ -24,14 +24,17 @@ class PFAModel(Model):
         Optional fields:
         - name: a name for this model.
         """
+
         if type(pfa) is str:
             self.__pfaengine, = PFAEngine.fromYaml(pfa)
         elif type(pfa) is dict:
             self.__pfaengine, = PFAEngine.fromJson(pfa)
         else:
             raise TypeError('PFAModel field is not a PFA document.')
-        self.input_schema = _titus_to_fastscore_avrotype(self.__pfaengine.inputType)
-        self.output_schema = _titus_to_fastscore_avrotype(self.__pfaengine.outputType)
+
+        my_input_schema = _titus_to_fastscore_avrotype(self.__pfaengine.inputType)
+        my_output_schema = _titus_to_fastscore_avrotype(self.__pfaengine.outputType)
+        super(PFAModel, self).__init__(input_schema=my_input_schema, output_schema=my_output_schema)
         self.model_type = 'pfa'
         if name:
             self.name = name
