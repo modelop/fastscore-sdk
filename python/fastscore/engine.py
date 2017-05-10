@@ -5,6 +5,7 @@ import time
 from fastscore.datatype import avroTypeToSchema, checkData, jsonNodeToAvroType
 from fastscore.codec import to_json, recordset_from_json
 import fastscore.errors as errors
+from tabulate import tabulate
 
 class Engine(object):
     def __init__(self, proxy_prefix, model=None, container=None):
@@ -88,7 +89,7 @@ class Engine(object):
         print('Engine stopped.')
         api.stop_job(self.container)
 
-    def score(self, data, use_json=False):
+    def score(self, data, use_json=False, statistics=False):
         """
         Scores each datum passed in data.
 
@@ -123,6 +124,24 @@ class Engine(object):
         for datum in inputs:
             input_list += [datum.strip()]
         outputs = api.job_input(input_list, self.container)
+
+        if statistics:
+            job_status2 = api.job_status(self.container)
+            time1 = job_status['jets'][0]['run_time']
+            time2 = job_status2['jets'][0]['run_time']
+            consumed1 = job_status['jets'][0]['total_consumed']
+            consumed2 = job_status2['jets'][0]['total_consumed']
+            produced1 = job_status['jets'][0]['total_produced']
+            produced2 = job_status2['jets'][0]['total_produced']
+            total_time = time2 - time1
+            total_consumed = consumed2 - consumed1
+            total_produced = produced2 - produced1
+            rate_in = total_consumed / total_time
+            rate_out = total_produced / total_time
+            table = [[total_time, total_consumed, rate_in, total_produced, rate_out]]
+            headers = ['time', 'total-in', 'rate-in, rec/s', 'total-out', 'rate-out, rec/s']
+            print(tabulate(table, headers=headers))
+
         if use_json:
             return outputs
         else:
