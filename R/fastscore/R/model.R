@@ -83,7 +83,6 @@ Model <- setRefClass("Model",
                 output_data <- lapply(outputs, from_json, schema=.self$output_schema)
             }
             checked_inputs <- as.logical(sapply(input_data, checkData, avroType=input_schema))
-            message(checked_inputs)
             if(!all(checked_inputs)){
                 message("Invalid input(s) encountered:")
                 message(inputs[which(checked_inputs != TRUE)])
