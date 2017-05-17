@@ -126,7 +126,7 @@ api.job_input <- function(input_data, container=NULL){
   pig_received <- FALSE
   outputs <- list()
   while(!pig_received){
-    result <- service.get(service.engine_api_name(), '/1/job/input', preferred=preferred)
+    result <- service.get(service.engine_api_name(), '/1/job/output', preferred=preferred)
     if(result[[1]] != 200){
       stop(result[[2]])
     }
@@ -184,7 +184,7 @@ api.job_status <- function(container=NULL){
   }
   result <- service.get(service.engine_api_name(), '/1/job/status', preferred=preferred)
   if(result[[1]] == 200){
-    return(result[[2]])
+    return(rjson::fromJSON(result[[2]]))
   }
   else{
     stop(result[[2]])
