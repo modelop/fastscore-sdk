@@ -602,7 +602,7 @@ checkData <- function(data, avroType){
         value <- data[[field$name]]
         result[[field$name]] <- checkData(value, field$avroType)
       }
-      return(all(result))
+      return(all(as.logical(result)))
     }
     else{
       return(FALSE)

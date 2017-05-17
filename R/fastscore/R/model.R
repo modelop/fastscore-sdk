@@ -79,8 +79,8 @@ Model <- setRefClass("Model",
             input_data <- inputs
             output_data <- outputs
             if(use_json){
-                input_data <- lapply(inputs, rjson::fromJSON)
-                output_data <- lapply(outputs, rjson::fromJSON)
+                input_data <- lapply(inputs, from_json, schema=.self$input_schema)
+                output_data <- lapply(outputs, from_json, schema=.self$output_schema)
             }
             checked_inputs <- as.logical(sapply(input_data, checkData, avroType=input_schema))
             message(checked_inputs)
@@ -96,14 +96,17 @@ Model <- setRefClass("Model",
                 return(FALSE)
             }
             scored_outputs <- .self$score(inputs, complete=TRUE, use_json=use_json)
-            if(!isTRUE(all.equal(scored_outputs, outputs))){
+            if(use_json){
+              scored_outputs <- lapply(scored_outputs, from_json, schema=.self$output_schema)
+            }
+            if(!isTRUE(all.equal(scored_outputs, output_data))){
                 message("Scored outputs differ from validation outputs:")
                 for(i in 1:length(scored_outputs)){
-                    if(typeof(scored_outputs[[i]]) != typeof(outputs[[i]])){
-                        message(paste(scored_outputs[[i]], '!=', outputs[[i]], '(type mismatch)'))
+                    if(typeof(scored_outputs[[i]]) != typeof(output_data[[i]])){
+                        message(paste(scored_outputs[[i]], '!=', output_data[[i]], '(type mismatch)'))
                     }
-                    if(scored_outputs[[i]] != outputs[[i]]){
-                        message(paste(scored_outputs[[i]], '!=', outputs[[i]], '(value mismatch)'))
+                    if(!isTRUE(all.equal(scored_outputs[[i]], output_data[[i]]))){
+                        message(paste(scored_outputs[[i]], '!=', output_data[[i]], '(value mismatch)'))
                     }
                 }
                 return(FALSE)
