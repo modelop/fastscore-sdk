@@ -1,8 +1,6 @@
 
 from ..errors import FastScoreError
 
-import yaml
-
 class InstanceBase(object):
     """
     The parent of all FastScore instance classes.
@@ -93,8 +91,7 @@ class InstanceBase(object):
 
         """
         try:
-            spec = self.swg.swagger_get(self.name, accept='application/x-yaml')
-            return yaml.load(spec)
+            return self.swg.swagger_get(self.name)
         except Exception as e:
             raise FastScoreError("Cannot retrieve Swagger specification", caused_by=e)
 

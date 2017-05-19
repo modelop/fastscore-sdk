@@ -18,7 +18,7 @@ class Stream(object):
         self._desc = desc
 
     def sample(self, engine, n=None):
-        return engine.sample_stream(self.desc, n)
+        return engine.sample_stream(self, n)
 
     def update(self, model_manage=None):
         if model_manage == None and self._mm == None:
