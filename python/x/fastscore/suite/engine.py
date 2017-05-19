@@ -65,18 +65,6 @@ class Engine(InstanceBase):
         return self._outputs
 
     def load_model(self, model, force_inline=False):
-        """
-        Loads/replaces the model.
-
-        :param model: the :class:`.Model` object
-        :param force_inline: Do not externalize large attachments
-
-        >>> mm = connect.lookup('model-manage')
-        >>> model = mm.models['model-1']
-        >>> engine = connect.lookup('engine')
-        >>> engine.load_model(model, force_inline=True)
-
-        """
 
         def maybe_externalize(att):
             ctype = ATTACHMENT_CONTENT_TYPES[att.atype]
@@ -141,13 +129,6 @@ class Engine(InstanceBase):
             raise FastScoreError("Unable to load model '%s'" % model.name, caused_by=e)
 
     def unload_model(self):
-        """
-        Unloads the model. Currently unloading the model destroys input/output
-        streams too.
-
-        .. todo:: use model_unload() when supported by the engine
-
-        """
         try:
             self.swg.job_delete(self.name)
         except Exception as e:
@@ -163,9 +144,6 @@ class Engine(InstanceBase):
             raise FastScoreError("Unable to scale model", caused_by=e)
 
     def sample_stream(self, stream, n):
-        """
-        Retrieve the sample of data from a stream.
-        """
         try:
             if n:
                 return self.swg.stream_sample(self.name, stream.desc, n=n)
