@@ -1,4 +1,5 @@
 from . import _service as service
+from .attachment import list_attachments
 from .stream import get_stream
 from .model import get_model
 from .. import errors
@@ -20,14 +21,15 @@ def run_job(model, input_stream, output_stream, container=None):
     input_desc = get_stream(input_stream)
     output_desc = get_stream(output_stream)
     model_desc, ctype = get_model(model, include_ctype=True)
+    attachments = [_get_att(model, att_name) for att_name in list_attachments(model) ]
     output_set = deploy_output_stream(output_desc, output_stream, container)
     input_set = deploy_input_stream(input_desc, input_stream, container)
-    model_set = deploy_model(model_desc, model, ctype, container)
+    model_set = deploy_model(model_desc, model, ctype, attachments, container)
     if output_set and input_set and model_set:
         print('Engine is ready to score.')
     return output_set and input_set and model_set
 
-def deploy_model(model_content, model_name, ctype, container=None):
+def deploy_model(model_content, model_name, ctype, attachments = [], container=None):
     """
     Deploys the named model to the engine. Returns True if successful.
 
@@ -38,12 +40,14 @@ def deploy_model(model_content, model_name, ctype, container=None):
 
     Optional fields:
     - container: The name of the engine container to use, e.g., 'engine-x-1'
+    - attachments: A list of attachments to include.
     """
     preferred = {service.engine_api_name():container} if container else {}
-    headers_model = {"content-type": ctype,
-                     "content-disposition": "x-model; name=\"" + model_name + "\""}
-    code_model, body_model = service.put_with_headers(service.engine_api_name(),
-                             '/1/job/model', headers_model, model_content, preferred=preferred)
+
+    parts = [ ('attachment', x) for x in attachments]
+    parts.append( ('x-model', (model_name, model_content, ctype)) )
+
+    code_model, body_model = service.put_multi(service.engine_api_name(), '/1/job/model', parts, preferred=preferred)
 
     if code_model != 204:
         raise Exception('Error setting model: ' + body_model.decode('utf-8'))
@@ -196,3 +200,25 @@ def job_status(container=None):
         return json.loads(body.decode('utf-8'))
     else:
         raise errors.FastScoreException(body.decode('utf-8'))
+
+def _get_att(model_name, att_name):
+    """
+    Return the externalized attachment. Result is a tuple with the following
+    fields:
+    - attachment_name
+    - attachment_body
+    - ext_type
+    """
+    code, headers = service.head('model-manage', '/1/model/%s/attachment/%s' % (model_name, att_name))
+    if code != 200:
+        raise errors.FastScoreException('Unable to retrieve attachment.')
+    ctype = headers['content-type']
+    size = int(headers['content-length'])
+    ext_type = 'message/external-body; ' + \
+               'access-type=x-model-manage; ' + \
+               'ref="urn:fastscore:attachment:%s:%s"' % (model_name, att_name)
+    body = 'Content-Type: %s\r\n' % ctype + \
+           'Content-Disposition: attachment; filename="%s"\r\n' % att_name + \
+           'Content-Length: %d\r\n' % size + \
+           '\r\n'
+    return (att_name, body, ext_type)
