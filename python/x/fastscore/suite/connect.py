@@ -170,12 +170,13 @@ class Connect(InstanceBase):
         """
         try:
             if section:
-                return self.swg.config_get(self.name, \
+                conf = self.swg.config_get(self.name, \
                     q=section, \
                     accept='application/x-yaml')
             else:
-                return self.swg.config_get(self.name, \
+                conf = self.swg.config_get(self.name, \
                     accept='application/x-yaml')
+            return yaml.load(conf)
         except Exception as e:
             if e.status == 404:
                 return None ## not yet configured
