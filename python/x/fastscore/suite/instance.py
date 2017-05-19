@@ -85,7 +85,12 @@ class InstanceBase(object):
 
     def get_swagger(self):
         """
-        Retrieves the Swagger API specification.
+        Retrieves the Swagger specification of the API supported by the
+        instance.
+
+        >>> connect.get_swagger()
+        {u'info':...}
+
         """
         try:
             spec = self.swg.swagger_get(self.name, accept='application/x-yaml')
@@ -96,12 +101,24 @@ class InstanceBase(object):
     def install_sensor(self, sensor):
         """
         Install/attach a sensor to the instance.
+
+        :param sensor: a sensor instance
+
+        >>> mm = connect.lookup('model-manage')
+        >>> engine.connect.lookup('engine')
+        >>> engine.install_sensor(mm.sensors['sensor-1'])
+
         """
         return self.swg.active_sensor_attach(self.name, sensor.desc)
 
     def uninstall_sensor(self, tapid):
         """
         Uninstall/detach a sensor from the instance.
+
+        :param tapid: the id of the installed sensor
+
+        >>> engine.uninstall_sensor(8)
+
         """
         self.swg.active_sensor_detach(self.name, tapid)
 

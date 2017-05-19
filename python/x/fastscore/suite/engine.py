@@ -40,13 +40,43 @@ class Engine(InstanceBase):
     
     @property
     def inputs(self):
+        """
+        A collection of input stream slots. Slots are numbered starting with 1.
+
+        >>> mm = connect.lookup('model-manage')
+        >>> engine = connect.lookup('engine')
+        >>> engine.inputs[1] = mm.streams['stream-1']
+
+        """
+
         return self._inputs
 
     @property
     def outputs(self):
+        """
+        A collection of output stream slots. Slots are numbered starting with 1.
+
+        >>> mm = connect.lookup('model-manage')
+        >>> engine = connect.lookup('engine')
+        >>> engine.outputs[1] = mm.streams['stream-1']
+
+        """
+
         return self._outputs
 
     def load_model(self, model, force_inline=False):
+        """
+        Loads/replaces the model.
+
+        :param model: the :class:`.Model` object
+        :param force_inline: Do not externalize large attachments
+
+        >>> mm = connect.lookup('model-manage')
+        >>> model = mm.models['model-1']
+        >>> engine = connect.lookup('engine')
+        >>> engine.load_model(model, force_inline=True)
+
+        """
 
         def maybe_externalize(att):
             ctype = ATTACHMENT_CONTENT_TYPES[att.atype]
@@ -111,28 +141,36 @@ class Engine(InstanceBase):
             raise FastScoreError("Unable to load model '%s'" % model.name, caused_by=e)
 
     def unload_model(self):
+        """
+        Unloads the model. Currently unloading the model destroys input/output
+        streams too.
+
+        .. todo:: use model_unload() when supported by the engine
+
+        """
         try:
-
-            ##TODO
-            ##TODO use model_unload() when supported by the engine
-            ##TODO
-
             self.swg.job_delete(self.name)
         except Exception as e:
             raise FastScoreError("Unable to unload model", caused_by=e)
 
     def scale(self, n):
+        """
+        Changes the number of running model instances.
+        """
         try:
             self.swg.job_scale(self.name, n)
         except Exception as e:
             raise FastScoreError("Unable to scale model", caused_by=e)
 
-    def sample_stream(self, desc, n):
+    def sample_stream(self, stream, n):
+        """
+        Retrieve the sample of data from a stream.
+        """
         try:
             if n:
-                return self.swg.stream_sample(self.name, desc, n=n)
+                return self.swg.stream_sample(self.name, stream.desc, n=n)
             else:
-                return self.swg.stream_sample(self.name, desc)
+                return self.swg.stream_sample(self.name, stream.desc)
         except Exception as e:
             raise FastScoreError("Unable to sample stream", caused_by=e)
 
