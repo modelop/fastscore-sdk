@@ -1,6 +1,6 @@
 
-from fastscore.v1 import configuration
-from fastscore.v1 import ConnectApi
+from ..v1 import configuration
+from ..v1 import ConnectApi
 
 from .instance import InstanceBase
 from .model_manage import ModelManage
@@ -16,10 +16,25 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class Connect(InstanceBase):
-    """A reference to a Connect instance.
+    """An instance of a Connect service.
+
+    Typically, interaction with FastScore starts as follows:
+
+    >>> from fastscore.suite import Connect
+    >>> connect = Connect("https://localhost:8000")
+
+    Afterwards, you can use 'connect' to access other FastScore instances.
+    For example,
+
+    >>> engine = connect.lookup('engine') 
+
     """
 
     def __init__(self, proxy_prefix):
+        """
+        :param proxy_prefix: URL of the FastScore proxy endpoint
+        """
+
         # https://localhost/api/1/service
         x = urlparse(configuration.host)
         base_path = x.path
@@ -33,6 +48,14 @@ class Connect(InstanceBase):
 
     @property
     def target(self):
+        """
+        Gets/Sets the target instance. When set, the target instance also
+        becomes the preferred instance of the service it represents.
+
+        >>> engine = connect.get('engine-3')
+        >>> connect.target = engine
+
+        """
         return self._target
 
     @target.setter
@@ -41,18 +64,20 @@ class Connect(InstanceBase):
         self._target = instance
 
     def pneumo(self):
+        """
+        Creates a Pneumo socket. See :class:`.PneumoSock`.
+        """
         try:
             return PneumoSock(self._proxy_prefix)
         except Exception as e:
             raise FastScoreError("Unable to open Pneumo connection", caused_by=e)
 
     def lookup(self, sname):
-        """Retrieves an preferred/default instance of a named service.
+        """
+        Retrieves an preferred/default instance of a named service.
 
-        Args:
-            sname: A FastScore service name, e.g. 'model-manage'.
-        Returns:
-            A FastScore instance object.
+        :param sname: a FastScore service name, e.g. 'model-manage'.
+        :returns: a FastScore instance object.
         """
         if sname in self._preferred:
             return self.get(self._preferred[sname])
@@ -72,12 +97,11 @@ class Connect(InstanceBase):
         raise FastScoreError(m)
 
     def get(self, name):
-        """Retrieves a (cached) reference to the named instance.
+        """
+        Retrieves a (cached) reference to the named instance.
 
-        Args:
-            name: A FastScore instance name.
-        Returns:
-            A FastScore instance object.
+        :param name: a FastScore instance name.
+        :returns: a FastScore instance object.
         """
         if name == 'connect':
             return self
@@ -99,20 +123,25 @@ class Connect(InstanceBase):
         raise FastScoreError(m)
 
     def prefer(self, sname, name):
-        """Marks the named instance as preferred for a given service.
+        """
+        Marks the named instance as preferred for a given service.
 
-        Args:
-            sname: A FastScore service name, e.g. 'model-manage'.
-            name: The name of preferred instance of the given service.
+        >>> connect.prefer('engine', 'engine-3')
+
+        :param sname: a FastScore service name, e.g. 'model-manage'.
+        :param name: the name of preferred instance of the given service.
         """
         self._preferred[sname] = name
 
     def configure(self, config):
-        """Sets the FastScore configuration.
+        """
+        Sets the FastScore configuration.
 
-        Args:
-            config: A dict describing a FastScore configuration.
-        Returns: True if an existing configuration has been replaced and False
+        >>> with open('config.yaml') as f: 
+        >>>   connect.configure(yaml.load(f))
+
+        :param config: a dict describing a FastScore configuration.
+        :returns: True if an existing configuration has been replaced and False
             otherwise.
         """
         try:
@@ -124,12 +153,20 @@ class Connect(InstanceBase):
             raise FastScoreError("Cannot set the FastScore configuration", caused_by=e)
 
     def get_config(self, section=None):
-        """Retrieves the current FastScore configuration.
+        """
+        Retrieves the current FastScore configuration.
 
-        Args:
-            section: Gets only the named section of the configuration
-        Returns:
-            A dict with the FastScore configuration.
+        >>> connect.config('db')
+        {
+          'username': 'root',
+          'host': 'database',
+          'password': 'root',
+          'type': 'mysql',
+          'port': 3306
+        }
+
+        :param section: gets only the named section of the configuration
+        :returns: a dict with the FastScore configuration.
         """
         try:
             if section:
@@ -145,7 +182,19 @@ class Connect(InstanceBase):
             raise FastScoreError("Cannot retrieve configuration", caused_by=e)
 
     def fleet(self):
-        """Retrieve metadata of all running instances.
+        """
+        Retrieves metadata for all running instances.
+
+        :returns: an array of dicts describing running FastScore instances. Each
+            dict contains the following fields:
+
+            * api: the service name, e.g. 'model-manage'
+            * built_on: the human-readable build date and time
+            * health: the current health status of the instance.
+            * host: the host name of the instance REST API
+            * port: the port of the instance REST API
+            * release: the instance release, e.g '1.5'
+            * id: the internal instance id (do not use)
         """
         try:
             return self.swg.connect_get(self.name)
@@ -161,6 +210,12 @@ class Connect(InstanceBase):
             return Engine(name)
 
     def dump(self, savefile):
+        """
+        Saves the Connect parameters to a file.
+
+        >>> connect.dump(".fastscore")
+
+        """
         try:
             cap = {
                 'proxy-prefix': self._proxy_prefix,
@@ -174,6 +229,12 @@ class Connect(InstanceBase):
 
     @staticmethod
     def load(savefile):
+        """
+        Recreates a Connect instance from a file.
+
+        >>> connect = Connect.load(".fastscore")
+
+        """
         try:
             with open(savefile, "r") as f:
                 cap = yaml.load(f)

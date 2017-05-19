@@ -1,6 +1,11 @@
 
 class FastScoreError(Exception):
-    """FastScore exception.
+    """
+    A FastScore exception.
+
+    SDK functions throw only FastScoreError exceptions. An SDK function is
+    either succeeds or throws and exception. The return value of a SDK function
+    is always valid.
     """
 
     def __init__(self, message, caused_by=None):

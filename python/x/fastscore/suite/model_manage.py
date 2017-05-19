@@ -11,7 +11,12 @@ from ..constants import MODEL_CONTENT_TYPES
 from fastscore.v1 import ModelManageApi
 
 class ModelManage(InstanceBase):
-    """A Model Manage instance.
+    """
+    An instance of a Model Manage service. Use :class:`.Connect` to create a
+    ModelManage instance:
+
+    >>> mm = connect.lookup('model-manage')
+
     """
 
     class ModelBag(object):
@@ -147,10 +152,40 @@ class ModelManage(InstanceBase):
 
     @property
     def models(self):
+        """
+        A collection of :class:`.Model` objects indexed by model name.
+
+        >>> mm.models.names()
+        [u'model-1']
+        >>> model = mm.models['model-1']
+        >>> model.mtype
+        'python'
+        >>> del mm.models['model-1']
+        >>> mm.models.names()
+        []
+
+        """
         return self._models
 
     @property
     def schemata(self):
+        """
+        A collection of :class:`.Schema` objects indexed schema name. The
+        alternative name for the property is 'schemas'.
+
+        >>> from fastscore import Schema
+        >>> s = Schema('schema-1')
+        >>> s.source = '{"type": "string"}'
+        >>> s.update(mm)
+        False   # Success; schema created, not updated
+        >>> mm.schemata.names()
+        ['schema-1']
+        >>> del mm.schemata['schema-1']
+        >>> mm.schemata.names()
+        []
+
+        """
+
         return self._schemata
 
     @property
@@ -159,10 +194,39 @@ class ModelManage(InstanceBase):
 
     @property
     def streams(self):
+        """
+        A collection of :class:`.Stream` objects indexed by stream name.
+
+        >>> mm.streams.names()
+        ['demo-1','demo-2]
+        >>> mm.streams['demo-1'].desc
+        {u'Description': u'A demo stream... }
+        >>> del.strems['demo-2']
+        >> mm.streams.names()
+        ['demo-1']
+
+        """
+
         return self._streams
 
     @property
     def sensors(self):
+        """
+        A collection of :class:`.Sensor` objects indexed by sensor name.
+
+        >>> from fastscore import Sensor
+        >>> s = Sensor('sensor-1')
+        >>> s.desc = {'tap': 'manifold.input.records.size',... }
+        >>> s.update(mm)
+        False   # Success; sensor created, not updated
+        >>> mm.sensors.names()
+        ['sensor-1']
+        >>> del mm.sensors['sensor-1']
+        >>> mm.sensors.names()
+        []
+
+        """
+
         return self._sensors
 
     def save_model(self, model):

@@ -7,14 +7,32 @@ from ssl import CERT_NONE
 PNEUMO_WS_PATH = '/api/1/service/connect/1/notify'
 
 class PneumoSock(object):
+    """
+    The Pneumo websocket.
+
+    >>> pneumo = connect.pneumo()
+    >>> pneumo.recv()
+	<fastscore.pneumo.LogMsg object at 0x7f4918265150>
+
+    .. todo::
+
+       Add __str__() methods to all Pneumo messages.
+
+    """
     def __init__(self, proxy_prefix):
         url = proxy_prefix.replace('https:', 'wss:') + PNEUMO_WS_PATH
         self._ws = create_connection(url, sslopt = {'cert_reqs': CERT_NONE})
 
     def recv(self):
+        """
+        Receives the next Pneumo message (blocking).
+        """
         return PneumoSock.make_message(json.loads(self._ws.recv()))
 
     def close(self):
+        """
+        Close the Pneumo socket.
+        """
         self._ws.close()
 
     @staticmethod

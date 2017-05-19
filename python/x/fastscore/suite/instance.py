@@ -1,8 +1,11 @@
 
 from ..errors import FastScoreError
 
+import yaml
+
 class InstanceBase(object):
-    """The parent of all FastScore instance classes.
+    """
+    The parent of all FastScore instance classes.
     """
 
     class ActiveSensorBag(object):
@@ -27,14 +30,53 @@ class InstanceBase(object):
 
     @property
     def active_sensors(self):
+        """
+        A collection of currently installed sensors indexed by tapid.
+
+        >>> engine = connect.lookup('engine')
+        >>> list(engine.active_sensors)
+        [
+          {
+            'id': 8,
+            'tap': 'manifold.input.records.count',
+            'active': False     # not currently active
+          },
+          ...
+        ]
+        >>> engine.active_sensors[8]
+        {
+          'id': 8,
+          'tap': 'manifold.input.records.count',
+          'permanent': True     # 'permanent' activation schedule
+        }
+        >>> del engine.active_sensors[8]
+
+        """
         return self._active_sensors
    
     @property
     def tapping_points(self):
+        """
+        A list of supported tapping points.
+
+        >>> mm.tapping_points
+        ['sys.memory',... ]
+
+        """
         return self.swg.active_sensor_available(self.name)
 
     def check_health(self):
-        """Retrieve information about the instance including its health.
+        """
+        Retrieve information about the instance. A successful reply indicates
+        that the instance is healthy.
+
+        >>> connect.check_health()
+        {
+          'id': '366e5030-d773-49cb-8b28-9b1b9d173c79',
+          'built_on': 'Thu May 11 12:53:39 UTC 2017',
+          'release': '1.5'
+        }
+
         """
         try:
             return self.swg.health_get(self.name)
@@ -42,16 +84,24 @@ class InstanceBase(object):
             raise FastScoreError("Cannot retrieve instance info", caused_by=e)
 
     def get_swagger(self):
-        """Retrieves the Swagger API specification.
+        """
+        Retrieves the Swagger API specification.
         """
         try:
-            return self.swg.swagger_get(self.name)
+            spec = self.swg.swagger_get(self.name, accept='application/x-yaml')
+            return yaml.load(spec)
         except Exception as e:
             raise FastScoreError("Cannot retrieve Swagger specification", caused_by=e)
 
     def install_sensor(self, sensor):
+        """
+        Install/attach a sensor to the instance.
+        """
         return self.swg.active_sensor_attach(self.name, sensor.desc)
 
     def uninstall_sensor(self, tapid):
+        """
+        Uninstall/detach a sensor from the instance.
+        """
         self.swg.active_sensor_detach(self.name, tapid)
 

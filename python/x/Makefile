@@ -5,7 +5,7 @@ OUT_DIR := fastscore/api
 
 JAVA_OPTS := -DapiTests=false -DmodelTests=false
 
-default: v1-api
+default: docs
 
 v1-api: suite-proxy.yaml
 	java $(JAVA_OPTS) -jar ~/bin/swagger-codegen-cli.jar generate \
@@ -14,3 +14,11 @@ v1-api: suite-proxy.yaml
     -c cg.json \
     -o $(OUT_DIR) \
 
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+SPHINXPROJ    = FastScoreSDK
+SOURCEDIR     = docs/source
+BUILDDIR      = docs/build
+
+docs: Makefile
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
