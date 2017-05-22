@@ -18,13 +18,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class Connect(InstanceBase):
     """An instance of a Connect service.
 
-    Typically, interaction with FastScore starts as follows:
+    Typically, an interaction with FastScore starts with:
 
     >>> from fastscore.suite import Connect
     >>> connect = Connect("https://localhost:8000")
 
     Afterwards, you can use 'connect' to access other FastScore instances.
-    For example,
+    For example:
 
     >>> engine = connect.lookup('engine') 
 
@@ -76,6 +76,10 @@ class Connect(InstanceBase):
         """
         Retrieves an preferred/default instance of a named service.
 
+        >>> engine = connect.lookup('engine')
+        >>> engine.name
+        'engine-1'
+
         :param sname: a FastScore service name, e.g. 'model-manage'.
         :returns: a FastScore instance object.
         """
@@ -99,6 +103,10 @@ class Connect(InstanceBase):
     def get(self, name):
         """
         Retrieves a (cached) reference to the named instance.
+
+        >>> mm = connect.get('model-manage-1')
+        >>> mm.name
+        'model-manage-1'
 
         :param name: a FastScore instance name.
         :returns: a FastScore instance object.
@@ -127,6 +135,9 @@ class Connect(InstanceBase):
         Marks the named instance as preferred for a given service.
 
         >>> connect.prefer('engine', 'engine-3')
+        >>> engine = connect.lookup('engine')
+        >>> engine.name
+        'engine-3'
 
         :param sname: a FastScore service name, e.g. 'model-manage'.
         :param name: the name of preferred instance of the given service.
@@ -139,9 +150,10 @@ class Connect(InstanceBase):
 
         >>> with open('config.yaml') as f: 
         >>>   connect.configure(yaml.load(f))
+        False
 
         :param config: a dict describing a FastScore configuration.
-        :returns: True if an existing configuration has been replaced and False
+        :returns: True, if an existing configuration has been replaced and False,
             otherwise.
         """
         try:
@@ -189,13 +201,13 @@ class Connect(InstanceBase):
         :returns: an array of dicts describing running FastScore instances. Each
             dict contains the following fields:
 
-            * api: the service name, e.g. 'model-manage'
-            * built_on: the human-readable build date and time
-            * health: the current health status of the instance.
-            * host: the host name of the instance REST API
-            * port: the port of the instance REST API
-            * release: the instance release, e.g '1.5'
-            * id: the internal instance id (do not use)
+            * **id**: the internal instance id (do not use)
+            * **api**: the service name, e.g. 'model-manage'
+            * **release**: the instance release, e.g '1.5'
+            * **built_on**: the human-readable build date and time
+            * **host**: the host name of the instance REST API
+            * **port**: the port of the instance REST API
+            * **health**: the current health status of the instance.
         """
         try:
             return self.swg.connect_get(self.name)

@@ -12,11 +12,12 @@ An example of an interaction with FastScore::
 
   >>> import fastscore
   >>> connect = fastscore.Connect("https://localhost:8000")
-  >>> mm = connect.lookup('model-manage')
-  >>> model = fastscore.Model('model-l')
+  >>> model = fastscore.Model('model-1')
   >>> model.source = '...'
+  >>> mm = connect.lookup('model-manage')
   >>> model.update(mm)
   >>> mm.models.names()
+  ['model-1']
   >>> del mm.models['model-1']
 
 The User Guide

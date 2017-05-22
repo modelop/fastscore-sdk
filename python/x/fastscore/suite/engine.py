@@ -9,7 +9,8 @@ from fastscore.v1 import EngineApi
 from fastscore import FastScoreError
 
 class Engine(InstanceBase):
-    """An Engine instance.
+    """
+    An Engine instance.
     """
 
     MAX_INLINE_ATTACHMENT = 1024*1024
@@ -44,11 +45,13 @@ class Engine(InstanceBase):
         A collection of input stream slots. Slots are numbered starting with 1.
 
         >>> mm = connect.lookup('model-manage')
+        >>> stream = mm.streams['stream-1']
         >>> engine = connect.lookup('engine')
-        >>> engine.inputs[1] = mm.streams['stream-1']
+        >>> engine.inputs[1] = stream
+
+        .. todo:: Detach/close input stream
 
         """
-
         return self._inputs
 
     @property
@@ -57,11 +60,13 @@ class Engine(InstanceBase):
         A collection of output stream slots. Slots are numbered starting with 1.
 
         >>> mm = connect.lookup('model-manage')
+        >>> stream = mm.streams['stream-1']
         >>> engine = connect.lookup('engine')
-        >>> engine.outputs[1] = mm.streams['stream-1']
+        >>> engine.outputs[1] = stream
+
+        .. todo:: Detach/close output stream
 
         """
-
         return self._outputs
 
     def load_model(self, model, force_inline=False):

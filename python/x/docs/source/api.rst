@@ -39,6 +39,18 @@ Models
 .. autoclass:: fastscore.Model
    :members:
 
+Attachments
+-----------
+
+.. autoclass:: fastscore.Attachment
+   :members:
+
+Snapshots
+---------
+
+.. autoclass:: fastscore.Snapshot
+   :members:
+
 Streams
 -------
 

@@ -4,7 +4,7 @@ class FastScoreError(Exception):
     A FastScore exception.
 
     SDK functions throw only FastScoreError exceptions. An SDK function is
-    either succeeds or throws and exception. The return value of a SDK function
+    either succeeds or throws an exception. The return value of a SDK function
     is always valid.
     """
 

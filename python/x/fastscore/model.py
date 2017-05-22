@@ -6,6 +6,27 @@ from .attachment import Attachment
 from .errors import FastScoreError
 
 class Model(object):
+    """
+    Represents an analytic model. A model can be created directly:
+
+    >>> model = fastscore.Model('model-1')
+    >>> model.mtype = 'python'
+    >>> model.source = '...'
+
+    Or, retrieved from a Model Manage instance:
+
+    >>> mm = connect.lookup('model-manage')
+    >>> model = mm.models['model-1']
+
+    A directly-created model must be saved to make attachment and snapshot
+    manipulation functions available:
+
+    >>> mm = connect.lookup('model-manage')
+    >>> model.update(mm)
+    >>> model.attachments.names()
+    []
+
+    """
 
     @property
     def TYPES():
@@ -53,10 +74,26 @@ class Model(object):
 
     @property
     def name(self):
+        """
+        A model name, e.g. 'model-1'.
+        """
         return self._name
 
     @property
     def mtype(self):
+        """
+        A model type:
+
+        * **pfa-json**: a PFA model in JSON format.
+        * **pfa-yaml**: a PFA model in YAML format.
+        * **pfa-pretty**: a PrettyPFA model.
+        * **python**: a Python model.
+        * **python3**: a Python 3 model.
+        * **R**: an R model.
+        * **java**: a Java model.
+        * **c**: a C model.
+
+        """
         return self._mtype
 
     @mtype.setter
@@ -66,6 +103,9 @@ class Model(object):
 
     @property
     def source(self):
+        """
+        The source code of the model.
+        """
         return self._source
 
     @source.setter
@@ -74,6 +114,9 @@ class Model(object):
 
     @property
     def attachments(self):
+        """
+        A collection of model attachments. See :class:`.Attachment`.
+        """
         return self._attachments
 
     @property

@@ -29,7 +29,7 @@ class InstanceBase(object):
     @property
     def active_sensors(self):
         """
-        A collection of currently installed sensors indexed by tapid.
+        A collection of currently installed sensors indexed by id.
 
         >>> engine = connect.lookup('engine')
         >>> list(engine.active_sensors)
@@ -55,7 +55,7 @@ class InstanceBase(object):
     @property
     def tapping_points(self):
         """
-        A list of supported tapping points.
+        A list of tapping points supported by the instance.
 
         >>> mm.tapping_points
         ['sys.memory',... ]
@@ -65,7 +65,7 @@ class InstanceBase(object):
 
     def check_health(self):
         """
-        Retrieve information about the instance. A successful reply indicates
+        Retrieves version information from the instance. A successful reply indicates
         that the instance is healthy.
 
         >>> connect.check_health()
