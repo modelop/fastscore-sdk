@@ -237,6 +237,6 @@ get_att <- function(model_name, att_name){
                     '"', sep='')
   body <- paste('Content-Type: ', ctype, '\r\n',
                 'Content-Disposition: attachment; filename="', att_name, '"\r\n',
-                'Content-Length: ', as.character(size), '\r\n')
+                'Content-Length: ', as.character(size), '\r\n', sep='')
   return(list('name'=att_name, 'body'=body, 'content-type'=ext_type))
 }
