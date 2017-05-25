@@ -11,9 +11,12 @@ api.run_job <- function(model, input_stream, output_stream, container=NULL){
   model_and_ctype <- api.get_model(model, include_ctype=TRUE)
   model_desc <- model_and_ctype[[1]]
   ctype <- model_and_ctype[[2]]
+  attachments <- list()
+  # attachments <- api.list_attachments(model)
+  # attachments <- lapply(get_att, attachments, model_name=model)
   output_set <- api.deploy_output_stream(output_desc, output_stream, container)
   input_set <- api.deploy_input_stream(input_desc, input_stream, container)
-  model_set <- api.deploy_model(model_desc, model, ctype, container)
+  model_set <- api.deploy_model(model_desc, model, ctype, attachments, container)
   if(output_set && input_set && model_set){
     message('Engine is ready to score.')
   }
@@ -27,18 +30,43 @@ api.run_job <- function(model, input_stream, output_stream, container=NULL){
 #' @param ctype The content-type disposition for the model.
 #' @param container The name of the container to use (optional)
 #' @export
-api.deploy_model <- function(model_content, model_name, ctype, container=NULL){
+api.deploy_model <- function(model_content, model_name, ctype, attachments = list(), container=NULL){
   preferred = list()
   if(!is.null(container)){
     preferred[[service.engine_api_name()]] <- container
   }
+
   headers_model <- c('content-type'=ctype,
-                     'content-disposition'=paste('x-model; name="', model_name, '"', sep=''))
+                   'content-disposition'=paste('x-model; name="', model_name, '"', sep=''))
   result <- service.put_with_headers(service.engine_api_name(),
               '/1/job/model',
               headers_model,
               model_content,
               preferred=preferred)
+  code <- result[[1]]
+  if(code != 204){
+    stop(paste('Error setting model:', result[[2]]))
+  }
+  else{
+    message('Model deployed to engine.')
+    return(TRUE)
+  }
+
+
+  # new way
+
+  parts <- attachments
+  message(parts)
+  parts[[length(parts) + 1]] <- list('name'=model_name,
+                                    'body'=model_content,
+                                    'content-type'=ctype,
+                                    'content-disposition'=paste('x-model; name="', model_name, '"', sep=''))
+
+  result <- service.put_multi(service.engine_api_name(),
+                              '/1/job/model',
+                              parts,
+                              preferred=preferred)
+
   code <- result[[1]]
   if(code != 204){
     stop(paste('Error setting model:', result[[2]]))
@@ -189,4 +217,25 @@ api.job_status <- function(container=NULL){
   else{
     stop(result[[2]])
   }
+}
+
+#' @export
+get_att <- function(model_name, att_name){
+  result <- service.head('model-manage', paste('/1/model/', model_name, '/attachment/', att_name, sep=''))
+  if(result[[1]] != 200){
+    stop('Unable to retrieve attachment.')
+  }
+  ctype <- headers[['content-type']]
+  size <- as.integer(headers[['content-length']])
+  ext_type <- paste('message/external-body; ',
+                    'access-type=x-model-manage; ',
+                    'ref="urn:fastscore:attachment:',
+                    model_name,
+                    ':',
+                    att_name,
+                    '"', sep='')
+  body <- paste('Content-Type: ', ctype, '\r\n',
+                'Content-Disposition: attachment; filename="', att_name, '"\r\n',
+                'Content-Length: ', as.character(size), '\r\n')
+  return(list('name'=att_name, 'body'=body, 'content-type'=ext_type))
 }

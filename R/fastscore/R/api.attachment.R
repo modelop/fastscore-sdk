@@ -81,10 +81,10 @@ api.remove_attachment <- function(model_name, attachment_name){
 #' @param model_name The name of the model.
 #' @export
 api.list_attachments <- function(model_name){
-    result <- service.get('model-manage', paste('/1/model/', model_name, 'attachment', sep=''))
+    result <- service.get('model-manage', paste('/1/model/', model_name, '/attachment', sep=''))
     code <- result[[1]]
     if(code == 200){
-      return(result[[2]])
+      return(rjson::fromJSON(result[[2]]))
     }
     else{
       stop(result[[2]])

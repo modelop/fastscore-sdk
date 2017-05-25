@@ -47,7 +47,9 @@ def deploy_model(model_content, model_name, ctype, attachments = [], container=N
     parts = [ ('attachment', x) for x in attachments]
     parts.append( ('x-model', (model_name, model_content, ctype)) )
 
-    code_model, body_model = service.put_multi(service.engine_api_name(), '/1/job/model', parts, preferred=preferred)
+    code_model, body_model = service.put_multi(service.engine_api_name(),
+                                               '/1/job/model',
+                                               parts, preferred=preferred)
 
     if code_model != 204:
         raise Exception('Error setting model: ' + body_model.decode('utf-8'))

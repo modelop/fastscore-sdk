@@ -4,7 +4,8 @@
 \alias{api.deploy_model}
 \title{Deploys the named model.}
 \usage{
-api.deploy_model(model_content, model_name, ctype, container = NULL)
+api.deploy_model(model_content, model_name, ctype, attachments = list(),
+  container = NULL)
 }
 \arguments{
 \item{model_content}{The contents of the model.}

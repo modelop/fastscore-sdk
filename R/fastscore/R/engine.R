@@ -26,6 +26,9 @@ Engine <- setRefClass("Engine",
 
             # add the model, streams, and schemata to model manage
             api.add_model(model$name, model$to_string(), model_type='R')
+            for(attachment in model$attachments){
+                api.add_attachment(model$name, attachment)
+            }
             api.add_schema(model$options[['input']], avroTypeToJsonNode(model$input_schema))
             api.add_schema(model$options[['output']], avroTypeToJsonNode(model$output_schema))
 
