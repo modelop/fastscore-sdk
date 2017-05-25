@@ -12,8 +12,8 @@ api.run_job <- function(model, input_stream, output_stream, container=NULL){
   model_desc <- model_and_ctype[[1]]
   ctype <- model_and_ctype[[2]]
   attachments <- list()
-  # attachments <- api.list_attachments(model)
-  # attachments <- lapply(get_att, attachments, model_name=model)
+  attachments <- api.list_attachments(model)
+  attachments <- lapply(attachments, get_att, model_name=model)
   output_set <- api.deploy_output_stream(output_desc, output_stream, container)
   input_set <- api.deploy_input_stream(input_desc, input_stream, container)
   model_set <- api.deploy_model(model_desc, model, ctype, attachments, container)
@@ -225,6 +225,7 @@ get_att <- function(model_name, att_name){
   if(result[[1]] != 200){
     stop('Unable to retrieve attachment.')
   }
+  headers <- result[[2]]
   ctype <- headers[['content-type']]
   size <- as.integer(headers[['content-length']])
   ext_type <- paste('message/external-body; ',
