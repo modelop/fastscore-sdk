@@ -66,7 +66,7 @@ service.get_with_ct <- function(name, path, generic=TRUE, preferred=list()){
 #' @export
 service.put <- function(name, path, ctype, data, generic=TRUE, preferred=list()){
   r <- PUT(paste(lookup(name, generic, preferred), path, sep=''),
-      add_headers('content-type'=ctype), body=data)
+      add_headers('Content-Type'=ctype), body=data)
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
@@ -83,52 +83,11 @@ service.put_multi <- function(name, path, parts, generic=TRUE, preferred=list())
   # The format of parts is a list of 4-item tuples
   # of the form (name, body, content-type, content-disposition)
   # e.g. ('example_py_model', '...', 'application/vnd.fastscore.model-python', 'x-model')
-
-  # example request
-  headers_model <- c('content-type'=ctype,
-                     'content-disposition'=paste('x-model; name="', model_name, '"', sep=''))
-  '
-multipart/mixed; boundary=---------------------------636310721297930000
-850
-  '
-  '
-  -----------------------------636310721297930000
-Content-Type: application/vnd.fastscore.model-python
-Content-Disposition: x-model; name="example_py_model"
-
-# fastscore.input: sch_in
-# fastscore.output: sch_out
-# fastscore.recordsets: both
-
-import numpy as np
-import pandas as pd
-import pickle
-
-def action(datum):
-    datum[\'z\'] = model_params[\'a\']*datum[\'x\'] - model_params[\'b\']*datum[\'y\']
-    yield datum
-
-
-def begin():
-    global model_params
-    model_params = pickle.load(open(\'model_params.pkl\', \'rb\'))
-
-
------------------------------636310721297930000
-Content-Type: message/external-body; access-type="x-model-manage"; ref="urn:fastscore:attachment:example_py_model:attachment.tar.gz"
-
-Content-Type: application/gzip
-Content-Disposition: attachment; filename="attachment.tar.gz"
-
-
------------------------------636310721297930000--
-'
-
   boundary <- as.character(runif(1, 0, 100)) # generate a random string
-  headers <- c('content-type'=paste('multipart/mixed; boundary=', boundary, sep=''))
+  headers <- c('Content-Type'=paste('multipart/mixed; boundary=', boundary, sep=''))
   body <- ''
   for(part in parts){
-    body <- paste(body, '--', boundary, '\r\n',
+    body <- paste(body, '\r\n--', boundary, '\r\n',
                   'Content-Type: ', part[['content-type']], '\r\n', sep='')
     if(!is.null(part[['content-disposition']])){
       body <- paste(body, 'Content-Disposition: ', part[['content-disposition']], '\r\n', sep='')
@@ -136,8 +95,6 @@ Content-Disposition: attachment; filename="attachment.tar.gz"
     body <- paste(body, '\r\n', part[['body']], '\r\n', sep='')
   }
   body <- paste(body, '--', boundary, '--', '\r\n', sep='')
-
-  message(body)
 
   r <- PUT(paste(lookup(name, generic, preferred), path, sep=''),
            add_headers(headers),

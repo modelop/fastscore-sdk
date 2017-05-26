@@ -36,27 +36,7 @@ api.deploy_model <- function(model_content, model_name, ctype, attachments = lis
     preferred[[service.engine_api_name()]] <- container
   }
 
-  headers_model <- c('content-type'=ctype,
-                   'content-disposition'=paste('x-model; name="', model_name, '"', sep=''))
-  result <- service.put_with_headers(service.engine_api_name(),
-              '/1/job/model',
-              headers_model,
-              model_content,
-              preferred=preferred)
-  code <- result[[1]]
-  if(code != 204){
-    stop(paste('Error setting model:', result[[2]]))
-  }
-  else{
-    message('Model deployed to engine.')
-    return(TRUE)
-  }
-
-
-  # new way
-
   parts <- attachments
-  message(parts)
   parts[[length(parts) + 1]] <- list('name'=model_name,
                                     'body'=model_content,
                                     'content-type'=ctype,
@@ -168,7 +148,7 @@ api.job_input <- function(input_data, container=NULL){
           pig_received <- TRUE
           break
         }
-        else if(length(rec) > 0){
+        else if(nchar(rec) > 0){
           outputs[[length(outputs) + 1]] <- rec
         }
       }

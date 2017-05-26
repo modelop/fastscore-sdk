@@ -10,8 +10,8 @@ api.add_attachment <- function(model_name, attachment_file){
     att_name <- basename(attachment_file)
     candb <- service.put('model-manage',
                 paste('/1/model/', model_name,
-                      '/attachment', att_name, sep=''),
-                guess_att_ctype(attachment_file), upload_file(attachment_file))
+                      '/attachment/', att_name, sep=''),
+                ctype=guess_att_ctype(attachment_file), upload_file(attachment_file))
     code <- candb[[1]]
     if(code == 201){
       message(paste('Attachment', att_name, 'added to model', model_name))
@@ -93,10 +93,10 @@ api.list_attachments <- function(model_name){
 
 guess_att_ctype <- function(resource){
     ext <- tools::file_ext(resource)
-    if(ext == '.zip'){
+    if(ext == 'zip'){
         return('application/zip')
     }
-    else if(ext=='.gz'){
+    else if(ext=='gz'){
         return('application/gzip')
     }
     else{
