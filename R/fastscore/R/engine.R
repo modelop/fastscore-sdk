@@ -103,7 +103,7 @@ Engine <- setRefClass("Engine",
                 return(outputs)
             }
             else{
-                lastitem <- RJSONIO::fromJSON(outputs[[length(outputs)]])
+                lastitem <- rjson::fromJSON(outputs[[length(outputs)]])
                 if('$fastscore' %in% names(lastitem) && lastitem[['$fastscore']] == 'set'){
                     outputs <- outputs[1:(length(outputs)-1)]
                 }
