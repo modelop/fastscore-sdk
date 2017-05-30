@@ -1,6 +1,7 @@
 
 from ..v1 import configuration
 from ..v1 import ConnectApi
+from ..v1.rest import ApiException
 
 from .instance import InstanceBase
 from .model_manage import ModelManage
@@ -34,6 +35,12 @@ class Connect(InstanceBase):
         """
         :param proxy_prefix: URL of the FastScore proxy endpoint
         """
+
+        if not '://' in proxy_prefix:
+            raise FastScoreError("Proxy prefix must be an URL, e.g. https://dashboard:8000")
+
+        if not proxy_prefix.startswith('https:'):
+            raise FastScoreError("Proxy prefix must use HTTPS scheme")
 
         # https://localhost/api/1/service
         x = urlparse(configuration.host)
@@ -156,6 +163,10 @@ class Connect(InstanceBase):
         :returns: True, if an existing configuration has been replaced and False,
             otherwise.
         """
+
+        if not isinstance(config, dict):
+            raise FastScoreError("Configuration must be a dictionary")
+
         try:
             (_,status,_) = self.swg.config_put_with_http_info(self.name, \
                 config=config, \
@@ -180,8 +191,12 @@ class Connect(InstanceBase):
         :param section: gets only the named section of the configuration
         :returns: a dict with the FastScore configuration.
         """
+
         try:
             if section:
+                # Swagger does not check parameter type
+                if not isinstance(section, str):
+                    raise TypeError("Section must be a string")
                 conf = self.swg.config_get(self.name, \
                     q=section, \
                     accept='application/x-yaml')
@@ -190,7 +205,7 @@ class Connect(InstanceBase):
                     accept='application/x-yaml')
             return yaml.load(conf)
         except Exception as e:
-            if e.status == 404:
+            if isinstance(e, ApiException) and e.status == 404:
                 return None ## not yet configured
             raise FastScoreError("Cannot retrieve configuration", caused_by=e)
 

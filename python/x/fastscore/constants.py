@@ -3,6 +3,7 @@ MODEL_CONTENT_TYPES = {
     'pfa-json':   'application/vnd.fastscore.model-pfa+json',
     'pfa-yaml':   'application/vnd.fastscore.model-pfa-yaml',
     'pfa-pretty': 'application/vnd.fastscore.model-pfa-pretty',
+    'h2o-java':   'application/vnd.fastscore.model-h2o-java',
     'python':     'application/vnd.fastscore.model-python',
     'python3':    'application/vnd.fastscore.model-python3',
     'R':          'application/vnd.fastscore.model-r',

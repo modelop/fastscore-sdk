@@ -2,6 +2,7 @@
 from .constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES
 
 from .attachment import Attachment
+from .snapshot import Snapshot
 
 from .errors import FastScoreError
 
