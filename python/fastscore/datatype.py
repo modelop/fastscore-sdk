@@ -8,7 +8,7 @@ import six
 import avro.io # do we need this?
 import avro.schema
 
-import fastscore.errors
+import fastscore.errors as errors
 import fastscore.utils as utils
 from fastscore.utils import ts
 
@@ -906,18 +906,18 @@ def jsonDecoder(avroType, value):
         except (ValueError, TypeError):
             pass
     elif isinstance(avroType, AvroBytes):
-        if isinstance(value, str):
+        if isinstance(value, six.string_types):
             return bytes(value)
     elif isinstance(avroType, AvroFixed):
-        if isinstance(value, str):
+        if isinstance(value, six.string_types):
             out = bytes(value)
             if len(out) == avroType.size:
                 return out
     elif isinstance(avroType, AvroString):
-        if isinstance(value, str):
+        if isinstance(value, six.string_types):
             return value
     elif isinstance(avroType, AvroEnum):
-        if isinstance(value, str) and value in avroType.symbols:
+        if isinstance(value, six.string_types) and value in avroType.symbols:
             return value
     elif isinstance(avroType, AvroArray):
         if isinstance(value, (list, tuple)):
@@ -976,15 +976,15 @@ def jsonEncoder(avroType, value, tagged=True):
         return float(value)
     elif isinstance(avroType, AvroDouble) and isinstance(value, (int, float)) and value is not True and value is not False:
         return float(value)
-    elif isinstance(avroType, AvroBytes) and isinstance(value, str):
+    elif isinstance(avroType, AvroBytes) and isinstance(value, six.string_types):
         return value
-    elif isinstance(avroType, AvroFixed) and isinstance(value, str):
+    elif isinstance(avroType, AvroFixed) and isinstance(value, six.string_types):
         out = bytes(value)
         if len(out) == avroType.size:
             return out
-    elif isinstance(avroType, AvroString) and isinstance(value, str):
+    elif isinstance(avroType, AvroString) and isinstance(value, six.string_types):
         return value
-    elif isinstance(avroType, AvroEnum) and isinstance(value, str) and value in avroType.symbols:
+    elif isinstance(avroType, AvroEnum) and isinstance(value, six.string_types) and value in avroType.symbols:
         return value
     elif isinstance(avroType, AvroArray) and isinstance(value, (list, tuple)):
         return [jsonEncoder(avroType.items, x, tagged) for x in value]
