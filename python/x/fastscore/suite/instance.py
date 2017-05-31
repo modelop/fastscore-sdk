@@ -1,4 +1,6 @@
 
+from fastscore.live import ActiveSensor
+
 from ..errors import FastScoreError
 
 class InstanceBase(object):
@@ -10,12 +12,24 @@ class InstanceBase(object):
         def __init__(self, inst):
             self._inst = inst
 
+        def ids(self):
+            return [ x['id'] for x in self ]
+
         def __iter__(self):
-            for x in self._inst.swg.active_sensor_list(self._inst.name):
-                yield x
+            try:
+                for x in self._inst.swg.active_sensor_list(self._inst.name):
+                    yield ActiveSensor(x['id'], x['tap'])
+            except Exception as e:
+                raise FastScoreError("Cannot retrieve active sensors", caused_by=e)
 
         def __getitem__(self, tapid):
-            return self._inst.swg.active_sensor_describe(self._inst.name, tapid)
+            try:
+                x = self._inst.swg.active_sensor_describe(self._inst.name, tapid)
+            except Exception as e:
+                if e.status == 404:
+                    raise FastScoreError("Active sensor #%d not found" % tapid)
+                else:
+                    raise FastScoreError("Cannot retrieve active sensor", caused_by=e)
 
         def __delitem__(self, tapid):
             return self._inst.uninstall_sensor(tapid)
@@ -32,22 +46,16 @@ class InstanceBase(object):
         A collection of currently installed sensors indexed by id.
 
         >>> engine = connect.lookup('engine')
-        >>> list(engine.active_sensors)
-        [
-          {
-            'id': 8,
-            'tap': 'manifold.input.records.count',
-            'active': False     # not currently active
-          },
-          ...
-        ]
-        >>> engine.active_sensors[8]
-        {
-          'id': 8,
-          'tap': 'manifold.input.records.count',
-          'permanent': True     # 'permanent' activation schedule
-        }
-        >>> del engine.active_sensors[8]
+        >>> engine.active_sensors.ids()
+        [8]
+        >>> x = engine.active_sensors[8]
+        >>> x.id
+        8
+        >>> x.tap
+        manifold.input.records.count
+        >>> x.uninstall()
+        >>> engine.active_sensors.ids()
+        []
 
         """
         return self._active_sensors

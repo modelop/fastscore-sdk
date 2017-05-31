@@ -6,6 +6,19 @@ from .snapshot import Snapshot
 
 from .errors import FastScoreError
 
+class ModelMetadata(object):
+    def __init__(self, name, mtype):
+        self._name = name
+        self._mtype = mtype
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def mtype(self):
+        return self._mtype
+
 class Model(object):
     """
     Represents an analytic model. A model can be created directly:

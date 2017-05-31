@@ -1,4 +1,12 @@
 
+class SensorMetadata(object):
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
 class Sensor(object):
     """
     Represents a FastScore sensor. A sensor can be created directly:

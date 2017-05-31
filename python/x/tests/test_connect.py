@@ -1,6 +1,8 @@
 
 from fastscore.suite import Connect
 
+from fastscore.live import ActiveSensor
+
 from fastscore import FastScoreError
 
 from unittest import TestCase
@@ -100,6 +102,13 @@ class ConnectTests(TestCase):
     @patch('fastscore.suite.connect.ConnectApi.active_sensor_list')
     def test_active_sensors(self, sensor_list):
         self.connect.active_sensors.ids()
+        sensor_list.assert_called_once_with('connect')
+
+    @patch('fastscore.suite.connect.ConnectApi.active_sensor_list',
+            return_value=[{'id':1,'tap':'dummy'}])
+    def test_active_sensors(self, sensor_list):
+        for x in self.connect.active_sensors:
+            self.assertIsInstance(x, ActiveSensor)
         sensor_list.assert_called_once_with('connect')
 
     @patch('fastscore.suite.connect.ConnectApi.active_sensor_available')

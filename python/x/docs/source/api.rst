@@ -42,13 +42,13 @@ Models
 Attachments
 -----------
 
-.. autoclass:: fastscore.Attachment
+.. autoclass:: fastscore.model.Attachment
    :members:
 
 Snapshots
 ---------
 
-.. autoclass:: fastscore.Snapshot
+.. autoclass:: fastscore.model.Snapshot
    :members:
 
 Streams

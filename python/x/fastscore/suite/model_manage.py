@@ -1,9 +1,9 @@
 
 from .instance import InstanceBase
-from ..model import Model
-from ..schema import Schema
-from ..stream import Stream
-from ..sensor import Sensor
+from ..model import Model, ModelMetadata
+from ..schema import Schema, SchemaMetadata
+from ..stream import Stream, StreamMetadata
+from ..sensor import Sensor, SensorMetadata
 from ..errors import FastScoreError
 
 from ..constants import MODEL_CONTENT_TYPES
@@ -31,7 +31,7 @@ class ModelManage(InstanceBase):
 
         def __iter__(self):
             for x in self.mm.swg.model_list(self.mm.name, _return='type'):
-                yield x
+                yield ModelMetadata(x['name'], x['type'])
 
         def __getitem__(self, name):
             try:
@@ -46,6 +46,9 @@ class ModelManage(InstanceBase):
                 if ct1 == ct:
                     return Model(name, mtype=mtype, source=source, model_manage=self.mm)
             raise FastScoreError("Unexpected model MIME type '%s'" % ct)
+
+        def __setitem__(self, name, what):
+            raise FastScoreError("Model assignment not allowed (use update() method)")
 
         def __delitem__(self, name):
             try:
@@ -66,6 +69,13 @@ class ModelManage(InstanceBase):
             except Exception as e:
                 raise FastScoreError("Cannot list schemas", caused_by=e)
 
+        def __iter__(self):
+            try:
+                for x in self.mm.swg.schema_list(self.mm.name):
+                    yield SchemaMetadata(x)
+            except Exception as e:
+                raise FastScoreError("Cannot iterate schemas", caused_by=e)
+
         def __getitem__(self, name):
             try:
                 source = self.mm.swg.schema_get(self.mm.name, name)
@@ -75,6 +85,9 @@ class ModelManage(InstanceBase):
                 else:
                     raise FastScoreError("Cannot retrieve '%s' schema" % name, caused_by=e)
             return Schema(name, source=source, model_manage=self.mm)
+
+        def __setitem__(self, name, what):
+            raise FastScoreError("Schema assignment not allowed (use update() method)")
 
         def __delitem__(self, name):
             try:
@@ -95,6 +108,10 @@ class ModelManage(InstanceBase):
             except Exception as e:
                 raise FastScoreError("Cannot list streams", caused_by=e)
 
+        def __iter__(self):
+            for x in self.mm.swg.stream_list(self.mm.name):
+                yield StreamMetadata(x)
+
         def __getitem__(self, name):
             try:
                 desc = self.mm.swg.stream_get(self.mm.name, name)
@@ -104,6 +121,9 @@ class ModelManage(InstanceBase):
                 else:
                     raise FastScoreError("Cannot retrieve '%s' stream" % name, caused_by=e)
             return Stream(name, desc, model_manage=self.mm)
+
+        def __setitem__(self, name, what):
+            raise FastScoreError("Stream assignment not allowed (use update() method")
 
         def __delitem__(self, name):
             try:
@@ -124,6 +144,13 @@ class ModelManage(InstanceBase):
             except Exception as e:
                 raise FastScoreError("Cannot list sensors", caused_by=e)
 
+        def __iter__(self):
+            try:
+                for x in self.mm.swg.sensor_list(self.mm.name):
+                    yield SensorMetadata(x)
+            except Exception as e:
+                raise FastScoreError("Cannot iterate sensors", caused_by=e)
+
         def __getitem__(self, name):
             try:
                 desc = self.mm.swg.sensor_get(self.mm.name, name)
@@ -133,6 +160,9 @@ class ModelManage(InstanceBase):
                 else:
                     raise FastScoreError("Cannot retrieve '%s' sensor" % name, caused_by=e)
             return Sensor(name, desc=desc, model_manage=self.mm)
+
+        def __setitem__(self, name, what):
+            raise FastScoreError("Sensor assignment not allowed (use update() method")
 
         def __delitem__(self, name):
             try:
