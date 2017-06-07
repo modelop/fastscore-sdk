@@ -9,7 +9,7 @@ from_json(datum, schema)
 \arguments{
 \item{datum}{The JSON string to deserialize.}
 
-\item{schema}{The Avro schema to use for deserialization (a string).}
+\item{schema}{The Avro schema to use for deserialization.}
 }
 \value{
 An object.
@@ -19,5 +19,5 @@ Deserialize a JSON string into an R object.
 }
 \examples{
 mylist <- as.list(c('{"int":1}', '{"int":2}', '{"int":3}'))
-lapply(mylist, from_json, schema='["null", "int"]')
+lapply(mylist, from_json, schema=jsonNodeToAvroType('["null", "int"]'))
 }

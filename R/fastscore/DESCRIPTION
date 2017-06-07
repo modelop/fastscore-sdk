@@ -3,17 +3,20 @@ Title: FastScore Jupyter SDK
 Version: 0.0.0.9000
 Authors@R: person("Matthew", "Mahowald", email = "matthew.mahowald@opendatagroup.com", role = c("aut", "cre"))
 Description: FastScore R SDK and Jupyter Notebook extensions
-Depends: R (>= 3.3.2), RJSONIO, rPython
+Depends: R (>= 3.3.2), rjson, yaml, httr
 License: TBD
 Encoding: UTF-8
 LazyData: true
 Collate:
+    'api.attachment.R'
+    'api.service.R'
     'api.connect.R'
     'api.job.R'
     'api.model.R'
     'api.schema.R'
     'api.stream.R'
     'codec.R'
+    'datatype.R'
     'model.R'
     'engine.R'
     'utils.R'

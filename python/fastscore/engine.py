@@ -1,9 +1,11 @@
 ## -- Engine class -- ##
 import json
-import api
+import fastscore.api as api
 import time
-from titus.datatype import avroTypeToSchema, checkData
-from codec import to_json, recordset_from_json
+from fastscore.datatype import avroTypeToSchema, checkData, jsonNodeToAvroType
+from fastscore.codec import to_json, recordset_from_json
+import fastscore.errors as errors
+from tabulate import tabulate
 
 class Engine(object):
     def __init__(self, proxy_prefix, model=None, container=None):
@@ -20,6 +22,13 @@ class Engine(object):
         """
         api.connect(proxy_prefix)
         self.model = model
+        if self.model:
+            self.input_schema = self.model.input_schema
+            self.output_schema = self.model.output_schema
+            self.deploy(model)
+        else:
+            self.input_schema = None
+            self.output_schema = None
         self.container = container
 
     def deploy(self, model):
@@ -30,8 +39,14 @@ class Engine(object):
         - model: The model object to deploy.
         """
         api.stop_job(self.container)
+        if not model.model_type:
+            raise AttributeError('Unknown model type!')
         self.model = model
-        api.add_model(model.name, model.to_string(), model_type='python2')
+        self.input_schema = model.input_schema
+        self.output_schema = model.output_schema
+        api.add_model(model.name, model.to_string(), model_type=model.model_type)
+        for attachment in model.attachments:
+            api.add_attachment(model.name, attachment)
         api.add_schema(model.options['input'], model.input_schema.toJson())
         api.add_schema(model.options['output'], model.output_schema.toJson())
 
@@ -71,10 +86,10 @@ class Engine(object):
         """
         Stop all running jobs on the engine.
         """
-        print 'Engine stopped.'
+        print('Engine stopped.')
         api.stop_job(self.container)
 
-    def score(self, data, use_json=False):
+    def score(self, data, use_json=False, statistics=False):
         """
         Scores each datum passed in data.
 
@@ -85,30 +100,56 @@ class Engine(object):
         - use_json: If True, each datum in data is expected to be a JSON string.
                     (Default: False)
         """
+        job_status = api.job_status(self.container)
+        if 'model' not in job_status or not job_status['model']:
+            raise errors.FastScoreException('No currently running model.')
+        input_schema = jsonNodeToAvroType(job_status['model']['input_schema'])
+        output_schema = jsonNodeToAvroType(job_status['model']['output_schema'])
+
+        self.input_schema = input_schema
+        self.output_schema = output_schema
+
         input_list = []
         inputs = []
         if use_json:
             inputs = [x for x in data]
         else:
-            input_schema = self.model.input_schema
             inputs = [x for x in to_json(data, input_schema)]
-            if 'recordsets' in self.model.options:
+            if 'recordsets' in job_status['model']:
                 # automatically add a {"$fastscore":"set"} message to the end
-                if self.model.options['recordsets'] == 'input' or \
-                   self.model.options['recordsets'] == 'both':
+                if job_status['model']['recordsets'] == 'input' or \
+                   job_status['model']['recordsets'] == 'both':
                     inputs += ['{"$fastscore":"set"}']
 
         for datum in inputs:
             input_list += [datum.strip()]
         outputs = api.job_input(input_list, self.container)
+
+        if statistics:
+            job_status2 = api.job_status(self.container)
+            time1 = job_status['jets'][0]['run_time']
+            time2 = job_status2['jets'][0]['run_time']
+            consumed1 = job_status['jets'][0]['total_consumed']
+            consumed2 = job_status2['jets'][0]['total_consumed']
+            produced1 = job_status['jets'][0]['total_produced']
+            produced2 = job_status2['jets'][0]['total_produced']
+            total_time = time2 - time1
+            total_consumed = consumed2 - consumed1
+            total_produced = produced2 - produced1
+            rate_in = total_consumed / total_time
+            rate_out = total_produced / total_time
+            table = [[total_time, total_consumed, rate_in, total_produced, rate_out]]
+            headers = ['time', 'total-in', 'rate-in, rec/s', 'total-out', 'rate-out, rec/s']
+            print(tabulate(table, headers=headers))
+
         if use_json:
             return outputs
         else:
             if json.loads(outputs[-1]) == {"$fastscore": "set"}:
                 outputs = outputs[:-1]
-            if 'recordsets' in self.model.options and \
-            (self.model.options['recordsets'] == 'output' or \
-             self.model.options['recordsets'] == 'both'):
-                return recordset_from_json(outputs, self.model.output_schema)
+            if 'recordsets' in job_status['model'] and \
+            (job_status['model']['recordsets'] == 'output' or \
+             job_status['model']['recordsets'] == 'both'):
+                return recordset_from_json(outputs, output_schema)
             else:
-                return [checkData(json.loads(output), self.model.output_schema) for output in outputs]
+                return [checkData(json.loads(output), output_schema) for output in outputs]

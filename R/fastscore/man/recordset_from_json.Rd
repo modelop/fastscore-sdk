@@ -10,14 +10,14 @@ recordset_from_json(data, schema)
 \arguments{
 \item{data}{The list of JSON strings}
 
-\item{schema}{The Avro schema to use for deserialization (a string)}
+\item{schema}{The Avro schema to use for deserialization}
 }
 \description{
 Deserialize a list of JSON strings (representing a record set)
 into a data frame or matrix.
 }
 \examples{
-schem <- '{"type":"record", "name":"myrecord", "fields":[{"type":"int", "name":"x"}, {"type":"int", "name":"y"}]}'
+schem <- jsonNodeToAvroType('{"type":"record", "name":"myrecord", "fields":[{"type":"int", "name":"x"}, {"type":"int", "name":"y"}]}')
 jsonlist <- list('{"x":1, "y":2}', '{"x":2, "y":3}', '{"x":2, "y":4}')
 recordset_from_json(jsonlist, schem)
 }

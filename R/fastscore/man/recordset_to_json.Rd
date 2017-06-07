@@ -9,7 +9,7 @@ recordset_to_json(recordset, schema)
 \arguments{
 \item{recordset}{The record set (a Data Frame or Matrix)}
 
-\item{schema}{The Avro schema to use (a string)}
+\item{schema}{The Avro schema to use}
 }
 \description{
 Serialize a record set into a list of JSON strings

@@ -26,8 +26,11 @@ Engine <- setRefClass("Engine",
 
             # add the model, streams, and schemata to model manage
             api.add_model(model$name, model$to_string(), model_type='R')
-            api.add_schema(model$options[['input']], model$input_schema)
-            api.add_schema(model$options[['output']], model$output_schema)
+            for(attachment in model$attachments){
+                api.add_attachment(model$name, attachment)
+            }
+            api.add_schema(model$options[['input']], avroTypeToJsonNode(model$input_schema))
+            api.add_schema(model$options[['output']], avroTypeToJsonNode(model$output_schema))
 
             input_stream_name <- paste(model$name, '_in', sep='')
             output_stream_name <- paste(model$name, '_out', sep='')
@@ -65,44 +68,52 @@ Engine <- setRefClass("Engine",
             return(result)
         },
         score = function(data, use_json=FALSE){
+            job_status <- api.job_status(.self$container)
+            if(!('model' %in% names(job_status)) || is.null(job_status[['model']])){
+              stop('No currently running model')
+            }
+
+            input_schema <- jsonNodeToAvroType(job_status[['model']][['input_schema']], fromString=FALSE)
+            output_schema <- jsonNodeToAvroType(job_status[['model']][['output_schema']], fromString=FALSE)
+
             input_list <- data
             if(!use_json){
                 recordset_input <- FALSE
                 recordset_output <- FALSE
-                if(!is.null(.self$model$options[['recordsets']]))
+                if(!is.null(job_status[['model']][['recordsets']]))
                 {
-                    if(.self$model$options[['recordsets']] == 'input')
+                    if(job_status[['model']][['recordsets']] == 'input')
                         recordset_input <- TRUE
-                    else if(.self$model$options[['recordsets']] == 'output')
+                    else if(job_status[['model']][['recordsets']] == 'output')
                         recordset_output <- TRUE
-                    else if(.self$model$options[['recordsets']] == 'both'){
+                    else if(job_status[['model']][['recordsets']] == 'both'){
                         recordset_input <- TRUE
                         recordset_output <- TRUE
                     }
                 }
                 if(recordset_input){
-                    input_list <- recordset_to_json(input_list, schema=.self$model$input_schema)
+                    input_list <- recordset_to_json(input_list, schema=input_schema)
                     input_list[[length(input_list)+1]] <- '{"$fastscore":"set"}'
                 }
                 else
-                    input_list <- lapply(input_list, to_json, schema=.self$model$input_schema)
+                    input_list <- lapply(input_list, to_json, schema=input_schema)
             }
             outputs <- api.job_input(input_list, .self$container)
             if(use_json){
                 return(outputs)
             }
             else{
-                lastitem <- RJSONIO::fromJSON(outputs[[length(outputs)]])
+                lastitem <- rjson::fromJSON(outputs[[length(outputs)]])
                 if('$fastscore' %in% names(lastitem) && lastitem[['$fastscore']] == 'set'){
                     outputs <- outputs[1:(length(outputs)-1)]
                 }
-                if(!is.null(.self$model$options[['recordsets']])){
-                    if(.self$model$options[['recordsets']] == 'output' ||
-                       .self$model$options[['recordsets']] == 'both'){
-                         return(recordset_from_json(outputs, .self$model$output_schema))
+                if(!is.null(job_status[['model']][['recordsets']])){
+                    if(job_status[['model']][['recordsets']] == 'output' ||
+                       job_status[['model']][['recordsets']] == 'both'){
+                         return(recordset_from_json(outputs, output_schema))
                        }
                 }
-                return(lapply(outputs, from_json, schema=.self$model$output_schema))
+                return(lapply(outputs, from_json, schema=output_schema))
             }
 
 

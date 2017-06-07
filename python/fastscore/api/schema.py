@@ -1,4 +1,4 @@
-import _service as service
+from . import _service as service
 import json
 
 def list_schemata():
@@ -23,10 +23,10 @@ def add_schema(schema_name, schema_content):
     code, body = service.put('model-manage', '/1/schema/%s' % schema_name,
                              ctype, schema_content)
     if code == 201:
-        print 'Schema \'%s\' added to Model Manage.' % schema_name
+        print('Schema \'%s\' added to Model Manage.' % schema_name)
         return True
     elif code == 204:
-        print 'Schema \'%s\' updated in Model Manage.' % schema_name
+        print('Schema \'%s\' updated in Model Manage.' % schema_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))
@@ -58,7 +58,7 @@ def remove_schema(schema_name):
     if code == 404:
         raise KeyError('Schema \'%s\' not found in Model Manage.' % schema_name)
     elif code == 204:
-        print 'Schema \'%s\' removed from Model Manage.' % schema_name
+        print('Schema \'%s\' removed from Model Manage.' % schema_name)
         return True
     else:
         raise Exception(body.decode('utf-8'))
