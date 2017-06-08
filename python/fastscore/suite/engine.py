@@ -7,46 +7,204 @@ from fastscore.codec import to_json, recordset_from_json
 import fastscore.errors as errors
 from tabulate import tabulate
 
-class Engine(object):
-    def __init__(self, proxy_prefix, model=None, container=None):
+from binascii import b2a_hex
+from os import urandom
+
+from .instance import InstanceBase
+from ..constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES
+
+from fastscore.v1 import EngineApi
+from fastscore import FastScoreError
+
+from .stream import Stream
+
+class Engine(InstanceBase):
+    """
+    An Engine instance.
+    """
+
+    # Maximum size for an inline attachment.
+    MAX_INLINE_ATTACHMENT = 1024*1024
+
+    # A class for tracking input and output stream slots.
+    class SlotBag(object):
+        def __init__(self, isinput, engine):
+            self._isinput = isinput
+            self._eng = engine
+
+        def __setitem__(self, slot, stream):
+            if slot != 1:
+                raise FastScoreError("Only stream slot 1 is currently supported")
+            try:
+                if self._isinput:
+                    self._eng.swg.input_stream_set(self._eng.name, stream.desc)
+                else:
+                    self._eng.swg.output_stream_set(self._eng.name, stream.desc)
+            except Exception as e:
+                raise FastScoreError("Unable to attach stream", caused_by=e)
+
+        def __delitem__(self, slot):
+            raise FastScoreError("Not implemented")
+
+
+    def __init__(self, name):
         """
         Constructor for the Engine class.
 
+        Generally, this is not intended to be constructed 'by hand'. Instead,
+        Engine instances should be retrieved from Connect.
+
         Required fields:
-        - proxy_prefix: URL for the FastScore proxy, e.g., 'https://localhost:8000'
+        - name: A name for this instance.
+
+        """
+        super(Engine, self).__init__(name, 'engine', EngineApi())
+        self._inputs = Engine.SlotBag(True, self)
+        self._outputs = Engine.SlotBag(False, self)
+
+    @property
+    def inputs(self):
+        """
+        A collection of input stream slots. Slots are numbered starting with 1.
+
+        >>> mm = connect.lookup('model-manage')
+        >>> stream = mm.streams['stream-1']
+        >>> engine = connect.lookup('engine')
+        >>> engine.inputs[1] = stream
+
+        .. todo:: Detach/close input stream
+
+        """
+        return self._inputs
+
+    @property
+    def outputs(self):
+        """
+        A collection of output stream slots. Slots are numbered starting with 1.
+
+        >>> mm = connect.lookup('model-manage')
+        >>> stream = mm.streams['stream-1']
+        >>> engine = connect.lookup('engine')
+        >>> engine.outputs[1] = stream
+
+        .. todo:: Detach/close output stream
+
+        """
+        return self._outputs
+
+    def load_model(self, model, force_inline=False):
+        """
+        Load a model into this engine.
+
+        Required fields:
+        - model: A Model object.
 
         Optional fields:
-        - model: A Model object to load into the engine upon startup.
-        - container: The engine container to use. If unspecified, the first
-                     available engine is used.
+        - force_inline: If True, force all attachments to load inline. If False,
+                        attachments may be loaded by reference.
         """
-        api.connect(proxy_prefix)
-        self.model = model
-        if self.model:
-            self.input_schema = self.model.input_schema
-            self.output_schema = self.model.output_schema
-            self.deploy(model)
-        else:
-            self.input_schema = None
-            self.output_schema = None
-        self.container = container
 
+        def maybe_externalize(att):
+            ctype = ATTACHMENT_CONTENT_TYPES[att.atype]
+            if att.datasize > Engine.MAX_INLINE_ATTACHMENT and not force_inline:
+
+                ## See https://opendatagoup.atlassian.net/wiki/display/FAS/Working+with+large+attachments
+                ##
+                ## An example of an externalized attachment:
+                ##
+                ## Content-Type: message/external-body; access-type=x-model-manage; name="att1.zip"
+                ## Content-Disposition: attachment; filename="att1.zip"
+                ##
+                ## Content-Type: application/zip
+                ## Content-Length: 1234
+                ##
+
+                ext_type = 'message/external-body; ' + \
+                       'access-type=x-model-manage; ' + \
+                       'ref="urn:fastscore:attachment:%s:%"' % (model.name,att.name)
+
+                body = 'Content-Type: %s\r\n' % ctype + \
+                       'Content-Length: %d\r\n' % att.datasize + \
+                       '\r\n'
+
+                return (att.name,body,ext_type)
+            else:
+                ## data retrieved when you touch .datafile property
+                with open(att.datafile) as f:
+                    body = f.read()
+                return (att.name,body,ctype)
+
+        def quirk(name):
+            return 'name' if name == 'x-model' else 'filename'
+
+        def multipart_body(parts, boundary):
+            noodle = [
+                '\r\n--' + boundary + '\r\n' + \
+                'Content-Disposition: %s; %s="%s"\r\n' % (tag,quirk(name),name) + \
+                'Content-Type: %s\r\n' % ctype + \
+                '\r\n' + \
+                body
+                for tag,(name,body,ctype) in parts ]
+            noodle.append('\r\n--' + boundary + '--\r\n')
+            return ''.join(noodle)
+
+        try:
+            ct = MODEL_CONTENT_TYPES[model.mtype]
+            attachments = list(model.attachments)
+            if len(attachments) == 0:
+                data = model.source
+                cd = 'x-model; name="%s"' % model.name
+                self.swg.model_load(self.name, data, content_type=ct, content_disposition=cd)
+            else:
+                ## Swagger 2.0 does allow complex multipart requests - craft it manually.
+                parts = [ ('attachment',maybe_externalize(x)) for x in attachments ]
+                parts.append( ('x-model',(model.name,model.source,ct)) )
+                boundary = b2a_hex(urandom(12))
+                data = multipart_body(parts, boundary)
+                self.swg.model_load(self.name,
+                        data, content_type='multipart/mixed; boundary=' + boundary)
+        except Exception as e:
+            raise FastScoreError("Unable to load model '%s'" % model.name, caused_by=e)
+
+    def unload_model(self):
+        try:
+            self.swg.job_delete(self.name)
+        except Exception as e:
+            raise FastScoreError("Unable to unload model", caused_by=e)
+
+    def scale(self, n):
+        """
+        Changes the number of running model instances.
+        """
+        try:
+            self.swg.job_scale(self.name, n)
+        except Exception as e:
+            raise FastScoreError("Unable to scale model", caused_by=e)
+
+    def sample_stream(self, stream, n):
+        try:
+            if n:
+                return self.swg.stream_sample(self.name, stream.desc, n=n)
+            else:
+                return self.swg.stream_sample(self.name, stream.desc)
+        except Exception as e:
+            raise FastScoreError("Unable to sample stream", caused_by=e)
+
+
+    ## -- Additional Stuff -- ##
+    ## Maybe deploy should be added to Model?
     def deploy(self, model):
         """
-        Deploy a model to the engine.
+        Deploy a model to the engine. Automatically creates input and output
+        streams.
 
         Required fields:
         - model: The model object to deploy.
         """
-        api.stop_job(self.container)
-        if not model.model_type:
-            raise AttributeError('Unknown model type!')
-        self.model = model
-        self.input_schema = model.input_schema
-        self.output_schema = model.output_schema
-        api.add_model(model.name, model.to_string(), model_type=model.model_type)
-        for attachment in model.attachments:
-            api.add_attachment(model.name, attachment)
+
+        self.unload_model()
+        self.load_model(model)
+
         api.add_schema(model.options['input'], model.input_schema.toJson())
         api.add_schema(model.options['output'], model.output_schema.toJson())
 
@@ -77,10 +235,13 @@ class Engine(object):
             or model.options['recordsets'] == 'both':
                 output_stream_desc['Batching'] = 'explicit'
 
-        api.add_stream(input_stream_name, json.dumps(input_stream_desc))
-        api.add_stream(output_stream_name, json.dumps(output_stream_desc))
-        # now, run the model
-        api.run_job(model.name, input_stream_name, output_stream_name, self.container)
+        input_stream = Stream(input_stream_name, json.dumps(input_stream_desc),
+                              model_manage = model._mm)
+        output_stream = Stream(output_stream_name, json.dumps(output_stream_desc),
+                                model_manage = model._mm)
+
+        self.inputs[1] = input_stream
+        self.outputs[1] = output_stream
 
     def stop(self):
         """
