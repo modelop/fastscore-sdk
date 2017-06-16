@@ -143,7 +143,7 @@ class Model(object):
     @property
     def schemas(self):
         """
-        The schemas used by this model.
+        The schemas used by this model. See :class:`.Schema`.
         """
         return self._schemas
 
@@ -160,14 +160,14 @@ class Model(object):
 
     def update(self, model_manage=None):
         if model_manage == None and self._mm == None:
-            raise FastScore("Model '%s' not associated with Model Manage" % self.name)
+            raise FastScoreError("Model '%s' not associated with Model Manage" % self.name)
         if self._mm == None:
             self._mm = model_manage
         return self._mm.save_model(self)
 
     def saved(self):
         if self._mm == None:
-            raise FastScore("Model '%s' not saved (use update() method)" % self.name)
+            raise FastScoreError("Model '%s' not saved (use update() method)" % self.name)
 
     def list_attachments(self):
         self.saved()
