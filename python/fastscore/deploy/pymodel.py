@@ -1,57 +1,76 @@
 ## -- Model class -- ##
+from ..model import Model
+
 from inspect import getsource
 import json
 import collections
-from fastscore.datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
+from fastscore.codec.datatype import jsonToAvroType, jsonNodeToAvroType, checkData, Type, avroTypeToSchema
 from fastscore.utils import compare_items
 from fastscore.codec import to_json, from_json, recordset_from_json
 import types
 import time
-from fastscore.model import Model
 from six.moves import zip_longest # izip_longest renamed
 
 import re
 
 class PyModel(Model):
 
-    def __init__(self, action, input_schema, output_schema, options={}, begin=None, end=None, functions=[],
-                 attachments=[], imports=[], name=None):
+    def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}, action=None,
+         options={}, begin=None, end=None, functions=[], imports=[], name=None):
         """
         A Python Model's constructor.
 
         Required fields:
-        - action: a function
-        - input_schema: an input schema to use (fastscore.datatype.AvroType or JSON string)
-        - output_schema: an output schema to use (fastscore.datatype.AvroType or JSON string)
+        - name: A name for the model.
+        - schemas: The input and output schemas for the model.
 
         Optional fields:
-        - options: options specified by "fastscore.*: " smart comments.
-        - begin, end: begin and end functions for the model
+        - source: The source code for this model. If specified, then the rest of
+          the fields are ignored.
+
+        - action: The action method for this model (if not source)
+        - options: options specified by "fastscore.*: " smart comments. (if not source)
+        - begin, end: begin and end functions for the model (if not source)
         - functions: a list of other user-defined functions needed to execute
-                     action, begin, or end
-        - attachments: a list of strings with the path to attachments for the
-                       model
-        - imports: a list of import statements made by the model (as strings)
-        - name: a name for this model
+                     action, begin, or end (if not source)
+        - imports: a list of import statements made by the model (as strings) (if not source)
         """
-        super(PyModel, self).__init__(input_schema=input_schema,
-                                       output_schema=output_schema,
-                                       attachments=attachments)
-        self.action = action
-        self.begin = begin
-        self.end = end
-        self.functions = functions
-        self.options = options
-        self.imports = imports
-        self.model_type = 'python'
+        super(PyModel, self).__init__(name=name, mtype=mtype, source=source,
+                                      model_manage=model_manage,
+                                      schemas=schemas)
+        if name:
+            self.name = name
+        else:
+            self.name = 'model_' + str(int(time.time()))
+        if source:
+            self.source = source
+        else:
+            self.action = action
+            self.begin = begin
+            self.end = end
+            self.functions = functions
+            self.options = options
+            self.imports = imports
+
+    @property
+    def source(self):
+        """
+        The source code of this model.
+        """
+        return self.to_string()
+
+    @source.setter
+    def source(self, source):
+        self._source = source
+        self = PyModel.from_string(source)
 
     def to_string(self):
         """
         Convert this model object to a string, ready for use in FastScore.
         """
 
-        output_str = '# fastscore.input: '  + self.options['input']  + '\n' + \
-                     '# fastscore.output: ' + self.options['output'] + '\n'
+        output_str = '# fastscore.input: '  + self.schemas['input'].name  + '\n' + \
+                     '# fastscore.output: ' + self.schemas['output'].name + '\n'
 
         for option in self.options:
             if option != 'input' and option != 'output':
@@ -125,6 +144,8 @@ class PyModel(Model):
                 recordset_input = True
                 recordset_output = True
 
+        input_schema = jsonNodeToAvroType(self.schemas['input'])
+        output_schema = jsonNodeToAvroType(self.schemas['output'])
         # now we process the input data, score it with the model, and produce
         # the output
         input_data = [] # the processed input data (potentially deserialized)
@@ -133,7 +154,7 @@ class PyModel(Model):
         if recordset_input:
             # use record set as input
             if use_json:
-                input_data = recordset_from_json(inputs, self.input_schema)
+                input_data = recordset_from_json(inputs, input_schema)
             else:
                 input_data = inputs.copy() # create a copy, so we don't modify the original
             results = [x for x in self.action(input_data)]
@@ -141,27 +162,27 @@ class PyModel(Model):
             # don't use record set as input
             if iterable:
                 if use_json:
-                    input_data = list(from_json(inputs, self.input_schema))
+                    input_data = list(from_json(inputs, input_schema))
                 else:
                     input_data = [datum for datum in inputs]
             else:
                 # not iteratable input.
                 if use_json:
-                    input_data = list(from_json([inputs], self.input_schema))
+                    input_data = list(from_json([inputs], input_schema))
                 else:
                     input_data = [inputs]
-            results = [x for in_datum in input_data for x in self.action(in_datum)]
+            results = [x for in_datum in input_data for x in action(in_datum)]
 
         if recordset_output:
             # the only difference is that each row of the output data frame is
             # serialized.
             if use_json:
-                outputs += [y for result in results for y in to_json(result, self.output_schema)]
+                outputs += [y for result in results for y in to_json(result, output_schema)]
             else:
                 outputs += [x for x in results]
         else:
             if use_json:
-                outputs += [y for y in to_json(results, self.output_schema)]
+                outputs += [y for y in to_json(results, output_schema)]
             else:
                 outputs += [x for x in results]
 
@@ -185,19 +206,23 @@ class PyModel(Model):
         Optional fields:
         - use_json: True if inputs and outputs are JSON strings. Default: False.
         """
+
+        input_schema = jsonNodeToAvroType(self.schemas['input'])
+        output_schema = jsonNodeToAvroType(self.schemas['output'])
+
         # step 1: check the input schema
         for datum in inputs:
             try:
                 if use_json:
-                    checkData(json.loads(datum), self.input_schema)
+                    checkData(json.loads(datum), input_schema)
                 else:
-                    checkData(datum, self.input_schema)
+                    checkData(datum, input_schema)
             except TypeError:
                 if use_json:
-                    print('Invalid Input: Expecting type ' + str(self.input_schema) \
+                    print('Invalid Input: Expecting type ' + str(input_schema) \
                           + ', found ' + str(datum))
                 else:
-                    print('Invalid Input: Expecting type ' + str(self.input_schema) \
+                    print('Invalid Input: Expecting type ' + str(input_schema) \
                           + ', found ' + str(datum) + ' (' + str(type(datum)) + ')')
                 return False
 
@@ -205,15 +230,15 @@ class PyModel(Model):
         for datum in outputs:
             try:
                 if use_json:
-                    checkData(json.loads(datum), self.output_schema)
+                    checkData(json.loads(datum), output_schema)
                 else:
-                    checkData(datum, self.output_schema)
+                    checkData(datum, output_schema)
             except TypeError:
                 if use_json:
-                    print('Invalid Output: Expecting type ' + str(self.output_schema) \
+                    print('Invalid Output: Expecting type ' + str(output_schema) \
                           + ', found ' + str(datum))
                 else:
-                    print('Invalid Output: Expecting type ' + str(self.output_schema) \
+                    print('Invalid Output: Expecting type ' + str(output_schema) \
                           + ', found ' + str(datum) + ' (' + str(type(datum)) + ')')
                 return False
 
@@ -304,17 +329,20 @@ class PyModel(Model):
                            if fcn_name != 'action' and
                               fcn_name != 'begin' and
                               fcn_name != 'end']
+        model_schemas = {
+                    'input': model_input_schema,
+                    'output': model_output_schema}
         if model_type:
-            return model_type(action=model_action,
-                         input_schema=model_input_schema,
-                         output_schema=model_output_schema,
+            return model_type(name=None
+                         schemas=model_schemas,
+                         action=model_action,
                          options=model_options,
                          begin=model_begin, end=model_end,
                          functions=model_functions, imports=imports)
         else:
-            return PyModel(action=model_action,
-                         input_schema=model_input_schema,
-                         output_schema=model_output_schema,
+            return PyModel(name=None
+                         schemas=model_schemas,
+                         action=model_action,
                          options=model_options,
                          begin=model_begin, end=model_end,
                          functions=model_functions, imports=imports)

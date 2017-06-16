@@ -206,6 +206,9 @@ class Model(object):
             raise FastScoreError("Cannot remove attachment '%s'" % name, caused_by=e)
 
     def save_attachment(self, att):
+        """
+        Add an attachment to the model. 
+        """
         self.saved()
         try:
             ct = ATTACHMENT_CONTENT_TYPES[att.atype]

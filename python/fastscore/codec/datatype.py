@@ -135,7 +135,7 @@ def schemaToAvroType(schema):
         out._schema = schema
         return out
 
-def avroTypeToSchema(avroType):
+def avroTypeToAvroSchema(avroType):
     """Convert a fastscore.datatype.AvroType into an Avro schema.
 
     :type avroType: fastscore.datatype.AvroType

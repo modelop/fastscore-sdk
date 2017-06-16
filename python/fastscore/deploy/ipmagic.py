@@ -6,10 +6,10 @@ import types
 import six
 USE_PY3 = False
 if six.PY2:
-    from fastscore.py2model import Py2Model
-    from fastscore.pfamodel import PFAModel # PFA only supported in PY2
+    from .py2model import Py2Model
+    from .pfamodel import PFAModel # PFA only supported in PY2
 if six.PY3:
-    from fastscore.py3model import Py3Model
+    from .py3model import Py3Model
     USE_PY3 = True
 
 # import the main module...

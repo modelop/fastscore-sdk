@@ -1,4 +1,5 @@
-from fastscore.model import Model
+from ..model import Model
+from ..schema import Schema
 import yaml
 import json
 from titus.genpy import PFAEngine
@@ -7,13 +8,13 @@ from titus.datatype import checkData
 import time
 import collections
 from titus.datatype import jsonToAvroType, checkData, avroTypeToSchema
-import fastscore.datatype
+import fastscore.codec.datatype
 from fastscore.utils import compare_items
 from fastscore.codec import to_json, from_json
 from six.moves import zip_longest # izip_longest renamed
 
 class PFAModel(Model):
-    def __init__(self, pfa, name=None):
+    def __init__(self, name=None, mtype='pfa-yaml', pfa, model_manage=None):
         """
         A PFA Model's constructor.
 
@@ -25,6 +26,11 @@ class PFAModel(Model):
         - name: a name for this model.
         """
 
+        self._name = name
+        self.mtype = mtype
+        self._mm = model_manage
+
+
         if type(pfa) is str:
             self.__pfaengine, = PFAEngine.fromYaml(pfa)
         elif type(pfa) is dict:
@@ -34,16 +40,31 @@ class PFAModel(Model):
 
         my_input_schema = _titus_to_fastscore_avrotype(self.__pfaengine.inputType)
         my_output_schema = _titus_to_fastscore_avrotype(self.__pfaengine.outputType)
-        super(PFAModel, self).__init__(input_schema=my_input_schema, output_schema=my_output_schema)
-        self.model_type = 'pfa'
-        if name:
-            self.name = name
-        else:
-            self.name = 'model_' + str(int(time.time()))
+
+
+        model_name = name
+        if not name:
+            model_name = 'model_' + str(int(time.time()))
+
+        my_schemas = {'input': Schema(name=model_name+'_in', source=repr(my_input_schema), model_manage=model_manage),
+                      'output': Schema(name=model_name+'_out', source=repr(my_output_schema), model_manage=model_manage)}
+
+        super(PFAModel, self).__init__(name=model_name, mtype='pfa-yaml',
+                        source=pfa, model_manage=model_manage, schemas=my_schemas)
 
         self.options = {}
-        self.options['input'] = self.name + '_input'
-        self.options['output'] = self.name + '_output'
+
+    @property
+    def source(self):
+        """
+        The source code of this model.
+        """
+        return self._source
+
+    @source.setter
+    def source(self, source):
+        self._source = source
+        self.__pfaengine, = PFAEngine.fromYaml(source)
 
     def to_string(self):
         """
@@ -72,18 +93,22 @@ class PFAModel(Model):
                    and not isinstance(inputs, str)   \
                    and not isinstance(inputs, dict) # a dict is a record in our world
 
+
+        input_schema = jsonNodeToAvroType(self.schemas['input'])
+        output_schema = jsonNodeToAvroType(self.schemas['output'])
+
         input_data = []
         results = []
         outputs = []
         if iterable:
             if use_json:
-                input_data = list(from_json(inputs, self.input_schema))
+                input_data = list(from_json(inputs, input_schema))
             else:
                 input_data = [datum for datum in inputs]
         else:
             # not iteratable input.
             if use_json:
-                input_data = list(from_json([inputs], self.input_schema))
+                input_data = list(from_json([inputs], input_schema))
             else:
                 input_data = [inputs]
         # three possible methods for producing output with PFA
@@ -99,7 +124,7 @@ class PFAModel(Model):
             raise NotImplementedError('TODO: Support fold models.')
 
         if use_json:
-            outputs += [y for y in to_json(results, self.output_schema)]
+            outputs += [y for y in to_json(results, output_schema)]
         else:
             outputs += [x for x in results]
 
@@ -123,19 +148,24 @@ class PFAModel(Model):
         - use_json: True if inputs and outputs are JSON strings. Default: False.
         """
         # This is mostly the same as in the Py2Model
+
+
+        input_schema = jsonNodeToAvroType(self.schemas['input'])
+        output_schema = jsonNodeToAvroType(self.schemas['output'])
+
         # step 1: check the input schema
         for datum in inputs:
             try:
                 if use_json:
-                    checkData(json.loads(datum), self.input_schema)
+                    checkData(json.loads(datum), input_schema)
                 else:
-                    checkData(datum, self.input_schema)
+                    checkData(datum, input_schema)
             except TypeError:
                 if use_json:
-                    print(('Invalid Input: Expecting type ' + str(self.input_schema) \
+                    print(('Invalid Input: Expecting type ' + str(input_schema) \
                           + ', found ' + str(datum)))
                 else:
-                    print(('Invalid Input: Expecting type ' + str(self.input_schema) \
+                    print(('Invalid Input: Expecting type ' + str(input_schema) \
                           + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'))
                 return False
 
@@ -143,15 +173,15 @@ class PFAModel(Model):
         for datum in outputs:
             try:
                 if use_json:
-                    checkData(json.loads(datum), self.output_schema)
+                    checkData(json.loads(datum), output_schema)
                 else:
-                    checkData(datum, self.output_schema)
+                    checkData(datum, output_schema)
             except TypeError:
                 if use_json:
-                    print(('Invalid Output: Expecting type ' + str(self.output_schema) \
+                    print(('Invalid Output: Expecting type ' + str(output_schema) \
                           + ', found ' + str(datum)))
                 else:
-                    print(('Invalid Output: Expecting type ' + str(self.output_schema) \
+                    print(('Invalid Output: Expecting type ' + str(output_schema) \
                           + ', found ' + str(datum) + ' (' + str(type(datum)) + ')'))
                 return False
 
@@ -180,7 +210,7 @@ class PFAModel(Model):
         Required fields:
         - model_str: A string of code defining the model.
         """
-        return PFAModel(model_str)
+        return PFAModel(pfa=model_str)
 
     @staticmethod
     def from_ppfa(model_str):
@@ -191,7 +221,7 @@ class PFAModel(Model):
         Required fields:
         - model_str: A string of code defining the model.
         """
-        return PFAModel(json.dumps(jsonNode(model_str)))
+        return PFAModel(pfa=json.dumps(jsonNode(model_str)))
 
 def _titus_to_fastscore_avrotype(dtype):
     """
@@ -201,4 +231,4 @@ def _titus_to_fastscore_avrotype(dtype):
     Required fields:
     - dtype: titus.datatype.AvroType object
     """
-    return fastscore.datatype.schemaToAvroType(dtype.schema)
+    return fastscore.codec.datatype.schemaToAvroType(dtype.schema)
