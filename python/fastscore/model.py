@@ -78,13 +78,27 @@ class Model(object):
         def __delitem__(self, snapid):
             self.model.remove_snapshot(snapid)
 
-    def __init__(self, name, mtype='python', source=None, model_manage=None):
+    class SchemaBag(object):
+        def __init__(self, model, schemas={}):
+            self.model = model
+            self._schemas = {}
+            for key in schemas:
+                self[key] = schemas[key]
+
+        def __setitem__(self, slot, schema):
+            if slot != 'input' and slot != 'output':
+                raise FastScoreError("Only input and output schemas are currently supported.")
+            self._schemas[slot] = schema
+
+    def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}):
         self._name = name
         self.mtype = mtype
         self.source = source
         self._mm = model_manage
         self._attachments = Model.AttachmentBag(self)
         self._snapshots = Model.SnapshotBag(self)
+        self._schemas = Model.SchemaBag(self, schemas)
+
 
     @property
     def name(self):
@@ -125,6 +139,13 @@ class Model(object):
     @source.setter
     def source(self, source):
         self._source = source
+
+    @property
+    def schemas(self):
+        """
+        The schemas used by this model.
+        """
+        return self._schemas
 
     @property
     def attachments(self):
@@ -233,4 +254,3 @@ class Model(object):
             self._mm.swg.snapshot_delete(self._mm.name, self.name, snapid)
         except Exception as e:
             raise FastScoreError("Cannot remove snapshot '%s'" % snapid, caused_by=e)
-
