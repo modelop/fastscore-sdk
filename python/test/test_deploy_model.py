@@ -1,10 +1,10 @@
 import unittest
 import six
 if six.PY2:
-    from fastscore import Py2Model
-    from fastscore import PFAModel
+    from fastscore.deploy import Py2Model
+    from fastscore.deploy import PFAModel
 elif six.PY3:
-    from fastscore import Py3Model
+    from fastscore.deploy import Py3Model
 import pandas as pd
 
 class TestModel(unittest.TestCase):
@@ -69,7 +69,7 @@ action:
     def test_pfa_from_string_emit(self):
         if six.PY3:
             return
-        
+
         model_string = '''
 input: int
 output: int
