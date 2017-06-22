@@ -1,12 +1,13 @@
 ## -- Model class -- ##
 from ..model import Model
+from ..schema import Schema
 
 from inspect import getsource
 import json
 import collections
-from fastscore.codec.datatype import jsonToAvroType, jsonNodeToAvroType, checkData, Type, avroTypeToSchema
-from fastscore.utils import compare_items
-from fastscore.codec import to_json, from_json, recordset_from_json
+from ..codec.datatype import jsonToAvroType, jsonNodeToAvroType, checkData, Type, avroTypeToAvroSchema
+from ..utils import compare_items
+from ..codec import to_json, from_json, recordset_from_json
 import types
 import time
 from six.moves import zip_longest # izip_longest renamed
@@ -15,8 +16,8 @@ import re
 
 class PyModel(Model):
 
-    def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}, action=None,
-         options={}, begin=None, end=None, functions=[], imports=[], name=None):
+    def __init__(self, name=None, mtype='python', source=None, model_manage=None, schemas={}, action=None,
+         options={}, begin=None, end=None, functions=[], imports=[]):
         """
         A Python Model's constructor.
 
@@ -62,7 +63,7 @@ class PyModel(Model):
     @source.setter
     def source(self, source):
         self._source = source
-        self = PyModel.from_string(source)
+        # self = PyModel.from_string(source)
 
     def to_string(self):
         """
@@ -144,8 +145,8 @@ class PyModel(Model):
                 recordset_input = True
                 recordset_output = True
 
-        input_schema = jsonNodeToAvroType(self.schemas['input'])
-        output_schema = jsonNodeToAvroType(self.schemas['output'])
+        input_schema = jsonNodeToAvroType(self.schemas['input'].source)
+        output_schema = jsonNodeToAvroType(self.schemas['output'].source)
         # now we process the input data, score it with the model, and produce
         # the output
         input_data = [] # the processed input data (potentially deserialized)
@@ -171,7 +172,7 @@ class PyModel(Model):
                     input_data = list(from_json([inputs], input_schema))
                 else:
                     input_data = [inputs]
-            results = [x for in_datum in input_data for x in action(in_datum)]
+            results = [x for in_datum in input_data for x in self.action(in_datum)]
 
         if recordset_output:
             # the only difference is that each row of the output data frame is
@@ -207,8 +208,8 @@ class PyModel(Model):
         - use_json: True if inputs and outputs are JSON strings. Default: False.
         """
 
-        input_schema = jsonNodeToAvroType(self.schemas['input'])
-        output_schema = jsonNodeToAvroType(self.schemas['output'])
+        input_schema = jsonNodeToAvroType(self.schemas['input'].source)
+        output_schema = jsonNodeToAvroType(self.schemas['output'].source)
 
         # step 1: check the input schema
         for datum in inputs:
@@ -330,19 +331,78 @@ class PyModel(Model):
                               fcn_name != 'begin' and
                               fcn_name != 'end']
         model_schemas = {
-                    'input': model_input_schema,
-                    'output': model_output_schema}
+                    'input': Schema(name=model_options['input'], source=model_input_schema),
+                    'output': Schema(name=model_options['output'], source=model_output_schema)}
         if model_type:
-            return model_type(name=None
+            return model_type(name=None,
                          schemas=model_schemas,
                          action=model_action,
                          options=model_options,
                          begin=model_begin, end=model_end,
                          functions=model_functions, imports=imports)
         else:
-            return PyModel(name=None
+            return PyModel(name=None,
                          schemas=model_schemas,
                          action=model_action,
                          options=model_options,
                          begin=model_begin, end=model_end,
                          functions=model_functions, imports=imports)
+
+
+## Maybe deploy should be added to Model?
+def deploy(self, model):
+    """
+    Deploy a model to the engine. Automatically creates input and output
+    streams.
+
+    Required fields:
+    - model: The model object to deploy.
+    """
+
+    self.unload_model()
+    self.load_model(model)
+
+    api.add_schema(model.options['input'], model.input_schema.toJson())
+    api.add_schema(model.options['output'], model.output_schema.toJson())
+
+    input_stream_name = model.name + '_in'
+    output_stream_name = model.name + '_out'
+    input_stream_desc = {
+                          "Transport": {
+                            "Type": "REST"
+                          },
+                          "Envelope": "delimited",
+                          "Encoding": "json",
+                          "Schema": {"$ref": model.options['input']}
+                        }
+    output_stream_desc = {
+                          "Transport": {
+                            "Type": "REST"
+                          },
+                          "Envelope": "delimited",
+                          "Encoding": "json",
+                          "Schema": {"$ref": model.options['output']}
+                        }
+
+    if 'recordsets' in model.options:
+        if model.options['recordsets'] == 'input' \
+        or model.options['recordsets'] == 'both':
+            input_stream_desc['Batching'] = 'explicit'
+        if model.options['recordsets'] == 'output' \
+        or model.options['recordsets'] == 'both':
+            output_stream_desc['Batching'] = 'explicit'
+
+    input_stream = Stream(input_stream_name, json.dumps(input_stream_desc),
+                          model_manage = model._mm)
+    output_stream = Stream(output_stream_name, json.dumps(output_stream_desc),
+                            model_manage = model._mm)
+
+    self.inputs[1] = input_stream
+    self.outputs[1] = output_stream
+
+def stop(self):
+    """
+    Stop all running jobs on the engine.
+    """
+    print('Engine stopped.')
+    api.stop_job(self.container)

@@ -87,8 +87,11 @@ class Model(object):
 
         def __setitem__(self, slot, schema):
             if slot != 'input' and slot != 'output':
-                raise FastScoreError("Only input and output schemas are currently supported.")
+                raise FastScoreError("Only input and output schemas are currently supported in Models.")
             self._schemas[slot] = schema
+
+        def __getitem__(self, slot):
+            return self._schemas[slot]
 
     def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}):
         self._name = name
@@ -106,6 +109,10 @@ class Model(object):
         A model name, e.g. 'model-1'.
         """
         return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
 
     @property
     def mtype(self):
@@ -207,7 +214,7 @@ class Model(object):
 
     def save_attachment(self, att):
         """
-        Add an attachment to the model. 
+        Add an attachment to the model.
         """
         self.saved()
         try:
@@ -257,3 +264,11 @@ class Model(object):
             self._mm.swg.snapshot_delete(self._mm.name, self.name, snapid)
         except Exception as e:
             raise FastScoreError("Cannot remove snapshot '%s'" % snapid, caused_by=e)
+
+    def deploy(self, engine):
+        """
+        Deploy this model to an engine.
+
+        :param engine: The Engine instance to use.
+        """
+        engine.load_model(self)

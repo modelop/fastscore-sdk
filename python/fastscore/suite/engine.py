@@ -2,8 +2,8 @@
 import json
 import fastscore.api as api
 import time
-from fastscore.datatype import avroTypeToSchema, checkData, jsonNodeToAvroType
-from fastscore.codec import to_json, recordset_from_json
+from ..codec.datatype import avroTypeToAvroSchema, checkData, jsonNodeToAvroType
+from ..codec import to_json, recordset_from_json
 import fastscore.errors as errors
 from tabulate import tabulate
 
@@ -16,7 +16,7 @@ from ..constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES
 from fastscore.v1 import EngineApi
 from fastscore import FastScoreError
 
-from .stream import Stream
+from ..stream import Stream
 
 class Engine(InstanceBase):
     """
@@ -192,63 +192,6 @@ class Engine(InstanceBase):
 
 
     ## -- Additional Stuff -- ##
-    ## Maybe deploy should be added to Model?
-    def deploy(self, model):
-        """
-        Deploy a model to the engine. Automatically creates input and output
-        streams.
-
-        Required fields:
-        - model: The model object to deploy.
-        """
-
-        self.unload_model()
-        self.load_model(model)
-
-        api.add_schema(model.options['input'], model.input_schema.toJson())
-        api.add_schema(model.options['output'], model.output_schema.toJson())
-
-        input_stream_name = model.name + '_in'
-        output_stream_name = model.name + '_out'
-        input_stream_desc = {
-                              "Transport": {
-                                "Type": "REST"
-                              },
-                              "Envelope": "delimited",
-                              "Encoding": "json",
-                              "Schema": {"$ref": model.options['input']}
-                            }
-        output_stream_desc = {
-                              "Transport": {
-                                "Type": "REST"
-                              },
-                              "Envelope": "delimited",
-                              "Encoding": "json",
-                              "Schema": {"$ref": model.options['output']}
-                            }
-
-        if 'recordsets' in model.options:
-            if model.options['recordsets'] == 'input' \
-            or model.options['recordsets'] == 'both':
-                input_stream_desc['Batching'] = 'explicit'
-            if model.options['recordsets'] == 'output' \
-            or model.options['recordsets'] == 'both':
-                output_stream_desc['Batching'] = 'explicit'
-
-        input_stream = Stream(input_stream_name, json.dumps(input_stream_desc),
-                              model_manage = model._mm)
-        output_stream = Stream(output_stream_name, json.dumps(output_stream_desc),
-                                model_manage = model._mm)
-
-        self.inputs[1] = input_stream
-        self.outputs[1] = output_stream
-
-    def stop(self):
-        """
-        Stop all running jobs on the engine.
-        """
-        print('Engine stopped.')
-        api.stop_job(self.container)
 
     def score(self, data, use_json=False, statistics=False):
         """

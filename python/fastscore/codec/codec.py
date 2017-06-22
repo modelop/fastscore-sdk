@@ -1,5 +1,5 @@
 import json
-from fastscore.datatype import jsonEncoder, jsonDecoder, avroTypeToSchema, jsonToAvroType
+from .datatype import jsonEncoder, jsonDecoder, avroTypeToAvroSchema, jsonToAvroType
 import avro.schema
 # record sets:
 import pandas as pd

@@ -25,7 +25,7 @@ def action(x):
     global starter
     yield x + starter
 '''
-        namespace = {'int': '{"type":"int"}'}
+        namespace = {'int': {'type':'int'}}
         model = Py2Model.from_string(model_string, namespace)
         self.assertEqual(model.score(3), 6)
         self.assertEqual(model.score('3', use_json=True), '6')
@@ -45,8 +45,8 @@ def action(df):
     yield df
 '''
         namespace = {
-            'schin':'{"type":"record", "name":"in", "fields":[{"type":"int", "name":"x"}, {"type":"int", "name":"y"}]}',
-            'schout': '{"type":"record", "name":"out", "fields":[{"type":"int", "name":"x"}, {"type":"int", "name":"y"}, {"type":"int", "name":"z"}]}'
+            'schin':{"type":"record", "name":"in", "fields":[{"type":"int", "name":"x"}, {"type":"int", "name":"y"}]},
+            'schout': {"type":"record", "name":"out", "fields":[{"type":"int", "name":"x"}, {"type":"int", "name":"y"}, {"type":"int", "name":"z"}]}
         }
         model = Py2Model.from_string(model_string, namespace)
         mydf = pd.DataFrame({'x':[1, 2, 3], 'y':[1, 2, 3]})
@@ -63,6 +63,7 @@ action:
   - {m.abs: input}
 '''
         model = PFAModel.from_string(model_string)
+        self.assertEqual(model.schemas['input'].source, '"int"')
         self.assertEqual(model.score(3), 3)
         self.assertEqual(model.score(-3), 3)
         self.assertEqual(model.score('3', use_json=True), '3')

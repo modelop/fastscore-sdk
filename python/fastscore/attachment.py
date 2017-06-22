@@ -21,12 +21,12 @@ class Attachment(object):
 
     def __init__(self, name, atype=None, datafile=None, datasize=None, model=None):
         self._name = name
+        if atype == None and datafile != None:
+            atype = guess_type(datafile)
         self.atype = atype
         self._datasize = datasize
         self.datafile = datafile
         self._model = model
-        if atype == None and datafile != None:
-            atype = guess_type(datafile)
 
     @property
     def name(self):
@@ -97,4 +97,3 @@ def guess_type(datafile):
         return 'tgz'
     else:
         raise FastScoreError("Unable to guess attachment type for '%s'" % datafile)
-

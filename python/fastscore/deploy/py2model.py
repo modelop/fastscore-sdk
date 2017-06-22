@@ -5,7 +5,7 @@ import re
 
 class Py2Model(PyModel):
 
-    def __init__(self, name, mtype='python2', source=None, model_manage=None, schemas={}, action=None,
+    def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}, action=None,
          options={}, begin=None, end=None, functions=[], imports=[]):
         """
         A Python2 Model's constructor.

@@ -948,7 +948,7 @@ def jsonDecoder(avroType, value):
         elif value is None and "null" in [x.name for x in avroType.types]:
             return None
     else:
-        raise Exception
+        raise Exception('Json Decoder error: AvroType: ' + str(repr(avroType)) + ', Item: ' + str(type(value)))
     raise errors.AvroException("{0} does not match schema {1}".format(json.dumps(value), ts(avroType)))
 
 def jsonEncoder(avroType, value, tagged=True):

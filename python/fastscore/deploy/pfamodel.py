@@ -14,7 +14,7 @@ from fastscore.codec import to_json, from_json
 from six.moves import zip_longest # izip_longest renamed
 
 class PFAModel(Model):
-    def __init__(self, name=None, mtype='pfa-yaml', pfa, model_manage=None):
+    def __init__(self, pfa, name=None, mtype='pfa-yaml', model_manage=None):
         """
         A PFA Model's constructor.
 
@@ -46,8 +46,8 @@ class PFAModel(Model):
         if not name:
             model_name = 'model_' + str(int(time.time()))
 
-        my_schemas = {'input': Schema(name=model_name+'_in', source=repr(my_input_schema), model_manage=model_manage),
-                      'output': Schema(name=model_name+'_out', source=repr(my_output_schema), model_manage=model_manage)}
+        my_schemas = {'input': Schema(name=model_name+'_in', source=str(repr(my_input_schema)), model_manage=model_manage),
+                      'output': Schema(name=model_name+'_out', source=str(repr(my_output_schema)), model_manage=model_manage)}
 
         super(PFAModel, self).__init__(name=model_name, mtype='pfa-yaml',
                         source=pfa, model_manage=model_manage, schemas=my_schemas)
@@ -94,8 +94,8 @@ class PFAModel(Model):
                    and not isinstance(inputs, dict) # a dict is a record in our world
 
 
-        input_schema = jsonNodeToAvroType(self.schemas['input'])
-        output_schema = jsonNodeToAvroType(self.schemas['output'])
+        input_schema = fastscore.codec.datatype.jsonToAvroType(self.schemas['input'].source)
+        output_schema = fastscore.codec.datatype.jsonToAvroType(self.schemas['output'].source)
 
         input_data = []
         results = []
