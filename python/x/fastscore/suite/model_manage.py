@@ -8,7 +8,8 @@ from ..errors import FastScoreError
 
 from ..constants import MODEL_CONTENT_TYPES
 
-from fastscore.v1 import ModelManageApi
+from ..v1 import ModelManageApi
+from ..v1.rest import ApiException
 
 class ModelManage(InstanceBase):
     """
@@ -37,7 +38,7 @@ class ModelManage(InstanceBase):
             try:
                 (source,_,headers) = self.mm.swg.model_get_with_http_info(self.mm.name, name)
             except Exception as e:
-                if e.status == 404: # less scary
+                if isinstance(e, ApiException) and e.status == 404: # less scary
                     raise FastScoreError("Model '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot retrieve '%s' model" % name, caused_by=e)
@@ -54,7 +55,7 @@ class ModelManage(InstanceBase):
             try:
                 self.mm.swg.model_delete(self.mm.name, name)
             except Exception as e:
-                if e.status == 404: # less scary
+                if isinstance(e, ApiException) and e.status == 404: # less scary
                     raise FastScoreError("Model '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot remove model '%s'" % name, caused_by=e)
@@ -80,7 +81,7 @@ class ModelManage(InstanceBase):
             try:
                 source = self.mm.swg.schema_get(self.mm.name, name)
             except Exception as e:
-                if e.status == 404:
+                if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Schema '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot retrieve '%s' schema" % name, caused_by=e)
@@ -93,7 +94,7 @@ class ModelManage(InstanceBase):
             try:
                 self.mm.swg.schema_delete(self.mm.name, name)
             except Exception as e:
-                if e.status == 404:
+                if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Schema '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot remove schema '%s'" % name, caused_by=e)
@@ -116,7 +117,7 @@ class ModelManage(InstanceBase):
             try:
                 desc = self.mm.swg.stream_get(self.mm.name, name)
             except Exception as e:
-                if e.status == 404:
+                if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Stream '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot retrieve '%s' stream" % name, caused_by=e)
@@ -129,7 +130,7 @@ class ModelManage(InstanceBase):
             try:
                 self.mm.swg.stream_delete(self.mm.name, name)
             except Exception as e:
-                if e.status == 404:
+                if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Stream '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot remove stream '%s'" % name, caused_by=e)
@@ -155,7 +156,7 @@ class ModelManage(InstanceBase):
             try:
                 desc = self.mm.swg.sensor_get(self.mm.name, name)
             except Exception as e:
-                if e.status == 404:
+                if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Sensor '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot retrieve '%s' sensor" % name, caused_by=e)
@@ -168,7 +169,7 @@ class ModelManage(InstanceBase):
             try:
                 self.mm.swg.sensor_delete(self.mm.name, name)
             except Exception as e:
-                if e.status == 404:
+                if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Sensor '%s' not found" % name)
                 else:
                     raise FastScoreError("Cannot remove sensor '%s'" % name, caused_by=e)

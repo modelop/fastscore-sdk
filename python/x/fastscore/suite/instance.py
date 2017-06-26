@@ -3,6 +3,8 @@ from fastscore.live import ActiveSensor
 
 from ..errors import FastScoreError
 
+from ..v1.rest import ApiException
+
 class InstanceBase(object):
     """
     The parent of all FastScore instance classes.
@@ -26,7 +28,7 @@ class InstanceBase(object):
             try:
                 x = self._inst.swg.active_sensor_describe(self._inst.name, tapid)
             except Exception as e:
-                if e.status == 404:
+                if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Active sensor #%d not found" % tapid)
                 else:
                     raise FastScoreError("Cannot retrieve active sensor", caused_by=e)
@@ -35,6 +37,7 @@ class InstanceBase(object):
             return self._inst.uninstall_sensor(tapid)
 
     def __init__(self, name, api, swg):
+
         self.name = name
         self.api = api
         self.swg = swg

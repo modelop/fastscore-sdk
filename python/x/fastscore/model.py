@@ -112,7 +112,9 @@ class Model(object):
 
     @mtype.setter
     def mtype(self, mtype):
-        assert mtype in MODEL_CONTENT_TYPES
+        if not mtype in MODEL_CONTENT_TYPES:
+            raise FastScoreError("Model type '%s' unknown (known types: %s)" % \
+                        (mtype,", ".join(MODEL_CONTENT_TYPES.keys())))
         self._mtype = mtype
 
     @property
@@ -138,6 +140,12 @@ class Model(object):
         return self._snapshots
 
     def update(self, model_manage=None):
+        """
+        Saves the model to Model Manage.
+
+        :param model_manage: The ModelManage instance to save the model too. May
+            be omitted if the model has been retrieved using the 'models' property.
+        """
         if model_manage == None and self._mm == None:
             raise FastScore("Model '%s' not associated with Model Manage" % self.name)
         if self._mm == None:
