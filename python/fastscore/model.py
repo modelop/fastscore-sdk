@@ -5,6 +5,7 @@ from .attachment import Attachment
 from .snapshot import Snapshot
 
 from .errors import FastScoreError
+import re
 
 class ModelMetadata(object):
     def __init__(self, name, mtype):
@@ -103,12 +104,12 @@ class Model(object):
 
     def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}):
         self._mm = model_manage
+        self._schemas = Model.SchemaBag(self, schemas)
         self._name = name
         self.mtype = mtype
         self.source = source
         self._attachments = Model.AttachmentBag(self)
         self._snapshots = Model.SnapshotBag(self)
-        self._schemas = Model.SchemaBag(self, schemas)
 
 
     @property

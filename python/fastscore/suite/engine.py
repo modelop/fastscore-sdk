@@ -3,7 +3,7 @@ import json
 import fastscore.api as api
 import time
 from ..codec.datatype import avroTypeToAvroSchema, checkData, jsonNodeToAvroType
-from ..codec import to_json, recordset_from_json
+from ..codec import to_json, from_json, recordset_from_json
 import fastscore.errors as errors
 from tabulate import tabulate
 
@@ -191,69 +191,41 @@ class Engine(InstanceBase):
             raise FastScoreError("Unable to sample stream", caused_by=e)
 
 
-    ## -- Additional Stuff -- ##
+    def score(self, data, encode=True):
+        job_status = self.swg.job_status(instance=self.name)
+        if job_status.model == None:
+            raise FastScoreError("No currently running model.")
 
-    def score(self, data, use_json=False, statistics=False):
-        """
-        Scores each datum passed in data.
+        input_schema = jsonNodeToAvroType(job_status.model.input_schema)
+        output_schema = jsonNodeToAvroType(job_status.model.output_schema)
 
-        Required fields:
-        - data: a list of data to score.
-
-        Optional fields:
-        - use_json: If True, each datum in data is expected to be a JSON string.
-                    (Default: False)
-        """
-        job_status = api.job_status(self.container)
-        if 'model' not in job_status or not job_status['model']:
-            raise errors.FastScoreException('No currently running model.')
-        input_schema = jsonNodeToAvroType(job_status['model']['input_schema'])
-        output_schema = jsonNodeToAvroType(job_status['model']['output_schema'])
-
-        self.input_schema = input_schema
-        self.output_schema = output_schema
-
-        input_list = []
         inputs = []
-        if use_json:
+        if not encode:
             inputs = [x for x in data]
         else:
             inputs = [x for x in to_json(data, input_schema)]
-            if 'recordsets' in job_status['model']:
-                # automatically add a {"$fastscore":"set"} message to the end
-                if job_status['model']['recordsets'] == 'input' or \
-                   job_status['model']['recordsets'] == 'both':
-                    inputs += ['{"$fastscore":"set"}']
+            if job_status.model.recordsets == 'both' or \
+               job_status.model.recordsets == 'input':
+                inputs += ['{"$fastscore":"set"}']
 
+        input_str = ''
         for datum in inputs:
-            input_list += [datum.strip()]
-        outputs = api.job_input(input_list, self.container)
+            input_str += datum.strip() + '\n'
+        input_str += '{"$fastscore":"pig"}'
 
-        if statistics:
-            job_status2 = api.job_status(self.container)
-            time1 = job_status['jets'][0]['run_time']
-            time2 = job_status2['jets'][0]['run_time']
-            consumed1 = job_status['jets'][0]['total_consumed']
-            consumed2 = job_status2['jets'][0]['total_consumed']
-            produced1 = job_status['jets'][0]['total_produced']
-            produced2 = job_status2['jets'][0]['total_produced']
-            total_time = time2 - time1
-            total_consumed = consumed2 - consumed1
-            total_produced = produced2 - produced1
-            rate_in = total_consumed / total_time
-            rate_out = total_produced / total_time
-            table = [[total_time, total_consumed, rate_in, total_produced, rate_out]]
-            headers = ['time', 'total-in', 'rate-in, rec/s', 'total-out', 'rate-out, rec/s']
-            print(tabulate(table, headers=headers))
+        # now we send the input
+        self.swg.job_io_input(instance=self.name, data=input_str, id=1)
 
-        if use_json:
-            return outputs
+        # now we retrieve the output
+        output = self.swg.job_io_output(instance=self.name, id=1)
+        if not encode:
+            return [x for x in output.split('\n') if len(x) > 0]
         else:
+            outputs = [x for x in output.split('\n') if len(x) > 0]
             if json.loads(outputs[-1]) == {"$fastscore": "set"}:
                 outputs = outputs[:-1]
-            if 'recordsets' in job_status['model'] and \
-            (job_status['model']['recordsets'] == 'output' or \
-             job_status['model']['recordsets'] == 'both'):
+            if job_status.model.recordsets == 'both' or \
+               job_status.model.recordsets == 'output':
                 return recordset_from_json(outputs, output_schema)
             else:
-                return [checkData(json.loads(output), output_schema) for output in outputs]
+                return [from_json(x, output_schema) for x in outputs]
