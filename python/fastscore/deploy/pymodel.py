@@ -111,7 +111,7 @@ class PyModel(Model):
                     output_str += fcn.source + '\n\n'
                 except AttributeError:
                     raise AttributeError('Could not find source for function: ' + fcn.__name__)
-        return output_str
+        return output_str.encode('utf-8')
 
     def score(self, inputs, complete=True, use_json=False):
         """
