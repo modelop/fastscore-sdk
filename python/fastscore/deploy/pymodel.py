@@ -1,6 +1,7 @@
 ## -- Model class -- ##
 from ..model import Model
 from ..schema import Schema
+from ..stream import Stream
 
 from inspect import getsource
 import json
@@ -259,6 +260,78 @@ class PyModel(Model):
         # all items match schema and expected values
         return True
 
+    class ProgressorGhost(object):
+        pass
+
+    def deploy(self, engine, generate_streams = True):
+        """
+        Deploy this model to an engine.
+
+        :param engine: The Engine instance to use.
+        :param generate_streams: If True, automatically generate stream
+                                 configurations using the REST transport.
+        """
+        if generate_streams:
+
+            progress = PyModel.ProgressorGhost()
+            progress.value = 0
+            try:
+                from ipywidgets import IntProgress
+                from IPython.display import display
+                progress = IntProgress(min=0, max=7)
+                display(progress)
+            except Exception:
+                pass
+
+            self.update()
+            progress.value += 1
+            for schema_name in self.schemas:
+                self.schemas[schema_name].update()
+            progress.value += 1
+            input_stream_name = self.name + '_in'
+            output_stream_name = self.name + '_out'
+            input_stream_desc = {
+                                  "Transport": {
+                                    "Type": "REST"
+                                  },
+                                  "Envelope": "delimited",
+                                  "Encoding": "json",
+                                  "Schema": {"$ref": self.options['input']}
+                                }
+            output_stream_desc = {
+                                  "Transport": {
+                                    "Type": "REST"
+                                  },
+                                  "Envelope": "delimited",
+                                  "Encoding": "json",
+                                  "Schema": {"$ref": self.options['output']}
+                                }
+            if 'recordsets' in self.options:
+                if self.options['recordsets'] == 'input' \
+                or self.options['recordsets'] == 'both':
+                    input_stream_desc['Batching'] = 'explicit'
+                if self.options['recordsets'] == 'output' \
+                or self.options['recordsets'] == 'both':
+                    output_stream_desc['Batching'] = 'explicit'
+
+            input_stream = Stream(input_stream_name, input_stream_desc,
+                                  model_manage = self._mm)
+            output_stream = Stream(output_stream_name, output_stream_desc,
+                                    model_manage = self._mm)
+            input_stream.update()
+            progress.value += 1
+            output_stream.update()
+            progress.value += 1
+
+            engine.outputs[1] = output_stream
+            progress.value += 1
+            engine.inputs[1] = input_stream
+            progress.value += 1
+            engine.load_model(self)
+            progress.value += 1
+        else:
+            engine.load_model(self)
+
     @staticmethod
     def from_string(model_str, outer_namespace=None, model_type=None):
         """
@@ -347,62 +420,3 @@ class PyModel(Model):
                          options=model_options,
                          begin=model_begin, end=model_end,
                          functions=model_functions, imports=imports)
-
-
-## Maybe deploy should be added to Model?
-def deploy(self, model):
-    """
-    Deploy a model to the engine. Automatically creates input and output
-    streams.
-
-    Required fields:
-    - model: The model object to deploy.
-    """
-
-    self.unload_model()
-    self.load_model(model)
-
-    api.add_schema(model.options['input'], model.input_schema.toJson())
-    api.add_schema(model.options['output'], model.output_schema.toJson())
-
-    input_stream_name = model.name + '_in'
-    output_stream_name = model.name + '_out'
-    input_stream_desc = {
-                          "Transport": {
-                            "Type": "REST"
-                          },
-                          "Envelope": "delimited",
-                          "Encoding": "json",
-                          "Schema": {"$ref": model.options['input']}
-                        }
-    output_stream_desc = {
-                          "Transport": {
-                            "Type": "REST"
-                          },
-                          "Envelope": "delimited",
-                          "Encoding": "json",
-                          "Schema": {"$ref": model.options['output']}
-                        }
-
-    if 'recordsets' in model.options:
-        if model.options['recordsets'] == 'input' \
-        or model.options['recordsets'] == 'both':
-            input_stream_desc['Batching'] = 'explicit'
-        if model.options['recordsets'] == 'output' \
-        or model.options['recordsets'] == 'both':
-            output_stream_desc['Batching'] = 'explicit'
-
-    input_stream = Stream(input_stream_name, json.dumps(input_stream_desc),
-                          model_manage = model._mm)
-    output_stream = Stream(output_stream_name, json.dumps(output_stream_desc),
-                            model_manage = model._mm)
-
-    self.inputs[1] = input_stream
-    self.outputs[1] = output_stream
-
-def stop(self):
-    """
-    Stop all running jobs on the engine.
-    """
-    print('Engine stopped.')
-    api.stop_job(self.container)
