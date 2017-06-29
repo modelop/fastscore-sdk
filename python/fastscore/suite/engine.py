@@ -211,7 +211,7 @@ class Engine(InstanceBase):
         input_str = ''
         for datum in inputs:
             input_str += datum.strip() + '\n'
-        input_str += '{"$fastscore":"pig"}'
+        input_str += '{"$fastscore":"pig"}\n'
 
         # now we send the input
         self.swg.job_io_input(instance=self.name, data=input_str, id=1)
@@ -222,6 +222,8 @@ class Engine(InstanceBase):
             return [x for x in output.split('\n') if len(x) > 0]
         else:
             outputs = [x for x in output.split('\n') if len(x) > 0]
+            if json.loads(outputs[-1]) == {"$fastscore": "pig"}:
+                outputs = outputs[:-1]
             if json.loads(outputs[-1]) == {"$fastscore": "set"}:
                 outputs = outputs[:-1]
             if job_status.model.recordsets == 'both' or \
