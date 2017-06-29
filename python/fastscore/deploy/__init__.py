@@ -5,4 +5,7 @@ if six.PY2:
 if six.PY3:
     from .py3model import Py3Model
 
-import ipmagic
+try:
+    import ipmagic
+except NameError:
+    pass
