@@ -4,3 +4,5 @@ if six.PY2:
     from .pfamodel import PFAModel
 if six.PY3:
     from .py3model import Py3Model
+
+import ipmagic
