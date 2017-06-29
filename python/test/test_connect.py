@@ -1,3 +1,4 @@
+import config
 
 from fastscore.suite import Connect
 
@@ -20,7 +21,7 @@ class ConnectTests(TestCase):
             self.health = health
 
     def setUp(self):
-        self.connect = Connect('https://dashboard:8000')
+        self.connect = Connect(config.dashboard)
 
     @patch('fastscore.suite.connect.ConnectApi.health_get')
     def test_check_health(self, health_get):
@@ -31,10 +32,10 @@ class ConnectTests(TestCase):
     def test_get_swagger(self, swagger_get):
         self.connect.get_swagger()
         swagger_get.assert_called_once_with('connect')
-    
+
     def test_connect(self):
         self.assertRaises(FastScoreError, lambda : Connect('foobar'))
-        self.assertRaises(FastScoreError, lambda : Connect('http://dashboard'))
+        self.assertRaises(FastScoreError, lambda : Connect('http://fake-host:8000'))
 
     @patch('fastscore.suite.connect.ConnectApi.config_put_with_http_info',
                 return_value=(None,204,None))
@@ -65,9 +66,9 @@ class ConnectTests(TestCase):
     @patch('fastscore.suite.connect.ConnectApi.connect_get')
     def test_get(self, connect_get):
         connect_get.return_value = []
-        self.assertRaises(FastScoreError, lambda : self.connect.get('model-manage'))  
+        self.assertRaises(FastScoreError, lambda : self.connect.get('model-manage'))
         connect_get.return_value = [ConnectTests.ServiceInfo('mm-1', health='fail')]
-        self.assertRaises(FastScoreError, lambda : self.connect.get('model-manage'))  
+        self.assertRaises(FastScoreError, lambda : self.connect.get('model-manage'))
         connect_get.return_value = [ConnectTests.ServiceInfo('mm-1')]
         mm = self.connect.get('model-manage')
 
@@ -117,4 +118,3 @@ class ConnectTests(TestCase):
         sensor_available.assert_called_once_with('connect')
 
     #NB: connect.pneumo() not tested
-

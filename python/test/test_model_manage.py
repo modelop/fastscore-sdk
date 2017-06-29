@@ -1,3 +1,4 @@
+import config
 
 from fastscore.suite import Connect
 from fastscore import Model
@@ -27,7 +28,7 @@ class ModelManageTests(TestCase):
     @patch('fastscore.suite.connect.ConnectApi.connect_get',
                 return_value=[ServiceInfo('mm-1')])
     def setUp(self, connect_get):
-        self.connect = Connect('https://dashboard:8000')
+        self.connect = Connect('https://dashboard:1234')
         self.mm = self.connect.get('mm-1')
 
     @patch('fastscore.suite.model_manage.ModelManageApi.health_get')
@@ -177,4 +178,3 @@ class ModelManageTests(TestCase):
         def set_sensor():
             self.mm.sensors['s1'] = None
         self.assertRaises(FastScoreError, set_sensor)
-

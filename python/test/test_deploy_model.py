@@ -8,6 +8,7 @@ elif six.PY3:
 import pandas as pd
 
 class TestModel(unittest.TestCase):
+    
     def test_py2_from_string(self):
         if six.PY3: # skip if Python3
             return
@@ -52,6 +53,7 @@ def action(df):
         mydf = pd.DataFrame({'x':[1, 2, 3], 'y':[1, 2, 3]})
         outdf = pd.DataFrame({'x':[1, 2, 3], 'y':[1, 2, 3], 'z':[0, 0, 0]})
         self.assertEqual(outdf.equals(model.score(mydf)), True)
+
     def test_pfa_from_string(self):
         if six.PY3:
             return
@@ -67,6 +69,7 @@ action:
         self.assertEqual(model.score(3), 3)
         self.assertEqual(model.score(-3), 3)
         self.assertEqual(model.score('3', use_json=True), '3')
+
     def test_pfa_from_string_emit(self):
         if six.PY3:
             return
