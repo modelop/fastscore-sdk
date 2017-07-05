@@ -54,7 +54,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'FastScore SDK'
 copyright = u'2017, Open Data Group'
-author = u'Maxim Kharchenko'
+author = u'Maxim Kharchenko, Matthew Mahowald'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -165,4 +165,3 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
-

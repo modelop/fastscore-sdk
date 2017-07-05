@@ -69,3 +69,20 @@ Sensors
 .. autoclass:: fastscore.Sensor
    :members:
 
+
+Deploy
+-----------------
+
+.. module:: fastscore.deploy
+
+.. autoclass:: fastscore.deploy.py2model.Py2Model
+  :inherited-members:
+  :members:
+
+.. autoclass:: fastscore.deploy.py3model.Py3Model
+  :inherited-members:
+  :members:
+
+.. autoclass:: fastscore.deploy.pfamodel.PFAModel
+  :inherited-members:
+  :members:
