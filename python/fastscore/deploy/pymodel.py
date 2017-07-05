@@ -22,20 +22,18 @@ class PyModel(Model):
         """
         A Python Model's constructor.
 
-        Required fields:
-        - name: A name for the model.
-        - schemas: The input and output schemas for the model.
+        :param name: A name for the model.
+        :param schemas: The input and output schemas for the model.
 
-        Optional fields:
-        - source: The source code for this model. If specified, then the rest of
-          the fields are ignored.
+        :param source: The source code for this model. If specified, then the rest of
+          the fields below are ignored.
 
-        - action: The action method for this model (if not source)
-        - options: options specified by "fastscore.*: " smart comments. (if not source)
-        - begin, end: begin and end functions for the model (if not source)
-        - functions: a list of other user-defined functions needed to execute
+        :param action: The action method for this model (if not source)
+        :param options: options specified by "fastscore.*: " smart comments. (if not source)
+        :param begin, end: begin and end functions for the model (if not source)
+        :param functions: a list of other user-defined functions needed to execute
                      action, begin, or end (if not source)
-        - imports: a list of import statements made by the model (as strings) (if not source)
+        :param imports: a list of import statements made by the model (as strings) (if not source)
         """
         super(PyModel, self).__init__(name=name, mtype=mtype, source=source,
                                       model_manage=model_manage,
@@ -118,15 +116,13 @@ class PyModel(Model):
         """
         Scores data using this model.
 
-        Required fields:
-        - inputs: The input data. This can be either a single item, or an
+        :param inputs: The input data. This can be either a single item, or an
                   iteratable collection of items (e.g. a list)
 
-        Optional fields:
-        - complete: A boolean. If True, execute 'begin()' at the start and
+        :param complete: A boolean. If True, execute 'begin()' at the start and
                     'end()' at the end (default). If False, skip executing
                     'begin()' and 'end()'
-        - use_json: If True, inputs and outputs are JSON strings. Default: False.
+        :param use_json: If True, inputs and outputs are JSON strings. Default: False.
         """
         if complete and self.begin:
             self.begin()
@@ -200,13 +196,11 @@ class PyModel(Model):
         Validates that the model produces the expected outputs from the input
         data, and that input and output data match the schema.
 
-        Required fields:
-        - inputs: Input data to be scored.
-        - outputs: The expected output of the model associated to the given
+        :param inputs: Input data to be scored.
+        :param outputs: The expected output of the model associated to the given
                    inputs.
 
-        Optional fields:
-        - use_json: True if inputs and outputs are JSON strings. Default: False.
+        :param use_json: True if inputs and outputs are JSON strings. Default: False.
         """
 
         input_schema = jsonNodeToAvroType(self.schemas['input'].source)
@@ -269,7 +263,7 @@ class PyModel(Model):
 
         :param engine: The Engine instance to use.
         :param generate_streams: If True, automatically generate stream
-                                 configurations using the REST transport.
+                                 configurations using the REST transport. Default: True.
         """
         if generate_streams:
 
@@ -337,11 +331,9 @@ class PyModel(Model):
         """
         Creates a PyModel object from a string.
 
-        Required fields:
-        - model_str: A string of code defining the model.
+        :param model_str: A string of code defining the model.
 
-        Optional fields:
-        - outer_namespace: The namespace to bind the defined functions to.
+        :param outer_namespace: The namespace to bind the defined functions to.
                            Pass this value if you want to be able to call
                            action() or other methods from your Jupyter NB.
                            Default: None.

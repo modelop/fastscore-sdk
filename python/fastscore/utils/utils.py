@@ -3,14 +3,11 @@ import json
 
 def compare_items(obj1, obj2, f_error):
     """
-    Compares two JSON objects. Nonzero float fields are considered equal if they
-    are within a margin of error:
-    abs(a - b)/(abs(a) + abs(b)) <= f_error
+    Compares two JSON objects. Nonzero float fields are compared using :func:`compare_floats`
 
-    Required fields:
-    - obj1: The first object
-    - obj2: The second object
-    - f_error: A margin of error
+    :param obj1: The first object
+    :param obj2: The second object
+    :param f_error: A margin of error
     """
     if type(obj1) != type(obj2):
         print('Type mismatch: ' + str(type(obj1)) + ' != ' + str(type(obj2)))
@@ -52,14 +49,12 @@ def compare_floats(float1, float2, f_error=0.01, zero_tolerance=1e-8, inf_tolera
        2*abs(float1 - float2)/(abs(float1) + abs(float2)) <= f_error, return True.
     4. Otherwise, return False.
 
-    Required fields:
-    - float1: First numeric field.
-    - float2: Second numeric field.
+    :param float1: First numeric field.
+    :param float2: Second numeric field.
 
-    Optional fields:
-    - f_error: Fractional margin of error (default: 0.01)
-    - zero_tolerance: Zero tolerance (default: 1e-8)
-    - inf_tolerance: Infinite tolerance (default: 1e80)
+    :param f_error: Fractional margin of error (default: 0.01)
+    :param zero_tolerance: Zero tolerance (default: 1e-8)
+    :param inf_tolerance: Infinite tolerance (default: 1e80)
     """
     if abs(float1) < zero_tolerance and abs(float2) < zero_tolerance:
         return True
@@ -76,7 +71,7 @@ def compare_floats(float1, float2, f_error=0.01, zero_tolerance=1e-8, inf_tolera
 def ts(avroType):
     """Create a human-readable type string of a type.
 
-    :type avroType: datatype.AvroType
+    :type avroType: codec.datatype.AvroType
     :param avroType: type to print out
     :rtype: string
     :return: string representation of the type.

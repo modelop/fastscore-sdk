@@ -18,12 +18,9 @@ class PFAModel(Model):
         """
         A PFA Model's constructor.
 
-        Required fields:
-        - pfa: the content of the PFA model. This may be either a JSON string,
+        :param pfa: the content of the PFA model. This may be either a JSON string,
                a YAML string, or a Python dictionary object.
-
-        Optional fields:
-        - name: a name for this model.
+        :param name: a name for this model.
         """
 
         self._name = name
@@ -76,15 +73,13 @@ class PFAModel(Model):
         """
         Scores data using this model.
 
-        Required fields:
-        - inputs: The input data. This can either be a single item, or an iterable
+        :param inputs: The input data. This can either be a single item, or an iterable
                   collection of items (e.g. a list)
 
-        Optional fields:
-        - complete: A boolean. If True, execute 'begin' at the start of the run
+        :param complete: A boolean. If True, execute 'begin' at the start of the run
                     and 'end' at the end (default). If False, skip executing
                     these steps.
-        - use_json: If True, inputs and outputs are JSON strings. Default: False.
+        :param use_json: If True, inputs and outputs are JSON strings. Default: False.
         """
         if complete:
             self.__pfaengine.begin()
@@ -140,14 +135,11 @@ class PFAModel(Model):
         Validates that the model produces the expected outputs from the input
         data, and that input and output data match the schema.
 
-        Required fields:
-        - inputs: Input data to be scored.
-        - outputs: The expected output of the model associated to the given inputs.
+        :param inputs: Input data to be scored.
+        :param outputs: The expected output of the model associated to the given inputs.
 
-        Optional fields:
-        - use_json: True if inputs and outputs are JSON strings. Default: False.
+        :param use_json: True if inputs and outputs are JSON strings. Default: False.
         """
-        # This is mostly the same as in the Py2Model
 
 
         input_schema = jsonNodeToAvroType(self.schemas['input'])

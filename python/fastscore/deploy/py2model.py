@@ -10,20 +10,18 @@ class Py2Model(PyModel):
         """
         A Python2 Model's constructor.
 
-        Required fields:
-        - name: A name for the model.
-        - schemas: The input and output schemas for the model.
+        :param name: A name for the model.
+        :param schemas: The input and output schemas for the model.
 
-        Optional fields:
-        - source: The source code for this model. If specified, then the rest of
-          the fields are ignored.
+        :param source: The source code for this model. If specified, then the rest of
+          the fields below are ignored.
 
-        - action: The action method for this model (if not source)
-        - options: options specified by "fastscore.*: " smart comments. (if not source)
-        - begin, end: begin and end functions for the model (if not source)
-        - functions: a list of other user-defined functions needed to execute
+        :param action: The action method for this model (if not source)
+        :param options: options specified by "fastscore.*: " smart comments. (if not source)
+        :param begin, end: begin and end functions for the model (if not source)
+        :param functions: a list of other user-defined functions needed to execute
                      action, begin, or end (if not source)
-        - imports: a list of import statements made by the model (as strings) (if not source)
+        :param imports: a list of import statements made by the model (as strings) (if not source)
         """
         super(Py2Model, self).__init__(name=name,
                                        mtype=mtype,

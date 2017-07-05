@@ -53,8 +53,7 @@ class Engine(InstanceBase):
         Generally, this is not intended to be constructed 'by hand'. Instead,
         Engine instances should be retrieved from Connect.
 
-        Required fields:
-        - name: A name for this instance.
+        :param name: A name for this instance.
 
         """
         super(Engine, self).__init__(name, 'engine', EngineApi())
@@ -95,11 +94,8 @@ class Engine(InstanceBase):
         """
         Load a model into this engine.
 
-        Required fields:
-        - model: A Model object.
-
-        Optional fields:
-        - force_inline: If True, force all attachments to load inline. If False,
+        :param model: A Model object.
+        :param force_inline: If True, force all attachments to load inline. If False,
                         attachments may be loaded by reference.
         """
 
@@ -191,6 +187,21 @@ class Engine(InstanceBase):
 
 
     def score(self, data, encode=True):
+        """
+        Scores the data on the currently running model. Requires the input and
+        output streams to use the REST transport.
+
+        >>> engine.score(data=[1,2,3])
+        [4,5,6]
+        >>> engine.score(data=['1', '2', '3'], encode=False)
+        ['4', '5', '6']
+
+        :param data: The data to score, e.g. a list of JSON records.
+        :param encode: A boolean indicating whether to encode the inputs. If
+            True, the input data is encoded to JSON, and the output is decoded
+            from JSON.
+        :returns: The scored data.
+        """
         job_status = self.swg.job_status(instance=self.name)
         if job_status.model == None:
             raise FastScoreError("No currently running model.")
