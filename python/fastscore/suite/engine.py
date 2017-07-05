@@ -229,4 +229,4 @@ class Engine(InstanceBase):
                job_status.model.recordsets == 'output':
                 return recordset_from_json(outputs, output_schema)
             else:
-                return [from_json(x, output_schema) for x in outputs]
+                return [x for x in from_json(outputs, output_schema)]
