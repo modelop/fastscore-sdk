@@ -12,7 +12,7 @@ class Snapshot(object):
 
     def __init__(self, id, date, stype, size, model):
         self._id = id
-        self._data = date
+        self._date = date
         self._stype = stype
         self._size = size
         self._model = model
@@ -51,4 +51,3 @@ class Snapshot(object):
 
         """
         self._model.restore_snapshot(self)
-
