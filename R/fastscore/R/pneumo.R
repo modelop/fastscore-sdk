@@ -1,6 +1,8 @@
 
 PneumoSock <- setRefClass("PneumoSock",
-    fields=list(),
+    fields=list(
+        proxy_prefix = "character"
+    ),
     methods=list(
         recv = function(){
             stop("Not implemented!") # TODO
