@@ -17,6 +17,9 @@ Schema <- setRefClass("Schema",
                 stop(paste("FastScoreError: Schema", .self$name,
                 "is not associated with Model Manage."))
             }
+            if(!is.NULL(.self$model_manage)){
+                .self$model_manage <- model_manage
+            }
             return(.self$model_manage$save_schema(.self))
         }
     )
