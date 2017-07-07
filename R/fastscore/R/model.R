@@ -16,31 +16,31 @@ Model <- setRefClass("Model",
         update = function(model_manage = NULL){
             stop("Not implemented!") # TODO
         },
-        list_attachments = function(){
+        attachment_list = function(){
             stop("Not implemented!") # TODO
         },
-        get_attachment = function(name){
+        attachment_get = function(name){
             stop("Not implemented!") # TODO
         },
-        download_attachment = function(name){
+        attachment_download = function(name){
             stop("Not implemented!") # TODO
         },
-        remove_attachment = function(name){
+        attachment_delete = function(name){
             stop("Not implemented!") # TODO
         },
         save_attachment = function(att){
             stop("Not implemented!") # TODO
         },
-        list_snapshots = function(date1, date2, count){
+        snapshot_list = function(date1, date2, count){
             stop("Not implemented!") # TODO
         },
-        get_snapshot = function(snapid){
+        snapshot_get = function(snapid){
             stop("Not implemented!") # TODO
         },
-        remove_snapshot = function(snapid){
+        snapshot_delete = function(snapid){
             stop("Not implemented!") # TODO
         },
-        deploy(engine){
+        deploy = function(engine){
             stop("Not implemented!") # TODO
         }
         )
