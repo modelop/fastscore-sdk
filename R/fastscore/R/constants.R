@@ -1,3 +1,8 @@
+# Disable all SSL certificate checking
+httr::set_config(config(ssl_verifypeer=0L))
+httr::set_config(config(use_ssl=0L))
+httr::set_config(config(ssl_verifyhost=0L))
+
 MODEL_CONTENT_TYPES <- list(
     'pfa-json'      ='application/vnd.fastscore.model-pfa+json',
     'pfa-yaml'      ='application/vnd.fastscore.model-pfa-yaml',

@@ -35,8 +35,15 @@ ConnectAPI <- setRefClass("ConnectAPI",
                     body=config)
             return(status_code(r))
         },
-        config_get = function(instance, q=NULL, accept){
-            
+        config_get = function(instance, q=NULL, accept='application/x-yaml'){
+            prefix <- paste(getOption('proxy_prefix'), '/api/1/service/', sep='')
+            opts <- ''
+            if(!is.null(q)){
+                opts <- paste('?q=', q, sep='')
+            }
+            r <- GET(paste(prefix, instance, '/1/config', opts, sep=''),
+                    add_headers('accept'=accept))
+            return(content(r, 'text', encoding='UTF-8'))
         },
     )
 )
