@@ -7,6 +7,11 @@ Connect <- setRefClass("Connect",
         target="InstanceBase" #Or NULL?
     ),
     methods = list(
+        initialize = function(...){
+            callSuper(...)
+            options('proxy_prefix'=proxy_prefix)
+            .self
+        },
         pneumo = function(){
             return(PneumoSock$new(proxy_prefix = .self$proxy_prefix))
         },
@@ -88,10 +93,10 @@ Connect <- setRefClass("Connect",
 
 Connect.make_instance <- function(api, name){
     if(api == 'model-manage'){
-        return(ModelManage$new(name))
+        return(ModelManage$new(name=name, api=api, swg=ModelManageAPI$new()))
     }
     else if(api == 'engine'){
-        return(Engine$new(name))
+        return(Engine$new(name=name, api=api, swg=EngineAPI$new()))
     }
     else{
         stop("FastScoreError: Unknown API")

@@ -21,7 +21,7 @@ InstanceBase <- setRefClass("InstanceBase",
     fields = list(
         name="character",
         api="character",
-        swg="list" #TODO: Change this
+        swg="APIBase"
     ),
     methods = list(
         active_sensors = function(){
