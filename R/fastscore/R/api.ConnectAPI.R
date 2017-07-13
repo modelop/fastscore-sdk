@@ -7,7 +7,7 @@ ConnectAPI <- setRefClass("ConnectAPI",
     fields = list(),
     methods = list(
         connect_get = function(instance, name=NULL, api=NULL){
-            prefix <- paste(getOption('proxy_prefix'), '/api/1/service/', sep='')
+            prefix <- proxy_prefix()
             opts <- ''
             if(!is.null(name)){
                 if(nchar(opts) == 0)
@@ -29,14 +29,14 @@ ConnectAPI <- setRefClass("ConnectAPI",
             return(r)
         },
         config_put_with_http_info = function(instance, config, content_type){
-            prefix <- paste(getOption('proxy_prefix'), '/api/1/service/', sep='')
+            prefix <- proxy_prefix()
             r <- PUT(paste(prefix, instance, '/1/config', sep=''),
                     add_headers('Content-Type'=content_type),
                     body=config)
             return(status_code(r))
         },
         config_get = function(instance, q=NULL, accept='application/x-yaml'){
-            prefix <- paste(getOption('proxy_prefix'), '/api/1/service/', sep='')
+            prefix <- proxy_prefix()
             opts <- ''
             if(!is.null(q)){
                 opts <- paste('?q=', q, sep='')
