@@ -1,0 +1,4 @@
+
+class ActiveModel(object):
+    pass
+

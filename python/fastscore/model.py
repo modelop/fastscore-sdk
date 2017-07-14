@@ -1,128 +1,315 @@
-## -- Model class -- ##
-from inspect import getsource
-import json
-import collections
-from fastscore.datatype import jsonToAvroType, checkData, Type, avroTypeToSchema
-from fastscore.utils import compare_items
-from fastscore.codec import to_json, from_json, recordset_from_json
-import types
-import time
 
+from .constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES
+
+from .attachment import Attachment
+from .snapshot import Snapshot
+
+from .errors import FastScoreError
 import re
 
+class ModelMetadata(object):
+    def __init__(self, name, mtype):
+        self._name = name
+        self._mtype = mtype
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def mtype(self):
+        return self._mtype
+
 class Model(object):
+    """
+    Represents an analytic model. A model can be created directly:
 
-    def __init__(self, input_schema, output_schema, attachments=[], name=None, model_type=None):
-        """
-        A generic Model's constructor.
+    >>> model = fastscore.Model('model-1')
+    >>> model.mtype = 'python'
+    >>> model.source = '...'
 
-        Required fields:
-        - input_schema: an input schema to use (titus.datatype.AvroType or JSON string)
-        - output_schema: an output schema to use (titus.datatype.AvroType or JSON string)
+    Or, retrieved from a Model Manage instance:
 
-        Optional fields:
-        - name: a name for this model
-        - attachments: a list of strings with the path to attachments for the
-          model
-        - model_type: the language for this model (e.g., 'python3')
-        """
+    >>> mm = connect.lookup('model-manage')
+    >>> model = mm.models['model-1']
 
-        self.attachments = attachments
-        self.input_schema = input_schema
-        self.output_schema = output_schema
-        self.model_type = model_type
-        if name:
-            self.name = name
-        else:
-            self.name = 'model_' + str(int(time.time()))
+    A directly-created model must be saved to make attachment and snapshot
+    manipulation functions available:
+
+    >>> mm = connect.lookup('model-manage')
+    >>> model.update(mm)
+    >>> model.attachments.names()
+    []
+
+    """
 
     @property
-    def input_schema(self):
-        return self.__input_schema
+    def TYPES():
+        return MODEL_CONTENT_TYPES.keys()
 
-    @input_schema.setter
-    def input_schema(self, input_schema):
-        if type(input_schema) is str:
-            self.__input_schema = jsonToAvroType(input_schema)
-        elif isinstance(input_schema, Type):
-            self.__input_schema = input_schema
-        else:
-            raise TypeError("Model input schema must be either a JSON string or AvroType")
+    class AttachmentBag(object):
+        def __init__(self, model):
+            self.model = model
 
-    @input_schema.deleter
-    def input_schema(self):
-        del self.__input_schema
+        def names(self):
+            return self.model.list_attachments()
+
+        def __iter__(self):
+            for x in self.model.list_attachments():
+                (atype,sz) = self.model.get_attachment(x)
+                yield Attachment(x, atype, None, datasize=sz, model=self.model)
+
+        def __getitem__(self, name):
+            (atype,sz) = self.model.get_attachment(name)
+            return Attachment(name, atype, None, datasize=sz, model=self.model)
+
+        def __delitem__(self, name):
+            self.model.remove_attachment(name)
+
+    class SnapshotBag(object):
+        def __init__(self, model):
+            self.model = model
+
+        def browse(self, date1=None, date2=None, count=None):
+            return self.model.list_snapshots(date1, date2, count)
+
+        def __get__(self, snapid):
+            return self.model.get_snapshot(snapid)
+
+        def __delitem__(self, snapid):
+            self.model.remove_snapshot(snapid)
+
+    class SchemaBag(object):
+        def __init__(self, model, schemas={}):
+            self.model = model
+            self._schemas = {}
+            for key in schemas:
+                self[key] = schemas[key]
+                if self.model._mm != None:
+                    key.update(model_manage = self.model._mm)
+
+        def __setitem__(self, slot, schema):
+            if slot != 'input' and slot != 'output':
+                raise FastScoreError("Only input and output schemas are currently supported in Models.")
+            self._schemas[slot] = schema
+            if self.model._mm != None:
+                schema.update(model_manage = self.model._mm)
+
+        def __getitem__(self, slot):
+            return self._schemas[slot]
+
+        def __iter__(self):
+            for key in self._schemas:
+                yield key
+
+    def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}):
+        self._mm = model_manage
+        self._schemas = Model.SchemaBag(self, schemas)
+        self._name = name
+        self.mtype = mtype
+        self.source = source
+        self._attachments = Model.AttachmentBag(self)
+        self._snapshots = Model.SnapshotBag(self)
+
 
     @property
-    def output_schema(self):
-        return self.__output_schema
-
-    @output_schema.setter
-    def output_schema(self, output_schema):
-        if type(output_schema) is str:
-            self.__output_schema = jsonToAvroType(output_schema)
-        elif isinstance(output_schema, Type):
-            self.__output_schema = output_schema
-        else:
-            raise TypeError("Model output schema must be either a JSON string or AvroType")
-
-    @output_schema.deleter
-    def output_schema(self):
-        del self.__output_schema
-
-    def to_string(self):
+    def name(self):
         """
-        Convert this model object to a string, ready for use in FastScore.
+        A model name, e.g. 'model-1'.
         """
+        return self._name
 
-        return self.__model_string
+    @name.setter
+    def name(self, name):
+        self._name = name
 
-    def score(self, inputs, complete=True, use_json=False):
+    @property
+    def mtype(self):
         """
-        Scores data using this model. This must be implemented by any child
-        classes!
+        A model type:
 
-        Required fields:
-        - inputs: The input data. This can be either a single item, or an
-                  iteratable collection of items (e.g. a list)
+        * **pfa-json**: a PFA model in JSON format.
+        * **pfa-yaml**: a PFA model in YAML format.
+        * **pfa-pretty**: a PrettyPFA model.
+        * **python**: a Python model.
+        * **python3**: a Python 3 model.
+        * **R**: an R model.
+        * **java**: a Java model.
+        * **c**: a C model.
 
-        Optional fields:
-        - complete: A boolean. If True, execute 'begin()' at the start and
-                    'end()' at the end (default). If False, skip executing
-                    'begin()' and 'end()'
-        - use_json: If True, inputs and outputs are JSON strings. Default: False.
         """
-        raise NotImplementedError('Model score methods must be implemented by child classes.')
+        return self._mtype
 
+    @mtype.setter
+    def mtype(self, mtype):
+        assert mtype in MODEL_CONTENT_TYPES
+        self._mtype = mtype
 
-    def validate(self, inputs, outputs, use_json=False):
+    @property
+    def source(self):
         """
-        Validates that the model produces the expected outputs from the input
-        data, and that input and output data match the schema.
-
-        Note: Model Validation must be implemented by child classes.
-
-        Required fields:
-        - inputs: Input data to be scored.
-        - outputs: The expected output of the model associated to the given
-                   inputs.
-
-        Optional fields:
-        - use_json: True if inputs and outputs are JSON strings. Default: False.
+        The source code of the model.
         """
-        raise NotImplementedError('Model validation methods must be implemented by child classes.')
+        return self._source
 
+    @source.setter
+    def source(self, source):
+        self._source = source
+        self.__parse_options()
 
-    @classmethod
-    def from_string(model_str):
+    def __parse_options(self):
+        lines = self.source.split('\n')
+        model_options = {}
+        for line in lines:
+            option = re.search(r'# *fastscore\.(.*):(.*)', line.strip())
+            if option:
+                optname = option.group(1).strip()
+                optvalue = option.group(2).strip()
+                model_options[optname] = optvalue
+        if self._mm != None:
+            if 'input' in model_options:
+                input_sch = self._mm.schemas[model_options['input']]
+                self.schemas['input'] = input_sch
+            if 'output' in model_options:
+                output_sch = self._mm.schemas[model_options['output']]
+                self.schemas['output'] = output_sch
+        self._model_options = model_options
+
+    @property
+    def options(self):
+        return self._model_options
+
+    @options.setter
+    def options(self, options):
+        self._model_options = options
+        # raise FastScoreError("Option setting is not implemented yet.")
+
+    @property
+    def schemas(self):
         """
-        Creates a Model object from a string.
-
-        Required fields:
-        - model_str: A string of code defining the model.
+        The schemas used by this model. See :class:`.Schema`.
         """
-        input_schema = '"null"'
-        output_schema = '"null"'
-        mymodel = Model(input_schema=input_schema, output_schema=output_schema)
-        mymodel.__model_string = model_str
-        return mymodel
+        return self._schemas
+
+    @property
+    def attachments(self):
+        """
+        A collection of model attachments. See :class:`.Attachment`.
+        """
+        return self._attachments
+
+    @property
+    def snapshots(self):
+        return self._snapshots
+
+    def update(self, model_manage=None):
+        if model_manage == None and self._mm == None:
+            raise FastScoreError("Model '%s' not associated with Model Manage" % self.name)
+        if self._mm == None:
+            self._mm = model_manage
+            # If it's our first time saving the model, add the schemas as well.
+            for schema_name in self.schemas:
+                schema = self.schemas[schema_name]
+                schema.update(model_manage = self._mm)
+        return self._mm.save_model(self)
+
+    def saved(self):
+        if self._mm == None:
+            raise FastScoreError("Model '%s' not saved (use update() method)" % self.name)
+
+    def list_attachments(self):
+        self.saved()
+        try:
+            return self._mm.swg.attachment_list(self._mm.name, self.name)
+        except Exception as e:
+            raise FastScoreError("Cannot list attachments", caused_by=e)
+
+    def get_attachment(self, name):
+        self.saved()
+        try:
+            (_,_,headers) = \
+                    self._mm.swg.attachment_head_with_http_info(self._mm.name, \
+                            self.name, name)
+            ct = headers['content-type']
+            sz = int(headers['content-length'])
+            for atype,ct1 in ATTACHMENT_CONTENT_TYPES.items():
+                if ct1 == ct:
+                    return (atype,sz)
+            raise FastScoreError("Unrecognized attachment MIME type '%s'" % ct)
+        except Exception as e:
+            raise FastScoreError("Cannot retrieve attachment '%s'" % name, caused_by=e)
+
+    def download_attachment(self, name):
+        self.saved()
+        try:
+            return self._mm.swg.attachment_get(self._mm.name, self.name, name)
+        except Exception as e:
+            raise FastScoreError("Cannot download attachment '%s'" % name, caused_by=e)
+
+    def remove_attachment(self, name):
+        self.saved()
+        try:
+            self._mm.swg.attachment_delete(self._mm.name, self.name, name)
+        except Exception as e:
+            raise FastScoreError("Cannot remove attachment '%s'" % name, caused_by=e)
+
+    def save_attachment(self, att):
+        """
+        Add an attachment to the model.
+        """
+        self.saved()
+        try:
+            ct = ATTACHMENT_CONTENT_TYPES[att.atype]
+
+            ##
+            ## schema: { type: file }
+            ##   is not supported by Swagger 2.0 for in-body parameters.
+            ##
+            with open(att.datafile) as f:
+                data = f.read()
+
+            self._mm.swg.attachment_put(self._mm.name, \
+                    self.name, att.name, data=data, content_type=ct)
+        except Exception as e:
+           raise FastScoreError("Cannot upload attachment '%s'" % att.name, \
+                   caused_by=e)
+
+    def list_snapshots(self, date1, date2, count):
+        self.saved()
+        try:
+            params = {}
+            if date1 or date2:
+                date_range = ''
+                if date1:
+                    date_range += date1.isoformat()
+                date_range += '--'
+                if date2:
+                    date_range += date2.isoformat()
+                params['date_range'] = date_range
+            if count:
+                params['count'] = count
+            return self._mm.swg.snapshot_list(self._mm.name, self.name, **params)
+        except Exception as e:
+            raise FastScoreError("Cannot list snapshots", caused_by=e)
+
+    def get_snapshot(self, snapid):
+        self.saved()
+        try:
+            return self._mm.swg.snapshot_get_metadata(self._mm.name, self.name, snapid)
+        except Exception as e:
+            raise FastScoreError("Cannot retrieve snapshot '%s' metadata" % snapid, caused_by=e)
+
+    def remove_snapshot(self, snapid):
+        self.saved()
+        try:
+            self._mm.swg.snapshot_delete(self._mm.name, self.name, snapid)
+        except Exception as e:
+            raise FastScoreError("Cannot remove snapshot '%s'" % snapid, caused_by=e)
+
+    def deploy(self, engine):
+        """
+        Deploy this model to an engine.
+
+        :param engine: The Engine instance to use.
+        """
+        engine.load_model(self)
