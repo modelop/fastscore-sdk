@@ -1,3 +1,9 @@
+#' @include suite.instance.R
+#' @include api.ConnectAPI.R
+#' @include api.EngineAPI.R
+#' @include api.ModelManageAPI.R
+
+#' @export Connect
 Connect <- setRefClass("Connect",
     contains="InstanceBase",
     fields=list(
@@ -10,6 +16,9 @@ Connect <- setRefClass("Connect",
         initialize = function(...){
             callSuper(...)
             options('proxy_prefix'=proxy_prefix)
+            .self$name <- "connect"
+            .self$api <- "connect"
+            .self$swg <- ConnectAPI$new()
             .self
         },
         pneumo = function(){

@@ -2,6 +2,11 @@ ModelManageAPI <- setRefClass("ModelManageAPI",
     contains="APIBase",
     fields=list(),
     methods=list(
+        attachment_list=function(instance, model_name){
+            prefix <- proxy_prefix()
+            r <- GET(paste(prefix, instance, '/1/model/', model_name, '/attachment', sep=''))
+            return(content(r))
+        },
         model_get_with_http_info=function(instance, name){
             prefix <- proxy_prefix()
             r <- GET(paste(prefix, instance, '/1/model/', name, sep=''))

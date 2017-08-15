@@ -1,3 +1,6 @@
+#' @include suite.instance.R
+
+#' @export ModelManage
 ModelManage <- setRefClass("ModelManage",
     contains="InstanceBase",
     fields=list(),
@@ -14,7 +17,7 @@ ModelManage <- setRefClass("ModelManage",
                 mtype <- names(MODEL_CONTENT_TYPES)[[i]]
                 ct1 <- MODEL_CONTENT_TYPES[[i]]
                 if(ct1 == ct){
-                    return(Model$new(name,
+                    return(Model$new(name=name,
                         mtype=mtype,
                         source=source,
                         model_manage=.self))
@@ -30,7 +33,7 @@ ModelManage <- setRefClass("ModelManage",
         },
         schema_get = function(name){
             source <- .self$swg$schema_get(.self$name, name)
-            return(Schema$new(name, source=source, model_manage=.self))
+            return(Schema$new(name=name, source=source, model_manage=.self))
         },
         schema_delete = function(name){
             return(.self$swg$schema_delete(.self$name, name))
@@ -40,7 +43,7 @@ ModelManage <- setRefClass("ModelManage",
         },
         stream_get = function(name){
             desc <- .self$swg$stream_get(.self$name, name)
-            return(Stream$new(name, desc, model_manage=.self))
+            return(Stream$new(name=name, desc=desc, model_manage=.self))
         },
         stream_delete = function(name){
             return(.self$swg$stream_delete(.self$name, name))
@@ -50,13 +53,13 @@ ModelManage <- setRefClass("ModelManage",
         },
         sensor_get = function(name){
             desc <- .self$swg$sensor_get(.self$name, name)
-            return(Sensor$new(name, desc=desc, model_manage=.self))
+            return(Sensor$new(name=name, desc=desc, model_manage=.self))
         },
         sensor_delete = function(name){
             return(.self$swg$sensor_delete(.self$name, name))
         },
         save_model = function(model){
-            if(is.NULL(model$source)){
+            if(is.null(model$source)){
                 stop("FastScoreError: Model source property not set.")
             }
             ct <- MODEL_CONTENT_TYPES[[model$mtype]]
@@ -67,7 +70,7 @@ ModelManage <- setRefClass("ModelManage",
             return(status==204)
         },
         save_schema = function(schema){
-            if(is.NULL(schema$source)){
+            if(is.null(schema$source)){
                 stop("FastScoreError: Schema source property not set.")
             }
             status <- .self$swg$schema_put_with_http_info(.self$name,
@@ -76,7 +79,7 @@ ModelManage <- setRefClass("ModelManage",
             return(status==204)
         },
         save_stream = function(stream){
-            if(is.NULL(stream$desc)){
+            if(is.null(stream$desc)){
                 stop("FastScoreError: Stream descriptor property not set.")
             }
             status <- .self$swg$stream_put_with_http_info(.self$name,
@@ -85,7 +88,7 @@ ModelManage <- setRefClass("ModelManage",
             return(status == 204)
         },
         save_sensor = function(sensor){
-            if(is.NULL(sensor$desc)){
+            if(is.null(sensor$desc)){
                 stop("FastScoreError: Sensor descriptor property not set.")
             }
             status <- .self$swg$sensor_put_with_http_info(.self$name,

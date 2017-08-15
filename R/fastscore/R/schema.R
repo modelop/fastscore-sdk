@@ -1,3 +1,6 @@
+#' @include suite.model_manage.R
+
+setClassUnion("characterOrList", c("character", "list"))
 
 SchemaMetadata <- setRefClass("SchemaMetadata",
     fields=list(
@@ -5,22 +8,23 @@ SchemaMetadata <- setRefClass("SchemaMetadata",
     )
 )
 
+#' @export Schema
 Schema <- setRefClass("Schema",
     fields=list(
         name="character",
-        source="list",
+        source="characterOrList",
         model_manage="ModelManage"
         ),
     methods=list(
         update = function(model_manage=NULL){
-            if(is.NULL(.self$model_manage) && is.NULL(model_manage)){
+            if(is.null(.self$model_manage) && is.null(model_manage)){
                 stop(paste("FastScoreError: Schema", .self$name,
                 "is not associated with Model Manage."))
             }
-            if(!is.NULL(.self$model_manage)){
+            if(is.null(.self$model_manage) || !is.null(model_manage)){
                 .self$model_manage <- model_manage
             }
-            return(.self$model_manage$save_schema(.self))
+            .self$model_manage$save_schema(.self)
         }
     )
 )

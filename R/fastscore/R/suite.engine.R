@@ -1,4 +1,5 @@
 #-- engine object --#
+#' @include suite.instance.R
 #' @include model.R
 setClassUnion("modelOrNull", c("Model", "NULL"))
 setClassUnion("characterOrNull", c("character", "NULL"))
@@ -49,7 +50,7 @@ Engine <- setRefClass("Engine",
                                   'Content-Length: ',
                                   att$datasize,
                                   '\r\n\r\n', sep='')
-                    return list(att$name, body, ext_type)
+                    return(list(att$name, body, ext_type))
                 # }
             }
 
@@ -81,7 +82,7 @@ Engine <- setRefClass("Engine",
             }
 
             ct <- MODEL_CONTENT_TYPES[[model$mtype]]
-            attachments <- list(model$attachment_list())
+            attachments <- model$attachment_list()
             if(length(attachments) == 0){
                 data <- model$source
                 cd = paste('x-model; name="', model$name, '"', sep='')
@@ -99,7 +100,7 @@ Engine <- setRefClass("Engine",
                 data <- multipart_body(parts, boundary)
                 return(.self$swg$model_load(.self$name,
                         data,
-                        content_type=paste('multipart/mixed; boundary=', boundary, sep=''))
+                        content_type=paste('multipart/mixed; boundary=', boundary, sep='')))
             }
         },
         unload_model = function(){
@@ -174,58 +175,6 @@ Engine <- setRefClass("Engine",
                 }
                 return(lapply(outputs, from_json, schema=output_schema))
             }
-        },
-
-        # -- TODO: Move this to RModel
-
-        deploy=function(model){
-            # stop all running jobs
-            api.stop_job(.self$container)
-            # update the model
-            .self$model <- model
-
-            # add the model, streams, and schemata to model manage
-            api.add_model(model$name, model$to_string(), model_type='R')
-            for(attachment in model$attachments){
-                api.add_attachment(model$name, attachment)
-            }
-            api.add_schema(model$options[['input']], avroTypeToJsonNode(model$input_schema))
-            api.add_schema(model$options[['output']], avroTypeToJsonNode(model$output_schema))
-
-            input_stream_name <- paste(model$name, '_in', sep='')
-            output_stream_name <- paste(model$name, '_out', sep='')
-            input_stream_batch <- ''
-            output_stream_batch <- ''
-            if(!is.null(model$options[['recordsets']])){
-                  if(model$options[['recordsets']] == 'input')
-                      input_stream_batch  <- ', "Batching":"explicit"'
-                  if(model$options[['recordsets']] == 'output')
-                      output_stream_batch <- ', "Batching":"explicit"'
-                  if(model$options[['recordsets']] == 'both'){
-                      input_stream_batch  <- ', "Batching":"explicit"'
-                      output_stream_batch <- ', "Batching":"explicit"'
-                  }
-            }
-
-            input_stream_desc <- paste('{"Schema": {"$ref": "', model$options[['input']], '"}, ',
-            '"Envelope": "delimited", "Transport": {"Type": "REST"}, "Encoding": "json"',
-            input_stream_batch, '}', sep='')
-
-            output_stream_desc <- paste('{"Schema": {"$ref": "', model$options[['output']], '"}, ',
-            '"Envelope": "delimited", "Transport": {"Type": "REST"}, "Encoding": "json"',
-            output_stream_batch, '}', sep='')
-
-            api.add_stream(input_stream_name, input_stream_desc)
-            api.add_stream(output_stream_name, output_stream_desc)
-            # now, run the model
-            api.run_job(model$name, input_stream_name, output_stream_name, .self$container)
-        },
-        stop = function(){
-            result <- api.stop_job(.self$container)
-            if(result){
-                message("Engine stopped.")
-            }
-            return(result)
         }
 
     )

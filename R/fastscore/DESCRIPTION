@@ -7,17 +7,35 @@ Depends: R (>= 3.3.2), rjson, yaml, httr
 License: TBD
 Encoding: UTF-8
 LazyData: true
-Collate:
+Collate: 
+    'api.APIBase.R'
+    'api.ConnectAPI.R'
+    'api.EngineAPI.R'
+    'api.ModelManageAPI.R'
     'api.attachment.R'
     'api.service.R'
     'api.connect.R'
     'api.job.R'
     'api.model.R'
+    'api.proxy.R'
     'api.schema.R'
     'api.stream.R'
+    'attachment.R'
     'codec.R'
-    'datatype.R'
+    'codec.datatype.R'
+    'constants.R'
+    'suite.instance.R'
+    'suite.model_manage.R'
     'model.R'
-    'engine.R'
+    'deploy.model.R'
+    'errors.R'
+    'pneumo.R'
+    'schema.R'
+    'sensor.R'
+    'snapshot.R'
+    'stream.R'
+    'suite.connect.R'
+    'suite.engine.R'
     'utils.R'
+    'version.R'
 RoxygenNote: 6.0.1

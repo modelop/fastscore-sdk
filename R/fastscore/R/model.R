@@ -1,3 +1,4 @@
+#' @include suite.model_manage.R
 
 ModelMetadata <- setRefClass("ModelMetadata",
     fields=list(
@@ -5,19 +6,31 @@ ModelMetadata <- setRefClass("ModelMetadata",
         mtype="character"
         ))
 
+#' @export Model
 Model <- setRefClass("Model",
     fields=list(
-        mm="ModelManage",
+        model_manage="ModelManage",
         name="character",
         mtype="character",
-        source="character",
+        source="character"
         ),
     methods = list(
         update = function(model_manage = NULL){
-            stop("Not implemented!") # TODO
+            if(is.null(model_manage) && is.null(.self$model_manage)){
+                stop("FastScoreError: Model is not associated with Model Manage")
+            }
+            if(is.null(.self$model_manage) || !is.null(model_manage)){
+                .self$model_manage <- model_manage
+            }
+            .self$model_manage$save_model(.self)
         },
         attachment_list = function(){
-            stop("Not implemented!") # TODO
+            if(!is.null(.self$model_manage)){
+                .self$model_manage$swg$attachment_list(.self$model_manage$name, .self$name)
+            }
+            else{
+                stop("FastScoreError: Model is not associated with Model Manage")
+            }
         },
         attachment_get = function(name){
             stop("Not implemented!") # TODO
@@ -41,7 +54,7 @@ Model <- setRefClass("Model",
             stop("Not implemented!") # TODO
         },
         deploy = function(engine){
-            stop("Not implemented!") # TODO
+            engine$load_model(.self)
         }
         )
 )

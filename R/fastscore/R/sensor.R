@@ -1,3 +1,4 @@
+#' @include suite.model_manage.R
 
 SensorMetadata <- setRefClass("SensorMetadata",
     fields=list(
@@ -5,10 +6,12 @@ SensorMetadata <- setRefClass("SensorMetadata",
     )
 )
 
+#' @export Sensor
 Sensor <- setRefClass("Sensor",
     fields=list(
         name="character",
-        desc="list"
+        desc="list",
+        model_manage="ModelManage"
     ),
     methods=list(
         install = function(where){

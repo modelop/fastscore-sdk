@@ -1,3 +1,5 @@
+#' @include model.R
+
 # class union to allow for optional parameters
 setClassUnion("functionOrNull", c("function", "NULL"))
 setClassUnion("characterOrNull", c("character", "NULL"))
@@ -7,6 +9,7 @@ setClassUnion("characterOrNull", c("character", "NULL"))
 #' A class that represents a FastScore Model.
 #' @export RModel
 RModel <- setRefClass("RModel",
+    contains="Model",
     fields=list(
         action="function",
         input_schema="AvroType",
@@ -16,8 +19,7 @@ RModel <- setRefClass("RModel",
         end = "functionOrNull",
         functions = "list",
         attachments = "list",
-        imports = "list",
-        name = "characterOrNull"
+        imports = "list"
     ),
     methods = list(
         score = function(inputs, complete=TRUE, use_json=FALSE){
@@ -154,6 +156,53 @@ RModel <- setRefClass("RModel",
             }
 
             return(output_str)
+        },
+        deploy = function(engine, generate_streams = TRUE){
+            if(generate_streams){
+                .self$update()
+
+                input_sch <- Schema$new(name=.self$options[['input']],
+                            source=avroTypeToJsonNode(.self$input_schema, toString=FALSE),
+                            model_manage=.self$model_manage)
+                output_sch <- Schema$new(name=.self$options[['output']],
+                            source=avroTypeToJsonNode(.self$output_schema, toString=FALSE),
+                            model_manage=.self$model_manage)
+                input_sch$update()
+                output_sch$update()
+
+                input_desc <- list(
+                    "Schema"=list("$ref"=.self$options[['input']]),
+                    "Envelope"="delimited",
+                    "Transport"=list("Type"="REST"),
+                    "Encoding"="json"
+                    )
+                output_desc <- list(
+                    "Schema"=list("$ref"=.self$options[['output']]),
+                    "Envelope"="delimited",
+                    "Transport"=list("Type"="REST"),
+                    "Encoding"="json"
+                    )
+
+                if(!is.null(.self$options[['recordsets']])){
+                      if(.self$options[['recordsets']] == 'input')
+                          input_desc[['Batching']] <- "explicit"
+                      if(.self$options[['recordsets']] == 'output')
+                          output_desc[['Batching']] <- "explicit"
+                      if(.self$options[['recordsets']] == 'both'){
+                          input_desc[['Batching']] <- "explicit"
+                          output_desc[['Batching']] <- "explicit"
+                      }
+                }
+                input_str <- Stream$new(name=paste(.self$name, "_in", sep=""),
+                        desc=input_desc, model_manage=.self$model_manage)
+                output_str <- Stream$new(name=paste(.self$name, "_out", sep=""),
+                        desc=output_desc, model_manage=.self$model_manage)
+                input_str$update()
+                output_str$update()
+            }
+            engine$input_set(1, input_str)
+            engine$output_set(1, output_str)
+            engine$load_model(.self)
         }
     )
 )
@@ -167,7 +216,7 @@ Model_from_string <- function(model_str, outer_namespace=new.env()){
     options <- dictionary[['options']]
     libs <- dictionary[['libs']]
 
-    model <- Model()
+    model <- RModel()
     if(length(options) > 0)
         model$options <- as.list(options)
     if(length(libs) > 0)
@@ -201,7 +250,8 @@ Model_from_string <- function(model_str, outer_namespace=new.env()){
             model$output_schema <- jsonNodeToAvroType(outer_namespace[[output_sch_name]])
         }
     }
-
+    model$mtype <- 'R'
+    model$source <- model$to_string()
     return(model)
 }
 

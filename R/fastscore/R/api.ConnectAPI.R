@@ -26,7 +26,7 @@ ConnectAPI <- setRefClass("ConnectAPI",
             if(status_code(r) != 200){
                 stop("FastScoreError: Failed to retrieve configuration.")
             }
-            return(r)
+            return(content(r))
         },
         config_put_with_http_info = function(instance, config, content_type){
             prefix <- proxy_prefix()
@@ -44,6 +44,6 @@ ConnectAPI <- setRefClass("ConnectAPI",
             r <- GET(paste(prefix, instance, '/1/config', opts, sep=''),
                     add_headers('accept'=accept))
             return(content(r, 'text', encoding='UTF-8'))
-        },
+        }
     )
 )

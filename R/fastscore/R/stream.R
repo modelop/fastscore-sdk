@@ -1,3 +1,4 @@
+#' @include suite.model_manage.R
 
 StreamMetadata <- setRefClass("StreamMetaData",
     fields=list(
@@ -5,6 +6,7 @@ StreamMetadata <- setRefClass("StreamMetaData",
     )
 )
 
+#' @export Stream
 Stream <- setRefClass("Stream",
     fields = list(
         name="character",
@@ -12,18 +14,18 @@ Stream <- setRefClass("Stream",
         model_manage="ModelManage"
     ),
     methods = list(
-        sample <- function(engine, n=NULL){
+        sample = function(engine, n=NULL){
             return(engine$sample_stream(.self, n))
         },
-        update <- function(model_manage = NULL){
-            if(is.NULL(model_manage) && is.NULL(.self$model_manage)){
+        update = function(model_manage = NULL){
+            if(is.null(model_manage) && is.null(.self$model_manage)){
                 stop(paste("FastScoreError: Stream", .self$name,
                     "is not associated with Model Manage"))
             }
-            if(!is.NULL(.self$model_manage)){
+            if(is.null(.self$model_manage) || !is.null(model_manage)){
                 .self$model_manage <- model_manage
             }
-            return(.self$model_manage$save_stream(.self))
+            .self$model_manage$save_stream(.self)
         }
     )
 )
