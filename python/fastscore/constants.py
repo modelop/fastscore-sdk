@@ -16,3 +16,5 @@ ATTACHMENT_CONTENT_TYPES = {
     'tgz':  'application/gzip'
 }
 
+SCHEMA_CONTENT_TYPE = 'application/vnd.fastscore.schema-avro'
+

@@ -10,7 +10,7 @@ from binascii import b2a_hex
 from os import urandom
 
 from .instance import InstanceBase
-from ..constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES
+from ..constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES,SCHEMA_CONTENT_TYPE
 
 from fastscore.v1 import EngineApi
 from fastscore import FastScoreError
@@ -90,13 +90,17 @@ class Engine(InstanceBase):
         """
         return self._outputs
 
-    def load_model(self, model, force_inline=False):
+    def load_model(self, model, force_inline=False, embedded_schemas={}, dry_run=False):
         """
         Load a model into this engine.
 
         :param model: A Model object.
         :param force_inline: If True, force all attachments to load inline. If False,
                         attachments may be loaded by reference.
+        :param embedded_schemas: A dict of schemas to send with the request to stop
+                        the Engine from contacting Model Manage when resolving schemas.
+        :param dry_run: If True, do not actually load the model, check for
+                        errors only.
         """
 
         def maybe_externalize(att):
@@ -130,11 +134,11 @@ class Engine(InstanceBase):
                 return (att.name,body,ctype)
 
         def quirk(name):
-            return 'name' if name == 'x-model' else 'filename'
+            return 'filename' if name == 'attachment' else 'name'
 
         def multipart_body(parts, boundary):
-            noodle = [
-                '\r\n--' + boundary + '\r\n' + \
+            noodle = \
+              [ '\r\n--' + boundary + '\r\n' + \
                 'Content-Disposition: %s; %s="%s"\r\n' % (tag,quirk(name),name) + \
                 'Content-Type: %s\r\n' % ctype + \
                 '\r\n' + \
@@ -146,18 +150,27 @@ class Engine(InstanceBase):
         try:
             ct = MODEL_CONTENT_TYPES[model.mtype]
             attachments = list(model.attachments)
-            if len(attachments) == 0:
+            if len(attachments) == 0 and len(embedded_schemas) == 0:
                 data = model.source
                 cd = 'x-model; name="%s"' % model.name
-                self.swg.model_load(self.name, data, content_type=ct, content_disposition=cd)
+                return self.swg.model_load(self.name,
+                                           data,
+                                           dry_run=dry_run,
+                                           content_type=ct,
+                                           content_disposition=cd)
             else:
                 ## Swagger 2.0 does allow complex multipart requests - craft it manually.
-                parts = [ ('attachment',maybe_externalize(x)) for x in attachments ]
+                parts = [ ('attachment',maybe_externalize(x))
+                                        for x in attachments ] + \
+                        [ ('x-schema',(name,schema,SCHEMA_CONTENT_TYPE))
+                                        for name,schema in embedded_schemas.items() ]
                 parts.append( ('x-model',(model.name,model.source,ct)) )
                 boundary = b2a_hex(urandom(12))
                 data = multipart_body(parts, boundary)
-                self.swg.model_load(self.name,
-                        data, content_type='multipart/mixed; boundary=' + boundary)
+                return self.swg.model_load(self.name,
+                                           data,
+                                           dry_run=dry_run,
+                                           content_type='multipart/mixed; boundary=' + boundary)
         except Exception as e:
             raise FastScoreError("Unable to load model '%s'" % model.name, caused_by=e)
 
