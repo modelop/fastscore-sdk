@@ -1,5 +1,6 @@
 
 from ..v1 import configuration
+from ..v2 import configuration as configuration2
 from ..v1 import ConnectApi
 from ..v1.rest import ApiException
 
@@ -42,11 +43,18 @@ class Connect(InstanceBase):
         if not proxy_prefix.startswith('https:'):
             raise FastScoreError("Proxy prefix must use HTTPS scheme")
 
-        # https://localhost/api/1/service
+        # https://localhost:8000/api/1/service
         x = urlparse(configuration.host)
         base_path = x.path
         configuration.host = proxy_prefix + base_path
         configuration.verify_ssl = False
+
+        # REST API v2
+        x = urlparse(configuration2.host)
+        base_path = x.path
+        configuration2.host = proxy_prefix + base_path
+        configuration2.verify_ssl = False
+
         super(Connect, self).__init__('connect', 'connect', ConnectApi())
         self._proxy_prefix = proxy_prefix
         self._resolved = {}

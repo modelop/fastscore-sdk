@@ -34,10 +34,11 @@ class InstanceBase(object):
         def __delitem__(self, tapid):
             return self._inst.uninstall_sensor(tapid)
 
-    def __init__(self, name, api, swg):
+    def __init__(self, name, api, swg, swg2=None):
         self.name = name
         self.api = api
         self.swg = swg
+        self.swg2 = swg2    # REST API v2
         self._active_sensors = InstanceBase.ActiveSensorBag(self)
 
     @property

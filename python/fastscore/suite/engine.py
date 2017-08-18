@@ -13,6 +13,7 @@ from .instance import InstanceBase
 from ..constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES,SCHEMA_CONTENT_TYPE
 
 from fastscore.v1 import EngineApi
+from fastscore.v2 import EngineApi as EngineApi2
 from fastscore import FastScoreError
 
 from ..stream import Stream
@@ -56,7 +57,7 @@ class Engine(InstanceBase):
         :param name: A name for this instance.
 
         """
-        super(Engine, self).__init__(name, 'engine', EngineApi())
+        super(Engine, self).__init__(name, 'engine', EngineApi(), EngineApi2())
         self._inputs = Engine.SlotBag(True, self)
         self._outputs = Engine.SlotBag(False, self)
 
@@ -198,7 +199,24 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Unable to sample stream", caused_by=e)
 
+    def pause(self):
+        try:
+            self.swg2.manifold_pause(self.name)
+        except Exception as e:
+            raise FastScoreError("Unable to pause the engine", caused_by=e)
 
+    def unpause(self):
+        try:
+            self.swg2.manifold_unpause(self.name)
+        except Exception as e:
+            raise FastScoreError("Unable to unpause the engine", caused_by=e)
+
+    def reset(self):
+        try:
+            self.swg2.manifold_reset(self.name)
+        except Exception as e:
+            raise FastScoreError("Unable to reset the engine", caused_by=e)
+ 
     def score(self, data, encode=True):
         """
         Scores the data on the currently running model. Requires the input and
@@ -254,3 +272,4 @@ class Engine(InstanceBase):
                 return recordset_from_json(outputs, output_schema)
             else:
                 return [x for x in from_json(outputs, output_schema)]
+
