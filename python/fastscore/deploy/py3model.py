@@ -1,5 +1,5 @@
 ## -- Model class -- ##
-from fastscore.pymodel import PyModel
+from fastscore.deploy.pymodel import PyModel
 
 import re
 
