@@ -20,6 +20,9 @@ class ModelMetadata(object):
     def mtype(self):
         return self._mtype
 
+    def to_dict(self):
+        return { 'name': self._name, 'mtype': self._mtype }
+
 class Model(object):
     """
     Represents an analytic model. A model can be created directly:
