@@ -8,7 +8,8 @@ MODEL_CONTENT_TYPES = {
     'python3':    'application/vnd.fastscore.model-python3',
     'R':          'application/vnd.fastscore.model-r',
     'java':       'application/vnd.fastscore.model-java',
-    'c':          'application/vnd.fastscore.model-c'
+    'c':          'application/vnd.fastscore.model-c',
+    'octave':     'application/vnd.fastscore.model-m',
 }
 
 ATTACHMENT_CONTENT_TYPES = {
