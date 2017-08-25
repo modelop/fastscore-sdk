@@ -2,6 +2,7 @@
 from ..v1 import configuration
 from ..v2 import configuration as configuration2
 from ..v1 import ConnectApi
+from ..v2 import ConnectApi as ConnectApi2
 from ..v1.rest import ApiException
 
 from .instance import InstanceBase
@@ -55,7 +56,7 @@ class Connect(InstanceBase):
         configuration2.host = proxy_prefix + base_path
         configuration2.verify_ssl = False
 
-        super(Connect, self).__init__('connect', 'connect', ConnectApi())
+        super(Connect, self).__init__('connect', 'connect', ConnectApi(), ConnectApi2())
         self._proxy_prefix = proxy_prefix
         self._resolved = {}
         self._preferred = {}
@@ -78,12 +79,12 @@ class Connect(InstanceBase):
         self.prefer(instance.api, instance.name)
         self._target = instance
 
-    def pneumo(self):
+    def pneumo(self, **kwargs):
         """
         Creates a Pneumo socket. See :class:`.PneumoSock`.
         """
         try:
-            return PneumoSock(self._proxy_prefix)
+            return PneumoSock(self._proxy_prefix, **kwargs)
         except Exception as e:
             raise FastScoreError("Unable to open Pneumo connection", caused_by=e)
 

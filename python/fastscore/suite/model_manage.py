@@ -9,7 +9,8 @@ from ..v1.rest import ApiException
 
 from ..constants import MODEL_CONTENT_TYPES
 
-from fastscore.v1 import ModelManageApi
+from ..v1 import ModelManageApi
+from ..v2 import ModelManageApi as ModelManageApi2
 
 class ModelManage(InstanceBase):
     """
@@ -175,7 +176,8 @@ class ModelManage(InstanceBase):
                     raise FastScoreError("Cannot remove sensor '%s'" % name, caused_by=e)
 
     def __init__(self, name):
-        super(ModelManage, self).__init__(name, 'model-manage', ModelManageApi())
+        super(ModelManage, self).__init__(name, 'model-manage', \
+                    ModelManageApi(), ModelManageApi2())
         self._models = ModelManage.ModelBag(self)
         self._schemata = ModelManage.SchemaBag(self)
         self._streams = ModelManage.StreamBag(self)

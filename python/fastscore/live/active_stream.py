@@ -1,4 +1,0 @@
-
-class ActiveStream(object):
-    pass
-

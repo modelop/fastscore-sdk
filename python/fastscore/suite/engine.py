@@ -108,6 +108,10 @@ class Engine(InstanceBase):
             except Exception as e:
                 raise FastScoreError("Unable to retrieve active streams", caused_by=e)
         return self._active_streams
+    
+    def clear(self):
+        self._active_model = None
+        self._active_streams = None
 
     def pause(self):
         """
@@ -299,7 +303,10 @@ class Engine(InstanceBase):
 
     def attach_stream(self, stream, slot):
         try:
-            self.swg2.active_stream_attach(self.name, stream.desc, slot)
+            cd = 'x-stream; name="%s"' % stream.name
+            self.swg2.active_stream_attach(self.name,
+                                           stream.desc, slot,
+                                           content_disposition=cd)
         except Exception as e:
             raise FastScoreError("Unable to attach stream", caused_by=e)
 
@@ -309,15 +316,15 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Unable to detach stream", caused_by=e)
 
-#    def scale(self, n):
-#        """
-#        Changes the number of running model instances.
-#        """
-#        try:
-#            self.swg.job_scale(self.name, n)
-#        except Exception as e:
-#            raise FastScoreError("Unable to scale model", caused_by=e)
-#
+    def scale(self, factor):
+        """
+        Changes the number of running model instances.
+        """
+        try:
+            self.swg2.active_model_scale(self.name, factor)
+        except Exception as e:
+            raise FastScoreError("Unable to scale model", caused_by=e)
+
 #    def sample_stream(self, stream, n):
 #        try:
 #            if n:
@@ -327,5 +334,4 @@ class Engine(InstanceBase):
 #        except Exception as e:
 #            raise FastScoreError("Unable to sample stream", caused_by=e)
 #
- 
 

@@ -45,14 +45,14 @@ class Sensor(object):
     def desc(self, desc):
         self._desc = desc
 
-    def install(where):
+    def install(self, target):
         """
         Install/attach the sensor.
 
-        :param where: The instance to attach the sensor to.
+        :param target: The instance to attach the sensor to.
 
         """
-        where.install_sensor(self)
+        return target.install_sensor(self)
 
     def update(self, model_manage=None):
         """
