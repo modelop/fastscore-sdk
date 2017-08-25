@@ -62,6 +62,8 @@ class Connect(InstanceBase):
         self._preferred = {}
         self._target = None
 
+        self._pneumo =  Connect.PneumoProxy(self)
+
     @property
     def target(self):
         """
@@ -79,14 +81,39 @@ class Connect(InstanceBase):
         self.prefer(instance.api, instance.name)
         self._target = instance
 
-    def pneumo(self, **kwargs):
+    class PneumoProxy(object):
+        def __init__(self, connect):
+            self._connect = connect
+
+        def socket(self, **kwargs):
+            try:
+                return PneumoSock(self._connect._proxy_prefix, **kwargs)
+            except Exception as e:
+                raise FastScoreError("Unable to open Pneumo socket", caused_by=e)
+
+        def history(self, asjson=False, **kwargs):
+            try:
+                history = self._connect.swg2.pneumo_get(self._connect.name, **kwargs)
+                if asjson:
+                    return history
+                else:
+                    return map(PneumoSock.make_message, history)
+            except Exception as e:
+                raise FastScoreError("Unable to retrieve Pneumo history", caused_by=e)
+
+    @property
+    def pneumo(self):
         """
-        Creates a Pneumo socket. See :class:`.PneumoSock`.
+        Access Pneumo messages. 
+
+        >>> pneumo = connect.pneumo.socket()
+        >>> pneumo.recv()
+        >>> pneumo.close()
+
+        >>> connect.pneumo.history()
+
         """
-        try:
-            return PneumoSock(self._proxy_prefix, **kwargs)
-        except Exception as e:
-            raise FastScoreError("Unable to open Pneumo connection", caused_by=e)
+        return self._pneumo
 
     def lookup(self, sname):
         """
@@ -275,11 +302,14 @@ class Connect(InstanceBase):
         try:
             with open(savefile, "r") as f:
                 cap = yaml.load(f)
-                co = Connect(cap['proxy-prefix'])
-                co._preferred = cap['preferred']
+                connect = Connect(cap['proxy-prefix'])
+                connect._preferred = cap['preferred']
                 if cap['target-name']:
-                    co.target = co.get(cap['target-name'])
-                return co
+                    try:
+                        connect.target = connect.get(cap['target-name'])
+                    except:
+                        pass
+                return connect
         except Exception as e:
             raise FastScoreError("Unable to recreate a Connect instance", caused_by=e)
         
