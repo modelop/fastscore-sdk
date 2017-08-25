@@ -301,12 +301,13 @@ class Engine(InstanceBase):
             else:
                 raise FastScoreError("Unable to unload model", caused_by=e)
 
-    def attach_stream(self, stream, slot):
+    def attach_stream(self, stream, slot, dry_run=False):
         try:
             cd = 'x-stream; name="%s"' % stream.name
-            self.swg2.active_stream_attach(self.name,
-                                           stream.desc, slot,
-                                           content_disposition=cd)
+            return self.swg2.active_stream_attach(self.name,
+                                                  stream.desc, slot,
+                                                  dry_run=dry_run,
+                                                  content_disposition=cd)
         except Exception as e:
             raise FastScoreError("Unable to attach stream", caused_by=e)
 

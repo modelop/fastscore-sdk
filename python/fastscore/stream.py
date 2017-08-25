@@ -74,12 +74,12 @@ class Stream(object):
             self._mm = model_manage
         return self._mm.save_stream(self)
 
-    def attach(self, engine, slot):
+    def attach(self, engine, slot, dry_run=False):
         """
         Attach the stream to the engine.
         
         :param slot: The stream slot.
 
         """
-        engine.attach_stream(self, slot)
+        return engine.attach_stream(self, slot, dry_run)
 
