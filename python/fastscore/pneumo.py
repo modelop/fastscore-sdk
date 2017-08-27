@@ -3,6 +3,7 @@ import json
 from iso8601 import parse_date
 from websocket import create_connection, WebSocketTimeoutException
 from ssl import CERT_NONE
+from urllib import urlencode
 
 from .errors import FastScoreError
 
@@ -18,8 +19,15 @@ class PneumoSock(object):
 
     """
 
-    def __init__(self, proxy_prefix, timeout=None):
+    def __init__(self, proxy_prefix, timeout=None, src=None, type=None, **kwargs):
         url = proxy_prefix.replace('https:', 'wss:') + PNEUMO_WS_PATH
+        params = {}
+        if src != None:
+            params['src'] = src
+        if type != None:
+            params['type'] = type
+        if len(params) > 0:
+            url += "?" + urlencode(params)
         self._ws = create_connection(url, sslopt = {'cert_reqs': CERT_NONE})
         if timeout != None:
             self._ws.settimeout(timeout)
@@ -29,7 +37,7 @@ class PneumoSock(object):
         Receives the next Pneumo message.
 
         """
-        return PneumoSock.make_message(json.loads(self._ws.recv()))
+        return PneumoSock.makemsg(json.loads(self._ws.recv()))
 
     def close(self):
         """
@@ -38,7 +46,7 @@ class PneumoSock(object):
         self._ws.close()
 
     @staticmethod
-    def make_message(data):
+    def makemsg(data):
         src = data['src']
         timestamp = data['timestamp']
         ptype = data['type']

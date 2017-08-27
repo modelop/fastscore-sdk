@@ -97,7 +97,7 @@ class Connect(InstanceBase):
                 if asjson:
                     return history
                 else:
-                    return map(PneumoSock.make_message, history)
+                    return map(PneumoSock.makemsg, history)
             except Exception as e:
                 raise FastScoreError("Unable to retrieve Pneumo history", caused_by=e)
 

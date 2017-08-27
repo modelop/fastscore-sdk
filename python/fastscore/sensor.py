@@ -22,10 +22,26 @@ class Sensor(object):
     {...}
 
     """
+
+    DEFAULT_INTERVAL = 1.0
+
     def __init__(self, name, desc=None, model_manage=None):
         self._name = name
         self.desc = desc
         self._mm = model_manage
+
+    @staticmethod
+    def prep(tap, activate='permanent', aggregate='sum', interval=DEFAULT_INTERVAL):
+        desc = {
+            'Tap': tap,
+            'Activate': activate,
+            'Aggregate': aggregate,
+            'Sink': 'pneumo',
+            'Report': {
+                'Interval': interval
+            }
+        }
+        return Sensor('(no-name)', desc)
 
     @property
     def name(self):
