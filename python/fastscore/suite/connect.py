@@ -209,7 +209,7 @@ class Connect(InstanceBase):
                 content_type='application/x-yaml')
             return status == 204
         except Exception as e:
-            raise FastScoreError("Cannot set the FastScore configuration", caused_by=e)
+            raise FastScoreError("Unable to set FastScore configuration", caused_by=e)
 
     def get_config(self, section=None):
         """

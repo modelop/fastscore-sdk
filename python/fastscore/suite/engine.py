@@ -10,7 +10,8 @@ from binascii import b2a_hex
 from os import urandom
 
 from .instance import InstanceBase
-from ..constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES, SCHEMA_CONTENT_TYPE
+from ..constants import MODEL_CONTENT_TYPES, ATTACHMENT_CONTENT_TYPES, \
+                        SCHEMA_CONTENT_TYPE, POLICY_CONTENT_TYPES
 
 from fastscore.v1 import EngineApi
 from fastscore.v2 import EngineApi as EngineApi2
@@ -33,6 +34,7 @@ ActiveStreamInfo.detach = _detach
 class Engine(InstanceBase):
     """
     An Engine instance.
+
     """
 
     # Maximum size for an inline attachment.
@@ -51,14 +53,14 @@ class Engine(InstanceBase):
         super(Engine, self).__init__(name, 'engine', EngineApi(), EngineApi2())
         self._active_model = None
         self._active_streams = None
+        self._policy = Engine.PolicyProxy(self)
 
     @property
     def state(self):
         """
         The current state of the engine.
         
-        :returns: A dict {'state': STATE} where STATE is INIT, RUNNING, PAUSED,
-        FINISHING, FINISHED.
+        :returns: 'INIT', 'RUNNING', 'PAUSED', 'FINISHING', or 'FINISHED'.
 
         """
 
@@ -72,7 +74,12 @@ class Engine(InstanceBase):
         """
         The currently loaded model information.
 
-        :retuns: An ActiveModelInfo object.
+        >>> mm = connect.lookup('model-manage')
+        >>> engine = connect.lookup('engine')
+        >>> print stream.active_model.name
+        >>> print stream.active_model.jets
+
+        :returns: An ActiveModelInfo object.
 
         """
 
@@ -130,6 +137,7 @@ class Engine(InstanceBase):
     def unpause(self):
         """
         Unpauses the engine.
+
         """
 
         try:
@@ -141,6 +149,7 @@ class Engine(InstanceBase):
         """
         Resets the engine. A loaded model is unloaded. All open streams are
         closed. The engine changes its state to INIT.
+
         """
 
         try:
@@ -204,6 +213,44 @@ class Engine(InstanceBase):
                 return recordset_from_json(outputs, output_schema)
             else:
                 return [x for x in from_json(outputs, output_schema)]
+
+    class PolicyProxy(object):
+        def __init__(self, eng):
+            self._eng = eng
+
+        def set(self, title, mtype, text):
+            if title != 'import':
+                raise FastScoreError("Only 'import' policy is currently supported")
+            if not mtype in POLICY_CONTENT_TYPES:
+                raise FastScoreError("Model type '%s' not recognized" % mtype)
+            try:
+                ct = POLICY_CONTENT_TYPES[mtype]
+                self._eng.swg.policy_put(self._eng.name, text, content_type=ct)
+            except Exception as e:
+                raise FastScoreError("Unable to upload policy", caused_by=e)
+
+        def get(self, title, mtype):
+            if title != 'import':
+                raise FastScoreError("Only 'import' policy is currently supported")
+            if not mtype in POLICY_CONTENT_TYPES:
+                raise FastScoreError("Model type '%s' not recognized" % mtype)
+            try:
+                ct = POLICY_CONTENT_TYPES[mtype]
+                return self._eng.swg.policy_get(self._eng.name, accept=ct)
+            except Exception as e:
+                raise FastScoreError("Unable to retrieve policy", caused_by=e)
+
+    @property
+    def policy(self):
+        """
+        Set/get the import policy.
+
+        >>> engine = connect.lookup('engine-1')
+        >>> engine.policy.set('import', 'python', text)
+        >>> print engine.policy.get('import', 'python')
+
+        """
+        return self._policy
 
     def load_model(self, model, force_inline=False, embedded_schemas={}, dry_run=False):
         """
@@ -292,6 +339,16 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Unable to load model '%s'" % model.name, caused_by=e)
 
+    def scale(self, factor):
+        """
+        Changes the number of running model instances.
+
+        """
+        try:
+            self.swg2.active_model_scale(self.name, factor)
+        except Exception as e:
+            raise FastScoreError("Unable to scale model", caused_by=e)
+
     def unload_model(self):
         try:
             self.swg2.active_model_delete(self.name)
@@ -316,15 +373,6 @@ class Engine(InstanceBase):
             self.swg2.active_stream_detach(self.name, slot)
         except Exception as e:
             raise FastScoreError("Unable to detach stream", caused_by=e)
-
-    def scale(self, factor):
-        """
-        Changes the number of running model instances.
-        """
-        try:
-            self.swg2.active_model_scale(self.name, factor)
-        except Exception as e:
-            raise FastScoreError("Unable to scale model", caused_by=e)
 
 #    def sample_stream(self, stream, n):
 #        try:
