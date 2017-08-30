@@ -23,9 +23,11 @@ class Attachment(object):
         self._name = name
         if atype == None and datafile != None:
             atype = guess_type(datafile)
-        self.atype = atype
+        self._atype = atype
+        if datasize == None and datafile != None:
+            datasize = getsize(datafile)
         self._datasize = datasize
-        self.datafile = datafile
+        self._datafile = datafile
         self._model = model
 
     @property
@@ -58,7 +60,7 @@ class Attachment(object):
         when this property is first accessed.
         """
         if self._datafile == None:
-            self._datafile = self._model.download_attachment(self.name)
+            self._datafile = self._model.download_attachment(self._name)
         return self._datafile
 
     @datafile.setter
@@ -66,6 +68,8 @@ class Attachment(object):
         self._datafile = datafile
         if datafile:
             self._datasize = getsize(datafile)
+        else:
+            self._datasize = None
 
     @property
     def datasize(self):

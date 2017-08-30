@@ -304,7 +304,7 @@ class Engine(InstanceBase):
         def multipart_body(parts, boundary):
             noodle = \
               [ '\r\n--' + boundary + '\r\n' + \
-                'Content-Disposition: %s; %s="%s"\r\n' % (tag,quirk(name),name) + \
+                'Content-Disposition: %s; %s="%s"\r\n' % (tag,quirk(tag),name) + \
                 'Content-Type: %s\r\n' % ctype + \
                 '\r\n' + \
                 body
