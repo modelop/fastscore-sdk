@@ -374,13 +374,32 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Unable to detach stream", caused_by=e)
 
-#    def sample_stream(self, stream, n):
-#        try:
-#            if n:
-#                return self.swg.stream_sample(self.name, stream.desc, n=n)
-#            else:
-#                return self.swg.stream_sample(self.name, stream.desc)
-#        except Exception as e:
-#            raise FastScoreError("Unable to sample stream", caused_by=e)
-#
+    def sample_stream(self, stream, n):
+        try:
+            if n:
+                return self.swg.stream_sample(self.name, stream.desc, n=n)
+            else:
+                return self.swg.stream_sample(self.name, stream.desc)
+        except Exception as e:
+            raise FastScoreError("Unable to sample stream", caused_by=e)
+    
+    def verify_schema(self, schema):
+        try:
+            reply = self.swg2.active_schema_verify(self.name, schema.source)
+            return reply.id
+        except ApiException2 as e:
+            raise FastScoreError(e.body)
+
+    def verify_data(self, sid, rec):
+        try:
+            self.swg2.active_schema_verify_data(self.name, sid, rec)
+        except ApiException2 as e:
+            raise FastScoreError(e.body)
+
+    # What a clumsy name
+    def unverify_schema(self, sid):
+        try:
+            self.swg2.active_schema_unverify(self.name, sid)
+        except Exception as e:
+            raise FastScoreError("Unable to unload a verification schema", caused_by=e)
 

@@ -48,3 +48,17 @@ class Schema(object):
             self._mm = model_manage
         return self._mm.save_schema(self)
 
+    def verify(self, engine):
+        """
+        Asks the engine the check the schema.
+
+        :returns: id of the loaded schema. The identifier can be used to validate
+        data records:
+
+        >>> engine = connect.lookup('engine')
+        >>> sid = schema.verify(engine)
+        >>> engine.validate_data(sid, rec)
+
+        """
+        return engine.verify_schema(self)
+
