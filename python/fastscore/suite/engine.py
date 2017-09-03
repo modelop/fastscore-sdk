@@ -391,8 +391,15 @@ class Engine(InstanceBase):
             raise FastScoreError(e.body)
 
     def verify_data(self, sid, rec):
+        """
+        Verify schema against a prepared schema.
+
+        :param int sid: The schema id.
+        :param str rec: The data record to verify.
+
+        """
         try:
-            self.swg2.active_schema_verify_data(self.name, sid, rec)
+            self.swg2.active_schema_verify_data(self.name, sid, {'data': rec})
         except ApiException2 as e:
             raise FastScoreError(e.body)
 
