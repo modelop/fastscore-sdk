@@ -1,14 +1,13 @@
 
-.PHONY: default v1-api v2-api sdist clean
+.PHONY: default v1-api v2-api clean
 
-OUT_DIR := fastscore/api
+OUT_DIR := fastscore
 
 JAVA_OPTS := -DapiTests=false -DmodelTests=false
 
 default: docs
 
 v1-api: ../api/suite-proxy-v1.yaml
-	mkdir -p fastscore/api
 	java $(JAVA_OPTS) -jar ~/bin/swagger-codegen-cli.jar generate \
     -i $^ \
     -l python \
@@ -16,7 +15,6 @@ v1-api: ../api/suite-proxy-v1.yaml
     -o $(OUT_DIR) \
 
 v2-api: ../api/suite-proxy-v2.yaml
-	mkdir -p fastscore/api
 	java $(JAVA_OPTS) -jar ~/bin/swagger-codegen-cli.jar generate \
     -i $^ \
     -l python \
@@ -32,8 +30,16 @@ BUILDDIR      = docs/build
 docs: Makefile
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-sdist: v1-api v2-api
-	python setup.py sdist
-
 clean:
-	rm -rf dist *.egg_info
+	rm -rf dist *.egg-info \
+		fastscore/.swagger-codegen*\
+		fastscore/.travis.yml\
+		fastscore/README.md\
+		fastscore/docs/\
+		fastscore/git_push.sh\
+		fastscore/requirements.txt\
+		fastscore/setup.py\
+		fastscore/test-requirements.txt\
+		fastscore/tox.ini\
+		fastscore/v1/\
+		fastscore/v2/

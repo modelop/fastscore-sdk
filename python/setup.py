@@ -14,11 +14,12 @@ setup(
         "tabulate>=0.7.5",
         "websocket-client>=0.37.0",
         "avro >= 1.7.6",
-        "six"
+        "six",
+        "numpy >= 1.6.1",
+        "pandas >= 0.19.0"
     ],
     extras_require={
-        'PFA':  ["titus >= 0.8.4-post"],
-        'pandas': ["pandas >= 0.19.0"]
+        'PFA':  ["titus >= 0.8.4-post"]
     },
     test_suite="test",
     tests_require=[
