@@ -1,5 +1,5 @@
 
-.PHONY: default v1-api v2-api
+.PHONY: default v1-api v2-api sdist clean
 
 OUT_DIR := fastscore/api
 
@@ -31,3 +31,9 @@ BUILDDIR      = docs/build
 
 docs: Makefile
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+sdist: v1-api v2-api
+	python setup.py sdist
+
+clean:
+	rm -rf dist *.egg_info
