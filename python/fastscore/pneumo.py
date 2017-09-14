@@ -61,7 +61,12 @@ class PneumoSock(object):
         elif ptype == 'engine-config':
             return EngineConfigMsg(src, timestamp, data['item'], data['op'], data.get('ref'))
         elif ptype == 'sensor-report':
-            return SensorReportMsg(src, timestamp, data['id'], data['tap'], data['data'])
+            return SensorReportMsg(src,
+                                   timestamp,
+                                   data['id'],
+                                   data['tap'],
+                                   data['data'],
+                                   data['delta_time'])
         else:
             raise FastScoreError("Unexpected Pneumo message type '%s'" % ptype)
 
@@ -225,11 +230,12 @@ class EngineConfigMsg(PneumoMsg):
                     % (self.src,self.timestamp,self.item,self.op,self.ref)
 
 class SensorReportMsg(PneumoMsg):
-    def __init__(self, src, timestamp, sid, point, data):
+    def __init__(self, src, timestamp, sid, point, data, delta_time):
         super(SensorReportMsg, self).__init__(src, timestamp)
         self._sid   = sid
         self._point = point
         self._data  = data
+        self._delta_time = delta_time
 
     @property
     def sid(self):
@@ -243,10 +249,14 @@ class SensorReportMsg(PneumoMsg):
     def data(self):
         return self._data
 
+    @property
+    def delta_time(self):
+        return self._delta_time
+
     def __str__(self):
         return "sensor[%d] %s: %s" % (self.sid,self.point,repr(self.data))
 
     def __repr__(self):
-        return "SensorReportMsg(src=%s, timestamp=%s, sid=%d, point=%s, data=%s)" \
-                    % (self.src,self.timestamp,self.sid,self.point,repr(self.data))
+        return "SensorReportMsg(src=%s, timestamp=%s, sid=%d, point=%s, data=%s, delta_time=%f)" \
+                    % (self.src,self.timestamp,self.sid,self.point,repr(self.data),self.delta_time)
 
