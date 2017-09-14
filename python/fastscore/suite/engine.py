@@ -285,7 +285,7 @@ class Engine(InstanceBase):
 
                 ext_type = 'message/external-body; ' + \
                        'access-type=x-model-manage; ' + \
-                       'ref="urn:fastscore:attachment:%s:%"' % (model.name,att.name)
+                       'ref="urn:fastscore:attachment:%s:%s"' % (model.name,att.name)
 
                 body = 'Content-Type: %s\r\n' % ctype + \
                        'Content-Length: %d\r\n' % att.datasize + \
