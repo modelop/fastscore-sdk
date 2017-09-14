@@ -61,12 +61,13 @@ class PneumoSock(object):
         elif ptype == 'engine-config':
             return EngineConfigMsg(src, timestamp, data['item'], data['op'], data.get('ref'))
         elif ptype == 'sensor-report':
+            delta_time = data['delta_time'] if 'delta_time' in data else None
             return SensorReportMsg(src,
                                    timestamp,
                                    data['id'],
                                    data['tap'],
                                    data['data'],
-                                   data['delta_time'])
+                                   delta_time)
         else:
             raise FastScoreError("Unexpected Pneumo message type '%s'" % ptype)
 
