@@ -16,7 +16,9 @@ setup(
         "avro >= 1.7.6",
         "six",
         "numpy >= 1.6.1",
-        "pandas >= 0.19.0"
+        "pandas >= 0.19.0",
+        "urllib3 >= 1.20",
+        "certifi"
     ],
     extras_require={
         'PFA':  ["titus >= 0.8.4-post"]
