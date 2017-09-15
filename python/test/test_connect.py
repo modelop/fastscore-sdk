@@ -2,8 +2,6 @@ import config
 
 from fastscore.suite import Connect
 
-from fastscore.live import ActiveSensor
-
 from fastscore import FastScoreError
 
 from unittest import TestCase

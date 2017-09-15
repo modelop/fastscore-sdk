@@ -10,8 +10,6 @@ from fastscore.schema import SchemaMetadata
 from fastscore import Sensor
 from fastscore.sensor import SensorMetadata
 
-from fastscore.live import ActiveSensor
-
 from fastscore import FastScoreError
 
 from unittest import TestCase

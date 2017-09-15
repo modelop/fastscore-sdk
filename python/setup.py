@@ -25,6 +25,7 @@ setup(
     },
     test_suite="test",
     tests_require=[
+        "mock >= 2.0.0",
         "iso8601>=0.1.11",
         "PyYAML>=3.11",
         "requests>=2.11.1",
@@ -33,6 +34,8 @@ setup(
         "avro >= 1.7.6",
         "six",
         "numpy >= 1.6.1",
-        "pandas >= 0.19.0"
+        "pandas >= 0.19.0",
+        "titus >= 0.8.4-post",
+        "ipython == 5.4"
     ]
 )

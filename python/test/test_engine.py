@@ -4,8 +4,6 @@ from fastscore.suite import Connect
 from fastscore import Model
 from fastscore.suite import Engine
 
-from fastscore.live import ActiveSensor
-
 from fastscore import FastScoreError
 
 from unittest import TestCase
