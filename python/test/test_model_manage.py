@@ -10,6 +10,8 @@ from fastscore.schema import SchemaMetadata
 from fastscore import Sensor
 from fastscore.sensor import SensorMetadata
 
+from fastscore.suite.instance import ActiveSensorInfo
+
 from fastscore import FastScoreError
 
 from unittest import TestCase
@@ -39,19 +41,19 @@ class ModelManageTests(TestCase):
         self.mm.get_swagger()
         swagger_get.assert_called_once_with('mm-1')
 
-    @patch('fastscore.suite.model_manage.ModelManageApi.active_sensor_list')
+    @patch('fastscore.suite.model_manage.ModelManageApi2.active_sensor_list')
     def test_active_sensors(self, sensor_list):
         self.mm.active_sensors.ids()
         sensor_list.assert_called_once_with('mm-1')
 
-    @patch('fastscore.suite.model_manage.ModelManageApi.active_sensor_list',
-                return_value=[{'id':1,'tap':'dummy'}])
+    @patch('fastscore.suite.model_manage.ModelManageApi2.active_sensor_list',
+                return_value=[ActiveSensorInfo(1, 'dummy')])
     def test_active_sensors(self, sensor_list):
-        for x in self.mm.active_sensors:
-            self.assertIsInstance(x, ActiveSensor)
+        for x in self.mm.active_sensors.values():
+            self.assertIsInstance(x, ActiveSensorInfo)
         sensor_list.assert_called_once_with('mm-1')
 
-    @patch('fastscore.suite.model_manage.ModelManageApi.active_sensor_available')
+    @patch('fastscore.suite.model_manage.ModelManageApi2.active_sensor_points')
     def test_tapping_points(self, sensor_available):
         self.mm.tapping_points()
         sensor_available.assert_called_once_with('mm-1')

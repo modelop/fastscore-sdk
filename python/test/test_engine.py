@@ -4,6 +4,8 @@ from fastscore.suite import Connect
 from fastscore import Model
 from fastscore.suite import Engine
 
+from fastscore.suite.instance import ActiveSensorInfo
+
 from fastscore import FastScoreError
 
 from unittest import TestCase
@@ -59,19 +61,19 @@ class EngineTests(TestCase):
         self.engine.get_swagger()
         swagger_get.assert_called_once_with('engine-1')
 
-    @patch('fastscore.suite.engine.EngineApi.active_sensor_list')
+    @patch('fastscore.suite.engine.EngineApi2.active_sensor_list')
     def test_active_sensors(self, sensor_list):
         self.engine.active_sensors.ids()
         sensor_list.assert_called_once_with('engine-1')
 
-    @patch('fastscore.suite.engine.EngineApi.active_sensor_list',
-                return_value=[{'id':1,'tap':'dummy'}])
+    @patch('fastscore.suite.engine.EngineApi2.active_sensor_list',
+                return_value=[ActiveSensorInfo(1, 'dummy')])
     def test_active_sensors(self, sensor_list):
-        for x in self.engine.active_sensors:
-            self.assertIsInstance(x, ActiveSensor)
+        for x in self.engine.active_sensors.values():
+            self.assertIsInstance(x, ActiveSensorInfo)
         sensor_list.assert_called_once_with('engine-1')
 
-    @patch('fastscore.suite.engine.EngineApi.active_sensor_available')
+    @patch('fastscore.suite.engine.EngineApi2.active_sensor_points')
     def test_tapping_points(self, sensor_available):
         self.engine.tapping_points()
         sensor_available.assert_called_once_with('engine-1')
@@ -97,15 +99,15 @@ class EngineTests(TestCase):
         model1 = Model(name='x', source='y')
         self.engine.load_model(model1)
 
-    @patch('fastscore.suite.engine.EngineApi.job_delete')
-    def test_unload_model(self, job_delete):
+    @patch('fastscore.suite.engine.EngineApi2.active_model_delete')
+    def test_unload_model(self, active_model_delete):
         self.engine.unload_model()
-        job_delete.assert_called_once()
+        active_model_delete.assert_called_once()
 
-    @patch('fastscore.suite.engine.EngineApi.job_scale')
-    def test_scale(self, job_scale):
+    @patch('fastscore.suite.engine.EngineApi2.active_model_scale')
+    def test_scale(self, active_model_scale):
         self.engine.scale(5)
-        job_scale.assert_called_once_with('engine-1', 5)
+        active_model_scale.assert_called_once_with('engine-1', 5)
 
     @patch('fastscore.suite.engine.EngineApi.stream_sample')
     def test_sample_stream(self, stream_sample):
