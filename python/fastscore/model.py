@@ -82,32 +82,8 @@ class Model(object):
         def __delitem__(self, snapid):
             self.model.remove_snapshot(snapid)
 
-    class SchemaBag(object):
-        def __init__(self, model, schemas={}):
-            self.model = model
-            self._schemas = {}
-            for key in schemas:
-                self[key] = schemas[key]
-                if self.model._mm != None:
-                    key.update(model_manage = self.model._mm)
-
-        def __setitem__(self, slot, schema):
-            if slot != 'input' and slot != 'output':
-                raise FastScoreError("Only input and output schemas are currently supported in Models.")
-            self._schemas[slot] = schema
-            if self.model._mm != None:
-                schema.update(model_manage = self.model._mm)
-
-        def __getitem__(self, slot):
-            return self._schemas[slot]
-
-        def __iter__(self):
-            for key in self._schemas:
-                yield key
-
-    def __init__(self, name, mtype='python', source=None, model_manage=None, schemas={}):
+    def __init__(self, name, mtype='python', source=None, model_manage=None):
         self._mm = model_manage
-        self._schemas = Model.SchemaBag(self, schemas)
         self._name = name
         self.mtype = mtype
         self.source = source
@@ -157,41 +133,6 @@ class Model(object):
     @source.setter
     def source(self, source):
         self._source = source
-        self.__parse_options()
-
-    def __parse_options(self):
-        lines = self.source.split('\n')
-        model_options = {}
-        for line in lines:
-            option = re.search(r'# *fastscore\.(.*):(.*)', line.strip())
-            if option:
-                optname = option.group(1).strip()
-                optvalue = option.group(2).strip()
-                model_options[optname] = optvalue
-        if self._mm != None:
-            if 'input' in model_options:
-                input_sch = self._mm.schemas[model_options['input']]
-                self.schemas['input'] = input_sch
-            if 'output' in model_options:
-                output_sch = self._mm.schemas[model_options['output']]
-                self.schemas['output'] = output_sch
-        self._model_options = model_options
-
-    @property
-    def options(self):
-        return self._model_options
-
-    @options.setter
-    def options(self, options):
-        self._model_options = options
-        # raise FastScoreError("Option setting is not implemented yet.")
-
-    @property
-    def schemas(self):
-        """
-        The schemas used by this model. See :class:`.Schema`.
-        """
-        return self._schemas
 
     @property
     def attachments(self):
@@ -209,10 +150,6 @@ class Model(object):
             raise FastScoreError("Model '%s' not associated with Model Manage" % self.name)
         if self._mm == None:
             self._mm = model_manage
-            # If it's our first time saving the model, add the schemas as well.
-            for schema_name in self.schemas:
-                schema = self.schemas[schema_name]
-                schema.update(model_manage = self._mm)
         return self._mm.save_model(self)
 
     def saved(self):
