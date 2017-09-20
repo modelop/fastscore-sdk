@@ -13,7 +13,6 @@ setup(
         "requests>=2.11.1",
         "tabulate>=0.7.5",
         "websocket-client>=0.37.0",
-        "avro >= 1.7.6",
         "six",
         "urllib3 >= 1.20",
         "certifi"
@@ -26,7 +25,6 @@ setup(
         "requests>=2.11.1",
         "tabulate>=0.7.5",
         "websocket-client>=0.37.0",
-        "avro >= 1.7.6",
         "six"
     ]
 )
