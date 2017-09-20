@@ -1,8 +1,6 @@
 ## -- Engine class -- ##
 import json
 import time
-from ..codec.datatype import avroTypeToAvroSchema, checkData, jsonNodeToAvroType
-from ..codec import to_json, from_json, recordset_from_json
 import fastscore.errors as errors
 from tabulate import tabulate
 

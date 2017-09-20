@@ -114,16 +114,3 @@ class EngineTests(TestCase):
         stream = self.StreamInfo('x', {})
         self.engine.sample_stream(stream, 3)
         stream_sample.assert_called_once_with('engine-1', {}, n=3)
-
-    @patch('fastscore.suite.engine.EngineApi.job_status',
-            return_value=JobStatusInfo())
-    @patch('fastscore.suite.engine.EngineApi.job_io_input')
-    @patch('fastscore.suite.engine.EngineApi.job_io_output',
-            return_value='1\n2\n3\n4\n{"$fastscore":"pig"}\n')
-    def test_score(self, job_output, job_input, job_status_info):
-        data = [1, 2, 3, 4]
-        scores = self.engine.score(data)
-        self.assertEqual(scores, [1, 2, 3, 4])
-        job_output.assert_called_once()
-        job_input.assert_called_once_with(instance='engine-1', data='1\n2\n3\n4\n{"$fastscore":"pig"}\n', id=1)
-        job_status_info.assert_called_once()

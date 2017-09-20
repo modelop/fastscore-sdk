@@ -1,6 +1,4 @@
 import test_connect
-import test_deploy_model
 import test_model_manage
-import test_codec
 import test_engine
 import config
