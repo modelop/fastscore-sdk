@@ -59,7 +59,7 @@ class Engine(InstanceBase):
     def state(self):
         """
         The current state of the engine.
-        
+
         :returns: 'INIT', 'RUNNING', 'PAUSED', 'FINISHING', or 'FINISHED'.
 
         """
@@ -115,7 +115,7 @@ class Engine(InstanceBase):
             except Exception as e:
                 raise FastScoreError("Unable to retrieve active streams", caused_by=e)
         return self._active_streams
-    
+
     def clear(self):
         self._active_model = None
         self._active_streams = None
@@ -126,7 +126,7 @@ class Engine(InstanceBase):
         engine. A running engine changes its state to PAUSED. An initializing
         engine will pause upon startup. In all other states the operation is
         ignored.
-        
+
         """
 
         try:
@@ -157,62 +157,6 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Unable to reset the engine", caused_by=e)
 
-    #TODO Likely, not working - pls review
-    def score(self, data, encode=True):
-        """
-        Scores the data on the currently running model. Requires the input and
-        output streams to use the REST transport.
-
-        >>> engine.score(data=[1,2,3])
-        [4,5,6]
-        >>> engine.score(data=['1', '2', '3'], encode=False)
-        ['4', '5', '6']
-
-        :param data: The data to score, e.g. a list of JSON records.
-        :param encode: A boolean indicating whether to encode the inputs. If
-            True, the input data is encoded to JSON, and the output is decoded
-            from JSON.
-        :returns: The scored data.
-        """
-        job_status = self.swg.job_status(instance=self.name)
-        if job_status.model == None:
-            raise FastScoreError("No currently running model.")
-
-        input_schema = jsonNodeToAvroType(job_status.model.input_schema)
-        output_schema = jsonNodeToAvroType(job_status.model.output_schema)
-
-        inputs = []
-        if not encode:
-            inputs = [x for x in data]
-        else:
-            inputs = [x for x in to_json(data, input_schema)]
-            if job_status.model.recordsets == 'both' or \
-               job_status.model.recordsets == 'input':
-                inputs += ['{"$fastscore":"set"}']
-
-        input_str = ''
-        for datum in inputs:
-            input_str += datum.strip() + '\n'
-        input_str += '{"$fastscore":"pig"}\n'
-
-        # now we send the input
-        self.swg.job_io_input(instance=self.name, data=input_str, id=1)
-
-        # now we retrieve the output
-        output = self.swg.job_io_output(instance=self.name, id=1)
-        if not encode:
-            return [x for x in output.split('\n') if len(x) > 0]
-        else:
-            outputs = [x for x in output.split('\n') if len(x) > 0]
-            if json.loads(outputs[-1]) == {"$fastscore": "pig"}:
-                outputs = outputs[:-1]
-            if json.loads(outputs[-1]) == {"$fastscore": "set"}:
-                outputs = outputs[:-1]
-            if job_status.model.recordsets == 'both' or \
-               job_status.model.recordsets == 'output':
-                return recordset_from_json(outputs, output_schema)
-            else:
-                return [x for x in from_json(outputs, output_schema)]
 
     class PolicyProxy(object):
         def __init__(self, eng):
@@ -382,7 +326,7 @@ class Engine(InstanceBase):
                 return self.swg.stream_sample(self.name, stream.desc)
         except Exception as e:
             raise FastScoreError("Unable to sample stream", caused_by=e)
-    
+
     def verify_schema(self, schema):
         try:
             reply = self.swg2.active_schema_verify(self.name, schema.source)
@@ -409,4 +353,3 @@ class Engine(InstanceBase):
             self.swg2.active_schema_unverify(self.name, sid)
         except Exception as e:
             raise FastScoreError("Unable to unload a verification schema", caused_by=e)
-
