@@ -3,7 +3,11 @@ import json
 from iso8601 import parse_date
 from websocket import create_connection, WebSocketTimeoutException
 from ssl import CERT_NONE
-from urllib import urlencode
+import six
+if six.PY2:
+    from urllib import urlencode
+else:
+    from urllib.parse import urlencode
 
 from .errors import FastScoreError
 
@@ -111,7 +115,7 @@ class HealthMsg(PneumoMsg):
             updown = "DOWN"
         else:
             updown = self._health
-        
+
         return "%s is %s" % (self._instance,updown)
 
     def __repr__(self):
@@ -260,4 +264,3 @@ class SensorReportMsg(PneumoMsg):
     def __repr__(self):
         return "SensorReportMsg(src=%s, timestamp=%s, sid=%d, point=%s, data=%s, delta_time=%f)" \
                     % (self.src,self.timestamp,self.sid,self.point,repr(self.data),self.delta_time)
-

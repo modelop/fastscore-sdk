@@ -1,4 +1,4 @@
-import config
+from . import config
 
 from fastscore.suite import Connect
 from fastscore import Model

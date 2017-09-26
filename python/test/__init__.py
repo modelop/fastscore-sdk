@@ -1,4 +1,4 @@
-import test_connect
-import test_model_manage
-import test_engine
-import config
+from . import test_connect
+from . import test_model_manage
+from . import test_engine
+from . import config

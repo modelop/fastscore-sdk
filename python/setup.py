@@ -25,6 +25,8 @@ setup(
         "requests>=2.11.1",
         "tabulate>=0.7.5",
         "websocket-client>=0.37.0",
-        "six"
+        "urllib3 >= 1.20",
+        "six",
+        "mock"
     ]
 )
