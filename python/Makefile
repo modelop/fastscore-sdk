@@ -1,5 +1,5 @@
 
-.PHONY: default v1-api v2-api clean
+.PHONY: default v1-api v2-api clean build
 
 OUT_DIR := fastscore
 
@@ -29,6 +29,11 @@ BUILDDIR      = docs/build
 
 docs: Makefile
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+build:
+	docker build -f ../Dockerfile.build --force-rm --build-arg uid=`id -u` --build-arg gid=`id -g` -t fastscore/sdk-build ..
+	docker run --rm -v $(CURDIR)/..:/_ fastscore/sdk-build make -C python v1-api v2-api
+	python setup.py sdist
 
 clean:
 	rm -rf dist *.egg-info \
