@@ -1,6 +1,4 @@
-import test_connect
-import test_deploy_model
-import test_model_manage
-import test_codec
-import test_engine
-import config
+from . import test_connect
+from . import test_model_manage
+from . import test_engine
+from . import config

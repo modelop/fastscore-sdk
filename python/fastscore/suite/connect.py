@@ -11,8 +11,11 @@ from .engine import Engine
 from ..errors import FastScoreError
 
 from ..pneumo import PneumoSock
-
-from urlparse import urlparse
+import six
+if six.PY2:
+    from urlparse import urlparse
+else:
+    from urllib.parse import urlparse
 import yaml
 
 import urllib3
@@ -29,7 +32,7 @@ class Connect(InstanceBase):
     Afterwards, you can use 'connect' to access other FastScore instances.
     For example:
 
-    >>> engine = connect.lookup('engine') 
+    >>> engine = connect.lookup('engine')
 
     """
 
@@ -104,7 +107,7 @@ class Connect(InstanceBase):
     @property
     def pneumo(self):
         """
-        Access Pneumo messages. 
+        Access Pneumo messages.
 
         >>> pneumo = connect.pneumo.socket()
         >>> pneumo.recv()
@@ -191,7 +194,7 @@ class Connect(InstanceBase):
         """
         Sets the FastScore configuration.
 
-        >>> with open('config.yaml') as f: 
+        >>> with open('config.yaml') as f:
         >>>   connect.configure(yaml.load(f))
         False
 
@@ -312,4 +315,3 @@ class Connect(InstanceBase):
                 return connect
         except Exception as e:
             raise FastScoreError("Unable to recreate a Connect instance", caused_by=e)
-        

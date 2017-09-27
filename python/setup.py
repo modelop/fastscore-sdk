@@ -13,16 +13,10 @@ setup(
         "requests>=2.11.1",
         "tabulate>=0.7.5",
         "websocket-client>=0.37.0",
-        "avro >= 1.7.6",
         "six",
-        "numpy >= 1.6.1",
-        "pandas >= 0.19.0",
         "urllib3 >= 1.20",
-        "certifi"
+        "certifi >= 2017.4.17"
     ],
-    extras_require={
-        'PFA':  ["titus >= 0.8.4-post"]
-    },
     test_suite="test",
     tests_require=[
         "mock >= 2.0.0",
@@ -31,11 +25,8 @@ setup(
         "requests>=2.11.1",
         "tabulate>=0.7.5",
         "websocket-client>=0.37.0",
-        "avro >= 1.7.6",
+        "urllib3 >= 1.20",
         "six",
-        "numpy >= 1.6.1",
-        "pandas >= 0.19.0",
-        "titus >= 0.8.4-post",
-        "ipython == 5.4"
+        "mock"
     ]
 )

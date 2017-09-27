@@ -271,7 +271,7 @@ class ModelManage(InstanceBase):
                                     model.name, model.source, content_type=ct)
             return status == 204
         except Exception as e:
-           raise FastScoreError("Cannot save model '%s'" % model.name)
+           raise FastScoreError("Cannot save model '%s'" % model.name, caused_by=e)
 
     def save_schema(self, schema):
         if schema.source == None:
@@ -302,4 +302,3 @@ class ModelManage(InstanceBase):
             return status == 204
         except Exception as e:
            raise FastScoreError("Cannot save sensor '%s'" % model.name, caused_by=e)
-
