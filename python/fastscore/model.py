@@ -74,10 +74,18 @@ class Model(object):
             self.model = model
 
         def browse(self, date1=None, date2=None, count=None):
-            return self.model.list_snapshots(date1, date2, count)
+            page = self.model.list_snapshots(date1, date2, count)
+            return [ Snapshot(x['id'],
+                              x['created_on'],
+                              x['type'],
+                              x['size'], self.model) for x in page ]
 
-        def __get__(self, snapid):
-            return self.model.get_snapshot(snapid)
+        def __getitem__(self, snapid):
+            info =  self.model.get_snapshot(snapid)
+            return Snapshot(info['id'],
+                            info['created_on'],
+                            info['type'],
+                            info['size'], self.model)
 
         def __delitem__(self, snapid):
             self.model.remove_snapshot(snapid)
@@ -234,6 +242,13 @@ class Model(object):
             return self._mm.swg.snapshot_get_metadata(self._mm.name, self.name, snapid)
         except Exception as e:
             raise FastScoreError("Cannot retrieve snapshot '%s' metadata" % snapid, caused_by=e)
+
+    def download_snapshot(self, snapid):
+        self.saved()
+        try:
+            return self._mm.swg.snapshot_get_contents(self._mm.name, self.name, snapid)
+        except Exception as e:
+            raise FastScoreError("Cannot retrieve snapshot '%s' contents" % snapid, caused_by=e)
 
     def remove_snapshot(self, snapid):
         self.saved()

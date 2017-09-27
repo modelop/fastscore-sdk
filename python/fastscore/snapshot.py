@@ -1,4 +1,6 @@
 
+from os import remove
+
 class Snapshot(object):
     """
     Represents a snapshot of a model state. Do not create directly. Use the model's snapshots collection:
@@ -10,9 +12,9 @@ class Snapshot(object):
 
     """
 
-    def __init__(self, id, date, stype, size, model):
-        self._id = id
-        self._date = date
+    def __init__(self, snapid, created_on, stype, size, model):
+        self._id = snapid
+        self._created_on = created_on
         self._stype = stype
         self._size = size
         self._model = model
@@ -25,11 +27,11 @@ class Snapshot(object):
         return self._id
 
     @property
-    def date(self):
+    def created_on(self):
         """
         A date the snapshot has been taken.
         """
-        return self._date
+        return self._created_on
 
     @property
     def stype(self):
@@ -42,12 +44,24 @@ class Snapshot(object):
         """
         return self._size
 
-    def restore(self):
+    def to_dict(self):
+        return {
+            'id': self._id,
+            'created_on': self._created_on,
+            'stype': self._stype,
+            'size': self._size
+        }
+
+    def restore(self, engine):
         """
         Restore the model state using the snapshot.
 
         >>> snap = model.snapshots['yu']  # prefix is enough
-        >>> snap.restore()
+        >>> snap.restore(engine)
 
         """
-        self._model.restore_snapshot(self)
+        tempfile = self._model.download_snapshot(self._id)
+        with open(tempfile) as f:
+            engine.restore_state(f.read())
+        remove(tempfile)
+

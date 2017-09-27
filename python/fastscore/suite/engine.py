@@ -410,3 +410,9 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Unable to unload a verification schema", caused_by=e)
 
+    def restore_state(self, blobfile):
+        try:
+            self.swg.job_state_restore(self.name, blobfile)
+        except Exception as e:
+            raise FastScoreError("Unable to restore model state", caused_by=e)
+
