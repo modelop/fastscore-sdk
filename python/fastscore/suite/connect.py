@@ -3,6 +3,7 @@ from ..v1 import configuration
 from ..v2 import configuration as configuration2
 from ..v1 import ConnectApi
 from ..v2 import ConnectApi as ConnectApi2
+from ..v1 import LoginApi
 from ..v1.rest import ApiException
 
 from .instance import InstanceBase
@@ -18,8 +19,21 @@ else:
     from urllib.parse import urlparse
 import yaml
 
+#configuration.debug = True
+
+from urllib import quote, unquote
+
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+def set_auth_cookie(auth_secret, client1, client2):
+    cookie = 'connect.sid=' + quote(auth_secret)
+    client1.cookie = cookie
+    client2.cookie = cookie
+
+def unset_auth_cookie(client1, client2):
+    client1.cookie = None
+    client2.cookie = None
 
 class Connect(InstanceBase):
     """An instance of a Connect service.
@@ -36,7 +50,7 @@ class Connect(InstanceBase):
 
     """
 
-    def __init__(self, proxy_prefix):
+    def __init__(self, proxy_prefix, auth_secret=None):
         """
         :param proxy_prefix: URL of the FastScore proxy endpoint
         """
@@ -64,7 +78,9 @@ class Connect(InstanceBase):
         self._resolved = {}
         self._preferred = {}
         self._target = None
-
+        self._auth_secret = auth_secret
+        if auth_secret:
+            set_auth_cookie(auth_secret, self.swg.api_client, self.swg2.api_client)
         self._pneumo =  Connect.PneumoProxy(self)
 
     @property
@@ -190,6 +206,29 @@ class Connect(InstanceBase):
         """
         self._preferred[sname] = name
 
+    def login(self, username, password):
+        """
+        Login to FastScore.
+
+        :param username: a user name.
+        :param password: a password.
+        """
+        save = self.swg.api_client.host
+        try:
+            unset_auth_cookie(self.swg.api_client, self.swg2.api_client)
+            login_api = LoginApi()
+            login_api.api_client.host = self._proxy_prefix
+            (_,_,headers) = login_api.login_post_with_http_info(username, password)
+            cookie = headers['set-cookie']
+            # connect.sid=s%3A_co96d1eLi2Iwu2JJATxPbhBlVaFSGV4.G53EHnUrubrL87LFEKiSArJ%2BIN05FbwRVRGGkGS6ysM;
+            auth_secret = unquote(cookie.split(';')[0].split('=')[1])
+            self.swg.api_client.host = save
+            self._auth_secret = auth_secret
+            set_auth_cookie(auth_secret, self.swg.api_client, self.swg2.api_client)
+        except Exception as e:
+            self.swg.api_client.host = save
+            raise FastScoreError("Access denied", caused_by=e)
+
     def configure(self, config):
         """
         Sets the FastScore configuration.
@@ -208,7 +247,7 @@ class Connect(InstanceBase):
 
         try:
             (_,status,_) = self.swg.config_put_with_http_info(self.name, \
-                config=config, \
+                config=yaml.dump(config), \
                 content_type='application/x-yaml')
             return status == 204
         except Exception as e:
@@ -287,7 +326,8 @@ class Connect(InstanceBase):
             cap = {
                 'proxy-prefix': self._proxy_prefix,
                 'preferred':    self._preferred,
-                'target-name':  self.target.name if self.target else None
+                'target-name':  self.target.name if self.target else None,
+                'auth-secret':  self._auth_secret,
             }
             with open(savefile, "w") as f:
                 yaml.dump(cap, stream = f)
@@ -305,7 +345,8 @@ class Connect(InstanceBase):
         try:
             with open(savefile, "r") as f:
                 cap = yaml.load(f)
-                connect = Connect(cap['proxy-prefix'])
+                auth_secret = cap['auth-secret'] if 'auth-secret' in cap else None
+                connect = Connect(cap['proxy-prefix'], auth_secret)
                 connect._preferred = cap['preferred']
                 if cap['target-name']:
                     try:
