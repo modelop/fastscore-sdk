@@ -102,7 +102,6 @@ class Engine(InstanceBase):
         >>> print stream.active_streams[1]
 
         """
-
         if self._active_streams == None:
             try:
                 d = {}
@@ -126,7 +125,6 @@ class Engine(InstanceBase):
         ignored.
 
         """
-
         try:
             self.swg2.engine_pause(self.name)
         except Exception as e:
@@ -137,7 +135,6 @@ class Engine(InstanceBase):
         Unpauses the engine.
 
         """
-
         try:
             self.swg2.engine_unpause(self.name)
         except Exception as e:
@@ -149,12 +146,40 @@ class Engine(InstanceBase):
         closed. The engine changes its state to INIT.
 
         """
-
         try:
             self.swg2.engine_reset(self.name)
         except Exception as e:
             raise FastScoreError("Unable to reset the engine", caused_by=e)
 
+    def input(self, data, slot):
+        """
+        Write data to a REST stream attached to the slot.
+
+        :param data: The data to write to the stream.
+        :param slot: The stream slot.
+
+        """
+        try:
+            self.swg.job_io_input(self.name, data, slot)
+        except Exception as e:
+            raise FastScoreError("Stream write error", caused_by=e)
+
+    def output(self, slot):
+        """
+        Reads data from the REST stream attached to the slot.
+
+        :param slot: The stream slot.
+
+        """
+        try:
+            (data,status,_) = self.swg.job_io_output_with_http_info(self.name, slot)
+        except Exception as e:
+            raise FastScoreError("Stream read error", caused_by=e)
+        if status == 202:
+            return None
+        elif status == 204:
+            raise EOFError
+        return data
 
     class PolicyProxy(object):
         def __init__(self, eng):
