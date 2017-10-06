@@ -177,7 +177,7 @@ class Engine(InstanceBase):
             raise FastScoreError("Stream read error", caused_by=e)
         if status == 202:
             return None
-        elif status == 204:
+        elif status == 204 or data == '':
             raise EOFError
         return data
 
