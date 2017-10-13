@@ -9,6 +9,8 @@ if six.PY2:
 else:
     from urllib.parse import urlencode
 
+from fastscore.utils import format_record
+
 from .errors import FastScoreError
 
 PNEUMO_WS_PATH = '/api/1/service/connect/2/pneumo'
@@ -72,6 +74,8 @@ class PneumoSock(object):
                                    data['tap'],
                                    data['data'],
                                    delta_time)
+        elif ptype == 'model-error':
+            return ModelErrorMsg(src, timestamp, data['input'], data['console'])
         else:
             raise FastScoreError("Unexpected Pneumo message type '%s'" % ptype)
 
@@ -90,6 +94,10 @@ class PneumoMsg(object):
     @property
     def timestamp(self):
         return self._timestamp
+
+    def __str__(self):
+        when = self._timestamp.strftime("%X.%f")[:-3]
+        return "{}:{}".format(when, self._src)
 
     def __repr__(self):
         return "PneumoMsg(src=%s, timestamp=%s)" % (self.src,self.timestamp)
@@ -116,7 +124,7 @@ class HealthMsg(PneumoMsg):
         else:
             updown = self._health
 
-        return "%s is %s" % (self._instance,updown)
+        return "{}: {} is {}".format(super(HealthMsg, self).__str__(), self._instance, updown)
 
     def __repr__(self):
         return "HealthMsg(src=%s, timestamp=%s, instance=%s, health=%s)" \
@@ -151,7 +159,7 @@ class LogMsg(PneumoMsg):
     def __str__(self):
         severity = LogMsg.LAGER_LEVELS[self._level] \
                     if self._level in LogMsg.LAGER_LEVELS else self._level
-        return "log[%s] %s" % (severity,self._text)
+        return "{}: log[{}] {}".format(super(LogMsg, self).__str__(), severity, self._text)
 
     def __repr__(self):
         return "LogMsg(src=%s, timestamp=%s, level=%s, text=%s)" \
@@ -167,7 +175,17 @@ class ModelConsoleMsg(PneumoMsg):
         return self._text
 
     def __str__(self):
-        return "console: %s" % self._text.rstrip()
+
+        # 20/20/2017:engine-1> Model loaded
+        #                      Input is set
+        #                      Output is set
+
+        prefix = "{}> ".format(super(ModelConsoleMsg, self).__str__())
+        ll = self._text.rstrip().split("\n")
+        s = prefix + ll[0]
+        for l in ll[1:]:
+            s += "\n" + " " * len(prefix) + l
+        return s
 
     def __repr__(self):
         return "ModelConsoleMsg(src=%s, timestamp=%s, text=%s)" \
@@ -183,7 +201,7 @@ class EngineStateMsg(PneumoMsg):
         return self._state
 
     def __str__(self):
-        return "state is %s" % self._state.upper()
+        return "{}: state is {}".format(super(EngineStateMsg, self).__str__(), self._state.upper())
 
     def __repr__(self):
         return "EngineState(src=%s, timestamp=%s, state=%s)" \
@@ -211,24 +229,26 @@ class EngineConfigMsg(PneumoMsg):
     def __str__(self):
         if self._item == 'model':
             if self._op == 'load':
-                return "model loaded"
+                s = "model loaded"
             elif self._op == 'reload':
-                return "model reloaded"
+                s = "model reloaded"
             elif self._op == 'unload':
-                return "model unloaded"
+                s = "model unloaded"
         elif self._item == 'stream':
             if self._op == 'attach':
-                return "stream attached to %d" % self._ref
+                s = "stream attached to {}".format(self._ref)
             elif self._op == 'reattach':
-                return "stream reattached to %d" % self._ref
+                s = "stream reattached to {}".format(self._ref)
             elif self._op == 'detach':
-                return "stream detached from %d" % self._ref
+                s = "stream detached from {}".format(self._ref)
         elif self._item == 'jet':
             if self._op == 'start':
-                return "jet started (%s)" % self._ref
+                s = "jet started ({})".format(self._ref)
             elif self._op == 'stop':
-                return "jet stoppped (%s)" % self._ref
-        return repr(self)
+                s = "jet stoppped ({})".format(self._ref)
+        else:
+            s = repr(self)
+        return "{}: {}".format(super(EngineConfigMsg, self).__str__(), s)
 
     def __repr__(self):
         return "EngineConfig(src=%s, timestamp=%s, item=%s, op=%s, ref=%s)" \
@@ -259,8 +279,93 @@ class SensorReportMsg(PneumoMsg):
         return self._delta_time
 
     def __str__(self):
-        return "sensor[%d] %s: %s" % (self.sid,self.point,repr(self.data))
+        return "{}: sensor[{}] {}: {}".format(super(SensorReportMsg, self).__str__(), \
+                        self.sid, self.point, repr(self.data))
 
     def __repr__(self):
         return "SensorReportMsg(src=%s, timestamp=%s, sid=%d, point=%s, data=%s, delta_time=%f)" \
                     % (self.src,self.timestamp,self.sid,self.point,repr(self.data),self.delta_time)
+
+class ModelInputInfo():
+    def __init__(self, slot, seqno, data, batch_len, encoding):
+        self._slot = slot
+        self._seqno = seqno
+        self._data = data
+        self._batch_len = batch_len
+        self._encoding = encoding
+
+    @property
+    def slot(self):
+        return self._slot
+
+    @property
+    def seqno(self):
+        return self._seqno
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def batch_len(self):
+        return self._batch_len
+
+    @property
+    def encoding(self):
+        return self._encoding
+
+    @property
+    def slot(self):
+        return self._slot
+
+class ModelErrorMsg(PneumoMsg):
+    def __init__(self, src, timestamp, last, console):
+        super(ModelErrorMsg, self).__init__(src, timestamp)
+        self._input = ModelInputInfo(last['slot'],
+                                     last['seqno'],
+                                     last['data'],
+                                     last['batch_len'],
+                                     last['encoding']) if last else None
+        self._console = console
+
+    @property
+    def input(self):
+        return self._input
+
+    @property
+    def console(self):
+        return self._console
+
+    def __str__(self):
+
+        # 20/20/2017:engine-1: MODEL ERROR
+        #                      The input that caused the error:
+        #                          99: {"a": 1}
+        #                         100: {"a": 2}
+        #                      (180 record(s) skipped)
+        #                      -------------------------------
+        #                      Traceback (most recent call last):
+        #                        File "__model.py", line 5, in <module>
+        #                      ...
+
+        prefix = "{}: ".format(super(ModelErrorMsg, self).__str__())
+        indent = " " * len(prefix)
+        s = "{}MODEL ERROR".format(prefix)
+        if not self._input:
+            s += "\n" + indent + "(last input not available)"
+        else:
+            s += "\n" + indent + "The input that caused the error:"
+            for i,x in enumerate(self._input.data, self._input.seqno):
+                s += "\n" + indent + format_record(x, i)
+            if self._input.batch_len > len(self.input._data):
+                skipped = self._input.batch_len - len(self.input._data)
+                s += "\n" + indent + "({} record(s) skipped)".format(skipped)
+            s += "\n" + indent + "-" * 32
+        for l in self._console.rstrip().split("\n"):
+            s += "\n" + indent + l
+        return s
+
+    def __repr__(self):
+        return "ModelErrorMsg(src={}, timestamp={}, input={}, console={})"\
+                    .format(self.src, self.input, self.console.rstrip().replace('\n', '\\n'))
+

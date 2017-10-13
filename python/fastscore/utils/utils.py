@@ -1,6 +1,9 @@
 # utility functions
 import json
 
+from string import printable
+from binascii import b2a_hex
+
 def compare_items(obj1, obj2, f_error):
     """
     Compares two JSON objects. Nonzero float fields are compared using :func:`compare_floats`
@@ -106,3 +109,32 @@ def uniqueEnumName():
     to ensure uniqueness of values supplied by this function."""
     sys.modules["fastscore.utils"].uniqueEnumNameCounter += 1
     return "Enum_{0}".format(sys.modules["fastscore.utils"].uniqueEnumNameCounter)
+
+def format_record(rec, seqno=1):
+    """Format a data record for printing."""
+
+    if all([ x in printable for x in rec ]):
+        return "{:4d}: {}".format(seqno, rec)
+    else:
+
+##   1: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  0123456701234567
+##      01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01
+
+        chunks = [ rec[s:s + 16] for s in range(0, len(rec), 16) ]
+        if chunks == []:
+            return "{:4d}: (empty)".format(seqno)
+        else:
+            lines = []
+            lines.append("{:4d}: {}  {}".format(seqno, hex_pane(chunks[0]), str_pane(chunks[0])))
+            for x in chunks[1:]:
+                lines.append("      {}  {}".format(hex_pane(x), str_pane(x)))
+            return "\n".join(lines)
+
+def hex_pane(s):
+    x = [ b2a_hex(s[i]) if i < len(s) else "  " for i in range(16) ]
+    return " ".join(x)
+
+def str_pane(s):
+    x = [ s[i] if i < len(s) and s[i] in printable else '.' for i in range(16) ]
+    return "".join(x)
+

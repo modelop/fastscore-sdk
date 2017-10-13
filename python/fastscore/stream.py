@@ -234,5 +234,4 @@ class Stream(object):
         }
 
         return Stream(name, desc)
-
    
