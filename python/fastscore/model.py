@@ -192,21 +192,21 @@ class Model(object):
     def download_attachment(self, name):
         self.saved()
         try:
-            return self._mm.swg.attachment_get(self._mm.name, self.name, name)
-        # Python3 ugly fix
-        except UnicodeDecodeError:
-            params = {'host': self._mm.swg.api_client.host,
-                      'instance': self._mm.name,
-                      'model': self.name,
-                      'attachment': name}
-            path = "{host}/{instance}/1/model/{model}/attachment/{attachment}".format(**params)
-            r = requests.get(path, verify=False)
-            if r.status_code == 200:
-                with open(name, 'wb') as f:
-                    f.write(r.content)
-                return name
-            else:
-                raise FastScoreError("Cannot download attachment '%s'" % name)
+            if six.PY2:
+                return self._mm.swg.attachment_get(self._mm.name, self.name, name)
+            else: # Python 3
+                params = {'host': self._mm.swg.api_client.host,
+                          'instance': self._mm.name,
+                          'model': self.name,
+                          'attachment': name}
+                path = "{host}/{instance}/1/model/{model}/attachment/{attachment}".format(**params)
+                r = requests.get(path, verify=False)
+                if r.status_code == 200:
+                    with open(name, 'wb') as f:
+                        f.write(r.content)
+                    return name
+                else:
+                    raise FastScoreError("Cannot download attachment '%s'" % name)
         except Exception as e:
             raise FastScoreError("Cannot download attachment '%s'" % name, caused_by=e)
 
