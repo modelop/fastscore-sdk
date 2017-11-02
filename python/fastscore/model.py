@@ -120,11 +120,14 @@ class Model(object):
         * **pfa-json**: a PFA model in JSON format.
         * **pfa-yaml**: a PFA model in YAML format.
         * **pfa-pretty**: a PrettyPFA model.
+        * **h2o-java**: an H20 model.
         * **python**: a Python model.
         * **python3**: a Python 3 model.
         * **R**: an R model.
         * **java**: a Java model.
         * **c**: a C model.
+        * **octave**: an Octave model.
+        * **sas**: a SAS model.
 
         """
         return self._mtype

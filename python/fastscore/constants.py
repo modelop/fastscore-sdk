@@ -10,6 +10,7 @@ MODEL_CONTENT_TYPES = {
     'java':       'application/vnd.fastscore.model-java',
     'c':          'application/vnd.fastscore.model-c',
     'octave':     'application/vnd.fastscore.model-m',
+    'sas':        'application/vnd.fastscore.model-sas',
 }
 
 ATTACHMENT_CONTENT_TYPES = {
