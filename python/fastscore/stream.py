@@ -82,6 +82,15 @@ class Stream(object):
         """
         return engine.sample_stream(self, n)
 
+    def rate(self, engine):
+        """
+        Measures the stream throughput outside of a data pipeline.
+
+        :param engine: An Engine instance to use.
+
+        """
+        return engine.rate_stream(self)
+
     def update(self, model_manage=None):
         """
         Saves the stream to Model Manage.
