@@ -23,7 +23,7 @@ SCHEMA_CONTENT_TYPE = 'application/vnd.fastscore.schema-avro'
 POLICY_CONTENT_TYPES = {
     'python':   'application/vnd.fastscore.import-policy-python',
     'python3':  'application/vnd.fastscore.import-policy-python3',
-    'r':        'application/vnd.fastscore.import-policy-r',
+    'R':        'application/vnd.fastscore.import-policy-r',
     'java':     'application/vnd.fastscore.import-policy-java',
     'c':        'application/vnd.fastscore.import-policy-c',
 }
