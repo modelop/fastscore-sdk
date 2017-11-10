@@ -7,6 +7,7 @@ MODEL_CONTENT_TYPES = {
     'python':     'application/vnd.fastscore.model-python',
     'python3':    'application/vnd.fastscore.model-python3',
     'R':          'application/vnd.fastscore.model-r',
+    'r':        'application/vnd.fastscore.model-r',
     'java':       'application/vnd.fastscore.model-java',
     'c':          'application/vnd.fastscore.model-c',
     'octave':     'application/vnd.fastscore.model-m',
@@ -24,7 +25,7 @@ POLICY_CONTENT_TYPES = {
     'python':   'application/vnd.fastscore.import-policy-python',
     'python3':  'application/vnd.fastscore.import-policy-python3',
     'R':        'application/vnd.fastscore.import-policy-r',
+    'r':        'application/vnd.fastscore.import-policy-r',
     'java':     'application/vnd.fastscore.import-policy-java',
     'c':        'application/vnd.fastscore.import-policy-c',
 }
-
