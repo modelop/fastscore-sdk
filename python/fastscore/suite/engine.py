@@ -187,7 +187,7 @@ class Engine(InstanceBase):
         }
         path = "{host}/{instance}/1/job/output/{slot}".format(**params)
         r = requests.get(path, verify=False)
-        data, status = r.content, r.status
+        data, status = r.content, r.status_code
 
         # swagger-codegen way
         # try:
