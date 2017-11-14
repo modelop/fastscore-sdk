@@ -31,6 +31,11 @@ def _detach(self):
     self._eng.detach_stream(self.slot)
 ActiveStreamInfo.detach = _detach
 
+# patch engine.output
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 class Engine(InstanceBase):
     """
     An Engine instance.
@@ -173,10 +178,22 @@ class Engine(InstanceBase):
         :param slot: The stream slot.
 
         """
-        try:
-            (data,status,_) = self.swg.job_io_output_with_http_info(self.name, slot)
-        except Exception as e:
-            raise FastScoreError("Stream read error", caused_by=e)
+        # workaround for Swagger encoding bug
+        # Should be removed if swagger-codegen is fixed.
+        params = {
+            'host': self.swg.api_client.host,
+            'instance': self.name,
+            'slot' : slot
+        }
+        path = "{host}/{instance}/1/job/output/{slot}".format(**params)
+        r = requests.get(path, verify=False)
+        data, status = r.content, r.status
+
+        # swagger-codegen way
+        # try:
+        #     (data,status,_) = self.swg.job_io_output_with_http_info(self.name, slot)
+        # except Exception as e:
+        #     raise FastScoreError("Stream read error", caused_by=e)
         if status == 202:
             return None
         elif status == 204 or data == '':
