@@ -12,7 +12,7 @@ from ..constants import MODEL_CONTENT_TYPES
 from ..v1 import ModelManageApi
 from ..v2 import ModelManageApi as ModelManageApi2
 
-from secrets import hide
+from .secrets import hide
 
 class ModelManage(InstanceBase):
     """
