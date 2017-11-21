@@ -1,0 +1,5 @@
+{
+  "modelPackage": "com.opendatagroup.fastscore.swagger.models2",
+  "apiPackage": "com.opendatagroup.fastscore.swagger.api2",
+  "invokerPackage": "com.opendatagroup.fastscore.swagger.invoker2"
+}

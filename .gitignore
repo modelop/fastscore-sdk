@@ -98,3 +98,14 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Ensime stuff
+*ensime*
+pc.stdout.log
+
+# Gradle/Maven scripts
+*gradle*
+pom.xml
+
+# Scala-codegen artifacts
+git_push.sh

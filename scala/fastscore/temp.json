@@ -1,0 +1,16 @@
+{
+    "Version" : "1.2",
+    "Description" : "write a sequence of unicode strings to a file separated by newlines",
+    "Transport" : {
+        "Type" : "file",
+        "Path" : "data/output1.dat"
+    },
+    "Loop" : false,
+    "Envelope" : null,
+    "Encoding" : null,
+    "Batching" : "normal",
+    "LingerTime" : 3000,
+    "Schema" : {
+        "$ref" : "input"
+    }
+}
