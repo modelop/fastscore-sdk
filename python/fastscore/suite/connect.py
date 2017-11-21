@@ -21,7 +21,10 @@ import yaml
 
 #configuration.debug = True
 
-from urllib import quote, unquote
+if six.PY2:
+    from urllib import quote, unquote
+else:
+    from urllib.parse import quote, unquote
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

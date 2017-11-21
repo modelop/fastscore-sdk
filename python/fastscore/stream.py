@@ -1,7 +1,11 @@
 
 import random
+import six
 
-from urllib import unquote
+if six.PY2:
+    from urllib import unquote
+else:
+    from urllib.parse import unquote
 from base64 import b64encode
 
 from fastscore.errors import FastScoreError
@@ -82,6 +86,15 @@ class Stream(object):
         """
         return engine.sample_stream(self, n)
 
+    def rate(self, engine):
+        """
+        Measures the stream throughput outside of a data pipeline.
+
+        :param engine: An Engine instance to use.
+
+        """
+        return engine.rate_stream(self)
+
     def update(self, model_manage=None):
         """
         Saves the stream to Model Manage.
@@ -99,7 +112,7 @@ class Stream(object):
     def attach(self, engine, slot, dry_run=False):
         """
         Attach the stream to the engine.
-        
+
         :param slot: The stream slot.
 
         """
@@ -234,4 +247,3 @@ class Stream(object):
         }
 
         return Stream(name, desc)
-   
