@@ -109,7 +109,7 @@ class ApiInvoker(val mapper: ObjectMapper = ScalaJsonUtil.getJsonMapper,
     } else null
   }
 
-  def invokeApi(host: String, path: String, method: String, queryParams: Map[String, String], formParams: Map[String, String], body: AnyRef, headerParams: Map[String, String], contentType: String, accept: String = "application/json"): String = {
+  def invokeApi(host: String, path: String, method: String, queryParams: Map[String, String], formParams: Map[String, String], body: AnyRef, headerParams: Map[String, String], contentType: String, accept: String = "application/json", serializeBody: Boolean = true): String = {
     val client = getClient(host)
 
     val querystring = queryParams.filter(k => k._2 != null).map(k => (escape(k._1) + "=" + escape(k._2))).mkString("?", "&", "")
@@ -141,14 +141,15 @@ class ApiInvoker(val mapper: ObjectMapper = ScalaJsonUtil.getJsonMapper,
           builder.post(classOf[ClientResponse], form)
         }
         else {
-          if(body == null) builder.post(classOf[ClientResponse], serialize(body))
-          else builder.`type`(contentType).post(classOf[ClientResponse], serialize(body))
+          if(body == null) builder.post(classOf[ClientResponse], if (serializeBody) serialize(body) else body)
+          else builder.`type`(contentType).post(classOf[ClientResponse], if (serializeBody) serialize(body) else body)
         }
       }
       case "PUT" => {
         if(formData != null) builder.post(classOf[ClientResponse], formData)
         else if(body == null) builder.put(classOf[ClientResponse], null)
-        else builder.`type`(contentType).put(classOf[ClientResponse], serialize(body))
+        else
+          builder.`type`(contentType).put(classOf[ClientResponse], if (serializeBody) serialize(body) else body)
       }
       case "DELETE" => {
         builder.delete(classOf[ClientResponse])

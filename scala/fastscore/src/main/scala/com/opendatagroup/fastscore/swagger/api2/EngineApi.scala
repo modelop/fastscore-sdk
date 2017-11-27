@@ -494,7 +494,7 @@ class EngineApi(val defBasePath: String = "https://localhost/api/1/service",
     }
 
     try {
-      apiInvoker.invokeApi(basePath, path, "PUT", queryParams.toMap, formParams.toMap, postBody, headerParams.toMap, contentType, "text/html") match {
+      apiInvoker.invokeApi(basePath, path, "PUT", queryParams.toMap, formParams.toMap, postBody, headerParams.toMap, contentType, "application/json", false) match {
         case s: String =>
            Some(s.asInstanceOf[Any])
         case _ => None
