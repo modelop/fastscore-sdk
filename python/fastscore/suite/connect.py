@@ -284,7 +284,7 @@ class Connect(InstanceBase):
             else:
                 conf = self.swg.config_get(self.name, \
                     accept='application/x-yaml')
-            return yaml.load(conf)
+            return conf
         except Exception as e:
             if isinstance(e, ApiException) and e.status == 404:
                 return None ## not yet configured

@@ -204,14 +204,15 @@ class Engine(InstanceBase):
         def __init__(self, eng):
             self._eng = eng
 
-        def set(self, title, mtype, text):
+        def set(self, title, mtype, text, preinstall=False):
             if title != 'import':
                 raise FastScoreError("Only 'import' policy is currently supported")
             if not mtype in POLICY_CONTENT_TYPES:
                 raise FastScoreError("Model type '%s' not recognized" % mtype)
             try:
                 ct = POLICY_CONTENT_TYPES[mtype]
-                self._eng.swg.policy_put(self._eng.name, text, content_type=ct)
+                self._eng.swg.policy_put(self._eng.name, text,
+                            preinstall=preinstall, content_type=ct)
             except Exception as e:
                 raise FastScoreError("Unable to upload policy", caused_by=e)
 
