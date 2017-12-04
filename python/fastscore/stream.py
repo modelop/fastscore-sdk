@@ -172,7 +172,7 @@ class Stream(object):
                 port = int(port)
                 return {
                     "Type": "TCP",
-                    "Host": host,
+                    "Host": host if host != '' else '0.0.0.0',
                     "Port": port,
                 }, None
 
@@ -183,7 +183,7 @@ class Stream(object):
                     "Type": "UDP",
                     "Port": port,
                 }
-                if host:
+                if host != '':
                     tt["Host"] = host
                 return tt,None
 
