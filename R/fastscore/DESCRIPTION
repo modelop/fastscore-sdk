@@ -1,41 +1,17 @@
 Package: fastscore
-Title: FastScore Jupyter SDK
-Version: 0.0.0.9000
-Authors@R: person("Matthew", "Mahowald", email = "matthew.mahowald@opendatagroup.com", role = c("aut", "cre"))
-Description: FastScore R SDK and Jupyter Notebook extensions
-Depends: R (>= 3.3.2), rjson, yaml, httr
-License: TBD
+Type: Package
+Title: An R Software Development Kit for FastScore.
+Version: 0.1.0
+Author: Chris Comiskey
+Maintainer: Chris Comiskey <chris.comiskey@opendatagroup.com>
+Description: Use this package to interact with FastScore from R.
+    If you have any questions, please contact us!
+License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Collate: 
-    'api.APIBase.R'
-    'api.ConnectAPI.R'
-    'api.EngineAPI.R'
-    'api.ModelManageAPI.R'
-    'api.attachment.R'
-    'api.service.R'
-    'api.connect.R'
-    'api.job.R'
-    'api.model.R'
-    'api.proxy.R'
-    'api.schema.R'
-    'api.stream.R'
-    'attachment.R'
-    'codec.R'
-    'codec.datatype.R'
-    'constants.R'
-    'suite.instance.R'
-    'suite.model_manage.R'
-    'model.R'
-    'deploy.model.R'
-    'errors.R'
-    'pneumo.R'
-    'schema.R'
-    'sensor.R'
-    'snapshot.R'
-    'stream.R'
-    'suite.connect.R'
-    'suite.engine.R'
-    'utils.R'
-    'version.R'
-RoxygenNote: 6.0.1
+Depends: R (>= 3.3.2), 
+    R6,
+    rjson, 
+    yaml, 
+    httr, 
+    swagger 
