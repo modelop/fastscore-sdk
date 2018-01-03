@@ -18,8 +18,23 @@ InstanceBase <- R6::R6Class("InstanceBase",
       },
 
       # @property (???)
+
       active_sensors = function(self){
 
+        tryCatch(
+          {
+            d <- list()
+            for(i in victory$active_sensor_list(self$name)){
+              d[[paste(i)]] <- i
+              }
+            d
+            },
+        error = function(e) FastScoreError$new(
+          message = "Unable to retrieve active sensors.",
+          caused_by = e$message)$error_string()
+        # warning = FastScoreError$new(message = "...", caused_by = "..."),
+        # message = FastScoreError$new(message = "...", caused_by = "...")
+        )
       },
 
       # @property (???)
