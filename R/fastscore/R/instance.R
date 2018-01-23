@@ -1,5 +1,3 @@
-# instance.py
-
 # from ..errors import FastScoreError
 # from ..v1.rest import ApiException
 # from ..v2.models import ActiveSensorInfo
@@ -7,16 +5,15 @@
 # Where (?) to put this:
 # httr::set_config(httr::config(ssl_verifypeer = FALSE))
 
-
 InstanceBase <- R6::R6Class("InstanceBase",
+    inherit = ApiClient, # swagger twin
     public = list(
-
-      name = NULL,
+      name = NULL, # NULL vs. NA??
       api = NULL,
       # swg = NULL,
       # swg2 = NULL, # Maxim: N/A for R-SDK
 
-      initialize = function(name = NA, api = NA, swg = NA){
+      initialize = function(name = NA, api = NA){
         self$name <- name
         self$api <- api
         # self$swg  <- swg
@@ -26,20 +23,13 @@ InstanceBase <- R6::R6Class("InstanceBase",
       # @property (???)
       active_sensors = function(){
         #' Currently installed sensors indexed by id
-        #'
         #' > engine <- Connect$lookup('engine')
-        #' > names(engine$active_sensors())
-        #' > x <- engine$active_sensors["sensor"]
+        #' > x <- engine$active_sensors()
         #' > str(x)
+        #' > x
 
         tryCatch(
-          {
-             d <- list()
-             for(i in self$active_sensor_list(self$name)){
-               d[[paste(i)]] <- i
-               }
-             d
-            },
+          self$active_sensor_list(self$name),
           error = function(e) FastScoreError$new(
             message = "Unable to retrieve active sensors.",
             caused_by = e$message
@@ -80,10 +70,43 @@ InstanceBase <- R6::R6Class("InstanceBase",
         )
       },
 
-      get_swagger = function(){},
+      get_swagger = function(){
+        # Retrieves the Swagger specification of the API
+        # supported by the instance.
+        #
+        # > Connect$get_swagger()
 
-      install_sensor = function(sensor){},
+        tryCatch(
+          self$swagger_get(self$name),
 
-      uninstall_sensor = function(tapid){}
+          error = function(e) FastScoreError$new(
+            message = "Unable to retrieve Swagger specification.",
+            caused_by = e$message
+          )$error_string()
+        )
+      },
+
+      install_sensor = function(sensor){
+        tryCatch(
+          self$active_sensor_attach(self$name, sensor$desc),
+          # swagger::ConnectApi$active_sensor_attach(...)
+          error = function(e) FastScoreError$new(
+            message = "Unable to install sensor.",
+            caused_by = e$message
+          )$error_string()
+        )
+      },
+
+      uninstall_sensor = function(tapid){
+        tryCatch(
+          self$active_sensor_detach(self$name, tapid),
+          # swagger::ConnectApi$active_sensor_detach(...)
+
+          error = function(e) FastScoreError$new(
+            message = "Unable to uninstall sensor.",
+            caused_by = e$message
+          )$error_string()
+        )
+      }
     )
 )
