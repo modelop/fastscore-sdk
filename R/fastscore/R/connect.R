@@ -18,10 +18,12 @@ Connect <- R6::R6Class("Connect",
     inherit = ConnectApi, # swagger twin
     public = list(
       proxy_prefix = NULL,
-      api_client = NULL,
-      auth_secret = NULL,
+      apiClient = NA,
+      basePath = NA,
+      auth_secret = NA,
 
-      initialize = function(proxy_prefix, api_client, auth_secret = NA){
+
+      initialize = function(proxy_prefix, apiClient = NA, basePath = NA, auth_secret = NA){
 
         if(!grepl("://", proxy_prefix)){
           FastScoreError$new(
@@ -35,12 +37,22 @@ Connect <- R6::R6Class("Connect",
         self$proxy_prefix <- proxy_prefix
         self$auth_secret <- auth_secret
 
-          if (!missing(api_client)) {
-            self$api_client <- api_client
+        if (!missing(apiClient)) {
+          self$apiClient <- apiClient # fastscore parent, from argument
+        } else {
+          self$apiClient <- InstanceBase$new() # instantiate fastscore parent
+        }
+
+        if (!missing(basePath)) {
+          self$basePath <- basePath
+        } else {
+          if (!missing(apiClient)){
+            self$basePath <- apiClient$basePath
+          } else {
+            self$basePath <- self$apiClient$basePath
           }
-          else {
-            self$api_client <- InstanceBase$new() # fastscore parent
           }
+
       },
 
       fleet = function(){
