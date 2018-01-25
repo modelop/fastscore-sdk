@@ -1,23 +1,20 @@
-# from ..errors import FastScoreError
-# from ..v1.rest import ApiException
-# from ..v2.models import ActiveSensorInfo
-
-# Where (?) to put this:
-# httr::set_config(httr::config(ssl_verifypeer = FALSE))
-
 InstanceBase <- R6::R6Class("InstanceBase",
     inherit = ApiClient, # swagger twin
     public = list(
-      name = NULL, # NULL vs. NA??
-      api = NULL,
-      # swg = NULL,
-      # swg2 = NULL, # Maxim: N/A for R-SDK
+      name = NA,
+      api = NA,
+      basePath = NA,
 
-      initialize = function(name = NA, api = NA){
+      initialize = function(name = NA, api = NA, basePath){
+
+        stopifnot(grepl("://", basePath), grepl("https:", basePath)) # TODO: add FS error message
+        #   FastScoreError$new(message = "basePath must be an URL, e.g. https://dashboard:8000")$error_string()
+        #   FastScoreError$new(message = "basePath must use HTTPS scheme, e.g. https://dashboard:8000")$error_string()
+
         self$name <- name
         self$api <- api
-        # self$swg  <- swg
-        # self$swg2 <- swg2
+        self$basePath <- paste0(basePath, "/",
+                                  parse_url(swagger::ApiClient$new()$basePath)$path)
       },
 
       # @property (???)
