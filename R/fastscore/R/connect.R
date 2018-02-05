@@ -24,11 +24,43 @@ Connect <- R6::R6Class("Connect",
         self$apiClient <- apiClient # fastscore parent
         self$basePath <- apiClient$basePath
 
+        self$preferred <- list()
+
       },
 
-      get = function(){}
+      get = function(){},
 
-      lookup = function(){}
+      lookup = function(sname){
+        # sname: FastScore service name; e.g. 'model-manage'
+        # Value: a FastScore instance object
+
+        if("sname" %in% self$preferred){
+          self$get(sname$preferred["sname"])
+        }
+
+        tryCatch(
+          xx <- self$connect_get(self$name, TODO),
+          error = function(e) FastScoreError$new(
+            message = "Cannot retrieve fleet info.",
+            caused_by = e$message
+            )$error_string()
+        )
+
+        for(x in names(xx))
+          if(x$health == 'ok') self$get(x$name)
+
+        if(length(xx) == 0){
+          m <- paste0("No instances of service ", sname, " configured.")
+          FastScoreError$new(message = "m")$error_string()
+        } else if(length(xx) == 1){
+          m <- paste0(xx[1]$name, " instance is unhealthy")
+          FastScoreError$new(message = "m")$error_string()
+        } else {
+          m <- paste0("All ", length(xx), " instances of service", sname, " unhealthy.")
+          FastScoreError$new(message = "m")$error_string()
+        }
+
+      },
 
       fleet = function(instance){
         tryCatch(
