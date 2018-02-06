@@ -1,3 +1,8 @@
+#' An R6 Class to represent an R client for the FastScore API
+#'
+#' @field basePath the HTTPS scheme URL for the FastScore Microservices
+#' Dashboard being used for the FastScore instance you wish to connect to
+
 InstanceBase <- R6::R6Class("InstanceBase",
     inherit = ApiClient, # swagger twin
     public = list(
@@ -13,24 +18,20 @@ InstanceBase <- R6::R6Class("InstanceBase",
 
         self$name <- name
         self$api <- api
-        self$basePath <- paste0(basePath, "/",
-                                  parse_url(swagger::ApiClient$new()$basePath)$path)
+        self$basePath <- paste0(basePath, "/", httr::parse_url(swagger::ApiClient$new()$basePath)$path)
       },
 
       # @property (???)
       active_sensors = function(){
-        #' Currently installed sensors indexed by id
-        #' > engine <- Connect$lookup('engine')
-        #' > x <- engine$active_sensors()
-        #' > str(x)
-        #' > x
+        # Currently installed sensors indexed by id
+        # > engine <- Connect$lookup('engine')
+        # > x <- engine$active_sensors()
+        # > str(x)
+        # > x
 
         tryCatch(
           self$active_sensor_list(self$name),
-          error = function(e) FastScoreError$new(
-            message = "Unable to retrieve active sensors.",
-            caused_by = e$message
-            )$error_string()
+          error = function(e) stop("Unable to retrieve active sensors, ", e$message)
           )
       },
 
@@ -42,11 +43,7 @@ InstanceBase <- R6::R6Class("InstanceBase",
 
         tryCatch(
           self$tapping_points(self$name),
-
-          error = function(e) FastScoreError$new(
-            message = "Unable to list tapping points.",
-            caused_by = e$message
-            )$error_string()
+          error = function(e) stop("Unable to list tapping points, ", e$message)
         )
       },
       # calls  v2.yaml method: tapping_points(...)
@@ -59,11 +56,7 @@ InstanceBase <- R6::R6Class("InstanceBase",
 
         tryCatch(
           self$health_get(self$name),
-
-          error = function(e) FastScoreError$new(
-            message = "Unable to retrieve instance info.",
-            caused_by = e$message
-            )$error_string()
+          error = function(e) stop("Unable to retrieve instance info, ", e$message)
         )
       },
 
@@ -75,11 +68,7 @@ InstanceBase <- R6::R6Class("InstanceBase",
 
         tryCatch(
           self$swagger_get(self$name),
-
-          error = function(e) FastScoreError$new(
-            message = "Unable to retrieve Swagger specification.",
-            caused_by = e$message
-          )$error_string()
+          error = function(e) stop("Unable to retrieve Swagger specification, ", e$message)
         )
       },
 
@@ -87,10 +76,7 @@ InstanceBase <- R6::R6Class("InstanceBase",
         tryCatch(
           self$active_sensor_attach(self$name, sensor$desc),
           # swagger::ConnectApi$active_sensor_attach(...)
-          error = function(e) FastScoreError$new(
-            message = "Unable to install sensor.",
-            caused_by = e$message
-          )$error_string()
+          error = function(e) stop("Unable to install sensor, ", e$message)
         )
       },
 
@@ -98,11 +84,7 @@ InstanceBase <- R6::R6Class("InstanceBase",
         tryCatch(
           self$active_sensor_detach(self$name, tapid),
           # swagger::ConnectApi$active_sensor_detach(...)
-
-          error = function(e) FastScoreError$new(
-            message = "Unable to uninstall sensor.",
-            caused_by = e$message
-          )$error_string()
+          error = function(e) stop("Unable to uninstall sensor, ", e$message)
         )
       }
     )
