@@ -63,13 +63,14 @@ ModelManage <- R6::R6Class("ModelManage",
         headerParams <- character()
 
         urlPath <- "/{instance}/1/model/{model}"
+
         if (!missing(`instance`)) {
           urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-        }
+        } # e.g. "/model-manage-1/1/model/{model}"
 
         if (!missing(`model`)) {
           urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
-        }
+        } # e.g. "/model-manage-1/1/model/hello-world"
 
         resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
                                        method = "GET",
@@ -79,11 +80,9 @@ ModelManage <- R6::R6Class("ModelManage",
                                        ...)
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-          # returnObject <- Character$new()
-          # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-          # Response$new(returnObject, resp)
+          result <- httr::content(resp, "text", encoding = "UTF-8")
           Response$new(result, resp)
+
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
           Response$new("API client error", resp)
         } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
