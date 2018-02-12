@@ -43,10 +43,7 @@ ModelManage <- R6::R6Class("ModelManage",
                                        ...)
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-          # returnObject <- TODO_OBJECT_MAPPING$new()
-          # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
           result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-          # Response$new(returnObject, resp)
           Response$new(result, resp)
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
           Response$new("API client error", resp)
@@ -56,7 +53,7 @@ ModelManage <- R6::R6Class("ModelManage",
 
       },
 
-      # overwrite swagger::M_ M_ A_ $new()$model_get
+      # overwrite swagger::ModelManageApi$model_get
       model_get = function(instance, model, ...){
         args <- list(...)
         queryParams <- list()
@@ -89,6 +86,81 @@ ModelManage <- R6::R6Class("ModelManage",
           Response$new("API server error", resp)
         }
 
+      },
+
+      # overwrite swagger::ModelManageApi$schema_list b/c missing Character class
+      schema_list = function(instance, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/schema"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "GET",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+
+          # returnObject <- Character$new()
+          # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          # Response$new(returnObject, resp)
+
+          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          Response$new(result, resp)
+
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # overwrite unfinished swagger::ModelManageApi$schema_get
+      schema_get = function(instance, schema, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/schema/{schema}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`schema`)) {
+          urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "GET",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+
+          # returnObject <- TODO_OBJECT_MAPPING$new()
+          # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          # Response$new(returnObject, resp)
+
+          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          Response$new(result, resp)
+
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
       }
+
     )
 )
