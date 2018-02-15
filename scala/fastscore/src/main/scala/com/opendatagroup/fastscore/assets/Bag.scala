@@ -5,6 +5,10 @@ import com.opendatagroup.fastscore.util._
 
 import scala.util.{ Try, Success, Failure }
 
+/** Parent Asset interface
+  *
+  * @tparam T Model/Schema/Stream/Sensor
+  */
 trait Asset[T] {
     val name: String
 
@@ -12,6 +16,11 @@ trait Asset[T] {
     def delete: Unit
 }
 
+/** Parent Bag interface
+  *
+  * @tparam Meta Metadata object
+  * @tparam Value Value object
+  */
 trait Bag[Meta, Value] extends Iterable[Meta with Asset[Value]] {
     val modelmanage: ModelManage
 

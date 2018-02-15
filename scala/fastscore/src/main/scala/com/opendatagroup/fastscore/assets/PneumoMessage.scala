@@ -2,6 +2,9 @@ package com.opendatagroup.fastscore.assets
 
 import java.time.OffsetDateTime
 
+/** Pneumo message types
+  *
+  */
 object PneumoMessageType extends Enumeration {
     val health = Value("health")
     val log = Value("log")
@@ -12,6 +15,9 @@ object PneumoMessageType extends Enumeration {
     val modelError = Value("model-error")
 }
 
+/** SensorTapInstance serializer helper trait
+  *
+  */
 trait SensorTapInstanceSerializer {
     val prefix: SensorTapPrefix.Value
     val slot: Int
@@ -19,21 +25,44 @@ trait SensorTapInstanceSerializer {
 
     override def toString(): String = s"${prefix.toString}.$slot.${suffix.toString}"
 
+    /** Converts SensorTapInstance to SensorTap
+      *
+      * @return SensorTap
+      */
     def toTap(): SensorTap = SensorTap(prefix, suffix)
 }
 
+/** SensorTapInstance
+  *
+  * Sensor Tap + Slot it's attached to
+  *
+  * @param prefix Sensor Tap prefix
+  * @param slot Sensor Slot
+  * @param suffix Sensor Tap suffix
+  */
 case class SensorTapInstance(
     prefix: SensorTapPrefix.Value,
     slot: Int,
     suffix: SensorTapSuffix.Value
 ) extends SensorTapInstanceSerializer
 
+/** Pneumo Message parent trait
+  *
+  */
 sealed trait PneumoMessage {
     val src: String
     val timestamp: OffsetDateTime
     val messageType: PneumoMessageType.Value
 }
 
+/** Pneumo Health Message
+  *
+  * @param src
+  * @param timestamp
+  * @param messageType
+  * @param instance
+  * @param health
+  */
 case class HealthMessage(
     src: String,
     timestamp: OffsetDateTime,
@@ -42,6 +71,9 @@ case class HealthMessage(
     health: String
 ) extends PneumoMessage
 
+/** EngineState parameter values
+  *
+  */
 object EngineState extends Enumeration {
     val init = Value("init")
     val running = Value("running")
@@ -51,6 +83,13 @@ object EngineState extends Enumeration {
     val finished = Value("finished")
 }
 
+/** Pneumo Engine State Message
+  *
+  * @param src
+  * @param timestamp
+  * @param messageType
+  * @param state
+  */
 case class EngineStateMessage(
     src: String,
     timestamp: OffsetDateTime,
@@ -58,12 +97,23 @@ case class EngineStateMessage(
     state: EngineState.Value
 ) extends PneumoMessage
 
+/** Pneumo EngineConfigItem values
+  *
+  */
 object EngineConfigItem extends Enumeration {
     val model = Value("model")
     val stream = Value("stream")
     val jet = Value("jet")
 }
 
+/** Pneumo Engine Config Message
+  *
+  * @param src
+  * @param timestamp
+  * @param messageType
+  * @param item
+  * @param ref
+  */
 case class EngineConfigMessage(
     src: String,
     timestamp: OffsetDateTime,
@@ -72,6 +122,14 @@ case class EngineConfigMessage(
     ref: Either[Int, String]
 ) extends PneumoMessage
 
+/** Pneumo Engine Log Message
+  *
+  * @param src
+  * @param timestamp
+  * @param messageType
+  * @param level
+  * @param text
+  */
 case class LogMessage(
     src: String,
     timestamp: OffsetDateTime,
@@ -80,6 +138,13 @@ case class LogMessage(
     text: String
 ) extends PneumoMessage
 
+/** Pneumo Model Console Message
+  *
+  * @param src
+  * @param timestamp
+  * @param messageType
+  * @param text
+  */
 case class ModelConsoleMessage(
     src: String,
     timestamp: OffsetDateTime,
@@ -87,6 +152,14 @@ case class ModelConsoleMessage(
     text: String
 ) extends PneumoMessage
 
+/** Pneumo Input Batch Message
+  *
+  * @param slot
+  * @param seqno
+  * @param data
+  * @param batchLen
+  * @param encoding
+  */
 case class InputBatch(
     slot: Int,
     seqno: Int,
@@ -95,6 +168,14 @@ case class InputBatch(
     encoding: StreamEncoding.Value
 )
 
+/** Pneumo Model Error Message
+  *
+  * @param src
+  * @param timestamp
+  * @param messageType
+  * @param input
+  * @param console
+  */
 case class ModelErrorMessage(
     src: String,
     timestamp: OffsetDateTime,
@@ -103,6 +184,16 @@ case class ModelErrorMessage(
     console: String
 ) extends PneumoMessage
 
+/** Pneumo Sensor Report Message
+  *
+  * @param src
+  * @param timestamp
+  * @param messageType
+  * @param id
+  * @param tap
+  * @param data
+  * @param deltaTime
+  */
 case class SensorReportMessage(
     src: String,
     timestamp: OffsetDateTime,

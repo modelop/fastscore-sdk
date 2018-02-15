@@ -11,7 +11,9 @@ import io.circe.syntax._
 import java.io.{File, PrintWriter}
 import scala.io.Source
 
-// Transport
+/** Stream Transport parameter Type
+  *
+  */
 case object StreamTransportType extends Enumeration {
     val http = Value("HTTP")
     val kafka = Value("Kafka")
@@ -25,12 +27,26 @@ case object StreamTransportType extends Enumeration {
     val discard = Value("discard")
 }
 
+/** Stream transport parameter parent trait
+  *
+  */
 sealed trait StreamTransport
 
+/** HTTP Stream transport
+  *
+  * @param url target URL
+  */
 case class StreamTransportHTTP(
     url: String
 ) extends StreamTransport
 
+/** Kafka Stream transport
+  *
+  * @param bootstrapServers Kafka BootStrap servers
+  * @param topic Kafka topic
+  * @param partition Kafka partition
+  * @param maxWaitTime
+  */
 case class StreamTransportKafka(
     bootstrapServers: List[String],
     topic: String,
@@ -38,19 +54,38 @@ case class StreamTransportKafka(
     maxWaitTime: Option[Int] = Some(0x7fffff)
 ) extends StreamTransport
 
+/** REST Stream Transport
+  *
+  */
 case object StreamTransportRESTMode extends Enumeration {
     val simple = Value("simple")
     val chunked = Value("chunked")
 }
 
+/** REST Stream Transport Mode parameter
+  *
+  * @param mode
+  */
 case class StreamTransportREST(
     mode: StreamTransportRESTMode.Value = StreamTransportRESTMode.simple
 ) extends StreamTransport
 
+/** File Stream Transport
+  *
+  * @param path
+  */
 case class StreamTransportFile(
     path: String
 ) extends StreamTransport
 
+/** ODBC Stream Transport
+  *
+  * @param connectionString
+  * @param selectQuery
+  * @param insertIntoTable
+  * @param outputFields
+  * @param timeout
+  */
 case class StreamTransportODBC(
     connectionString: String,
     selectQuery: String,
@@ -59,52 +94,94 @@ case class StreamTransportODBC(
     timeout: Option[Int] = None
 ) extends StreamTransport
 
+/** TCP Stream Transport
+  *
+  * @param host
+  * @param port
+  */
 case class StreamTransportTCP(
     host: String,
     port: Int
 ) extends StreamTransport
 
+/** UDP Stream Transport
+  *
+  * @param bindTo
+  * @param port
+  */
 case class StreamTransportUDP(
     bindTo: String = "0.0.0.0",
     port: Int
 ) extends StreamTransport
 
+/** Exec Stream Transport
+  *
+  * @param run
+  */
 case class StreamTransportExec(
     run: String
 ) extends StreamTransport
 
+/** Inline Stream Transport
+  *
+  * @param data Base64 encoded data
+  * @param dataBinary Binary data
+  */
 case class StreamTransportInline(
     data: Option[Either[String, List[String]]] = None,
     // base64
     dataBinary: Option[Either[String, List[String]]] = None
 ) extends StreamTransport
 
+/** Discard Stream Transport
+  *
+  */
 case object StreamTransportDiscard extends StreamTransport
 
-// Envelope
+/** Stream Envelope Type
+  *
+  */
 case object StreamEnvelopeType extends Enumeration {
     val delimited = Value("delimited")
     val fixed = Value("fixed")
     val ocfBlock = Value("ocf-block")
 }
 
+/** Stream Envelope Parent Trait
+  *
+  */
 sealed trait StreamEnvelope
 
+/** Delimited Stream Envelope
+  *
+  * @param separator
+  */
 case class StreamEnvelopeDelimited(
     separator: String
 ) extends StreamEnvelope
 
+/** Fixed Stream Envelope
+  *
+  * @param size
+  */
 case class StreamEnvelopeFixed(
     size: Int
 ) extends StreamEnvelope
 
+/** OCF-Block Stream Envelope
+  *
+  * @param syncMarker
+  * @param skipHeader
+  */
 case class StreamEnvelopeOcfBlock(
     // If syncMarker omitted, skipHeader must be false
     syncMarker: Option[String] = None,
     skipHeader: Boolean = false
 ) extends StreamEnvelope
 
-// Encoding
+/** Stream Encoding Parameter
+  *
+  */
 case object StreamEncoding extends Enumeration {
     val utf8 = Value("utf-8")
     val json = Value("json")
@@ -112,28 +189,49 @@ case object StreamEncoding extends Enumeration {
     val soapRpc = Value("soap-rpc")
 }
 
-// Schema
+/** Stream Schema name reference
+  *
+  * @param ref
+  */
 case class StreamSchemaRef(
     ref: String
 )
 
-// Batching
+/** Stream Batching Mode parameter
+  *
+  */
 case object StreamBatchingMode extends Enumeration {
     val explicit = Value("explicit")
     val normal = Value("normal")
 }
 
+/** Stream Batching
+  *
+  * @param watermark
+  * @param nagleTime
+  */
 case class StreamBatching(
     watermark: Int,
     nagleTime: Int
 )
 
+/** Kafka SkipToRecord parameter
+  *
+  */
 case object KafkaSkipToRecord extends Enumeration {
     val latest = Value("latest")
     val earliest = Value("earliest")
 }
 
+/** Stream factory
+  *
+  */
 object Stream {
+    /** Create stream object from file
+      *
+      * @param path source path
+      * @return stream object
+      */
     def fromFile(path: String): Stream = {
         val source = Source.fromFile(path).getLines.mkString
         parse(source) match {
@@ -147,6 +245,20 @@ object Stream {
     }
 }
 
+/** Stream object
+  *
+  * @param version
+  * @param description
+  * @param transport
+  * @param loop
+  * @param skipTo
+  * @param skipToRecord
+  * @param envelope
+  * @param encoding
+  * @param schema
+  * @param batching
+  * @param lingerTime
+  */
 case class Stream(
     version: String = "1.2",
     description: Option[String] = None,
@@ -161,6 +273,9 @@ case class Stream(
     lingerTime: Int = 3000
 ) extends StreamJSONSerializer
 
+/** Stream Serializer helper trait
+  *
+  */
 trait StreamJSONSerializer {
     val version: String
     val description: Option[String]
@@ -178,12 +293,20 @@ trait StreamJSONSerializer {
         Stream(version, description, transport, loop, skipTo, skipToRecord, envelope, encoding, schema, batching, lingerTime).asJson.spaces4
     }
 
+    /** Write stream to file
+      *
+      * @param path destination path
+      */
     def toFile(path: String): Unit = {
         val writer = new PrintWriter(new File(path))
         writer.write(Stream(version, description, transport, loop, skipTo, skipToRecord, envelope, encoding, schema, batching, lingerTime).toString)
         writer.close
     }
 
+    /** Convert a stream object to a builder
+      *
+      * @return Stream Builder object
+      */
     def toBuilder(): StreamBuilder = {
         new StreamBuilder(
             transport match {
@@ -228,10 +351,17 @@ trait StreamJSONSerializer {
     }
 }
 
+/** StreamMetadata helper trait
+  *
+  */
 sealed trait StreamMetaOps {
     val name: String
     val modelmanage: ModelManage
 
+    /** Retrieve stream from ModelManage
+      *
+      * @return stream object
+      */
     def get(): Stream = {
         modelmanage.v1.streamGet(modelmanage.toString, name) match {
             case Some(source) =>
@@ -246,11 +376,19 @@ sealed trait StreamMetaOps {
         }
     }
 
+    /** Delete stream object from ModelManage
+      *
+      */
     def delete(): Unit = {
         modelmanage.v1.streamDelete(modelmanage.toString, name)
     }
 }
 
+/** StreamMetadata
+  *
+  * @param name name of stream in ModelManage
+  * @param modelmanage ModelManage instance hosting the stream
+  */
 case class StreamMetadata(
     name: String,
     modelmanage: ModelManage

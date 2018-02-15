@@ -7,8 +7,9 @@ import io.circe.syntax._
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.Decoder
 
-
-
+/** Sensor Object Serializer/Deserializer
+  *
+  */
 object SensorSerializer {
   implicit val encodeSensorActivate: Encoder[SensorActivate] = new Encoder[SensorActivate] {
     final def apply(a: SensorActivate): Json = {

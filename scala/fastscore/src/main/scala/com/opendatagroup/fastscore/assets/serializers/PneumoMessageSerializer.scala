@@ -8,6 +8,9 @@ import java.time.OffsetDateTime
 import io.circe.{Decoder, HCursor}
 import io.circe.java8.time._
 
+/** Pnuemo Message Serializer/Deserializer
+  *
+  */
 object PneumoMessageSerializer {
     implicit val decodeSensorTapInstance: Decoder[SensorTapInstance] = new Decoder[SensorTapInstance] {
         final def apply(a: HCursor): Decoder.Result[SensorTapInstance] =

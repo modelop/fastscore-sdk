@@ -8,6 +8,9 @@ import io.circe.syntax._
 import io.circe.generic.semiauto.deriveDecoder
 import io.circe.Decoder
 
+/** Stream Object Serializer/Deserializer
+  *
+  */
 object StreamSerializer {
     implicit val encodeStreamBatching: Encoder[StreamBatching] = new Encoder[StreamBatching] {
         final def apply(a: StreamBatching): Json = Json.obj(

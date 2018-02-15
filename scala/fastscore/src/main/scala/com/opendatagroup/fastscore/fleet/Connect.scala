@@ -9,6 +9,18 @@ import com.opendatagroup.fastscore.swagger.models1._
 
 import scala.collection.mutable.{ HashMap => MutMap }
 
+/** Connect classes
+  *
+  *  ==Overview==
+  *  The main class is [[com.opendatagroup.fastscore.fleet.Connect]]
+  *  It defines a reference to a running Connect instance
+  *  A Connect object can be created like so:
+  *  {{{
+  *      scala> // Specify Proxy Prefix
+  *      scala> implicit val proxyPrefix = new Proxy("https://localhost:8000")
+  *      scala> val connect = new Connect()
+  *  }}}
+  */
 class Connect(
     implicit val proxy: Proxy
 ) extends Instance {
@@ -22,6 +34,10 @@ class Connect(
 
     var target: String = this.toString
 
+    /** Retrieve list of instances
+      *
+      * @return List of instances
+      */
     def fleet(): List[Instance] = {
         v1.connectGet("connect") match {
             case Some(instances) =>
@@ -35,6 +51,11 @@ class Connect(
         }
     }
 
+    /** Lookup a given instance (soft search)
+      *
+      * @param query
+      * @return List of instances matching the given query
+      */
     def lookup(query: String): List[Instance] = {
         if (query == "connect") List(this) else {
 
@@ -48,6 +69,11 @@ class Connect(
         }}
     }
 
+    /** Retrieve an instance by exact name
+      *
+      * @param name
+      * @return Instance
+      */
     def get(name: String): Option[Instance] = {
         if (name == "connect") Some(this) else {
 

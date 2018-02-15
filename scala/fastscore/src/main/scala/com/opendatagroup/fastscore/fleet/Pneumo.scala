@@ -12,6 +12,18 @@ import scala.collection.immutable.{ Stream => IStream }
 
 import io.circe.parser._
 
+/** Pneumo classes
+  *
+  * ==Overview==
+  * The main class to use is [[com.opendatagroup.fastscore.fleet.Pneumo]]
+  * This is a reference to Pneumo -- the asynchronous notification system.
+  * A Pneumo object can be created like so:
+  * {{{
+  *     scala> // Set the proxy prefix
+  *     scala> implicit val proxy = new Proxy("https://localhost:8000")
+  *     scala> val pneumo = new Pneumo()
+  * }}}
+  */
 class Pneumo(
     implicit val proxy: Proxy
 ) {
@@ -68,11 +80,25 @@ class Pneumo(
             }
         ).build).get
 
+    /** Close the Pneumo socket
+      *
+      */
     def close(): Unit = socket.close()
 
+    /** Flush the message buffer
+      *
+      */
     def flush(): Unit = buffer.flush()
 
+    /** Receive a message (blocking)
+      *
+      * @return
+      */
     def recv(): PneumoMessage = buffer.next
 
+    /** A blocking message stream
+      *
+      * @return
+      */
     def stream(): IStream[PneumoMessage] = buffer.toStream
 }
