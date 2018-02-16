@@ -160,6 +160,46 @@ ModelManage <- R6::R6Class("ModelManage",
           Response$new("API server error", resp)
         }
 
+      },
+
+      # overwrite swagger::ModelManageApu$schema_put
+      # b/c $toJSONString() does not exist
+      schema_put = function(instance, schema, source, ...){ # ****************
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        # converts 'source' to JSON
+        if (!missing(`source`)) {
+          body <- rjson::toJSON(`source`)
+        } else {
+          body <- NULL
+        }
+
+        urlPath <- "/{instance}/1/schema/{schema}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`schema`)) {
+          urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "PUT",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          resp
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
       }
 
     )
