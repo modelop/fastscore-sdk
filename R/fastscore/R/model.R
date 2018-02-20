@@ -1,22 +1,14 @@
-# class Model(object):
-#   """
-# Represents an analytic model. A model can be created directly:
-# 
-# >>> model = fastscore.Model('model-1')
-# >>> model.mtype = 'python'
-# >>> model.source = '...'
-# 
-# Or, retrieved from a Model Manage instance:
-# 
-# >>> mm = connect.lookup('model-manage')
-# >>> model = mm.models['model-1']
-# 
-# A directly-created model must be saved to make attachment and snapshot
-# manipulation functions available:
-# 
-# >>> mm = connect.lookup('model-manage')
-# >>> model.update(mm)
-# >>> model.attachments.names()
-# []
-# 
-# """
+Model <- R6::R6Class("Model",
+   public = list(
+     name = NA,
+     mtype = NA,
+     source = NA,
+     model_manage = NA,
+     initialize = function(name, mtype = NA, source = NA, model_manage = NA){
+       self$name <- name
+       self$mtype <- mtype
+       self$source <- source
+       self$model_manage <- model_manage
+       }
+     )
+   )

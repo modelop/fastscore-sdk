@@ -162,8 +162,8 @@ ModelManage <- R6::R6Class("ModelManage",
 
       },
 
-      # overwrite swagger::ModelManageApu$schema_put
-      # b/c $toJSONString() does not exist
+      # overwrite swagger::ModelManageApi$schema_put
+      # ...add rjson::toJSON()
       schema_put = function(instance, schema, source, ...){ # ****************
         args <- list(...)
         queryParams <- list()
@@ -193,7 +193,83 @@ ModelManage <- R6::R6Class("ModelManage",
                                        ...)
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-          resp
+          Response$new("New schema successfully added or updated.", resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # overwrite swagger::ModelManageApi$schema_delete,
+      # ...add Response$new() for http response 204
+      schema_delete = function(instance, schema, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/schema/{schema}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`schema`)) {
+          urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "DELETE",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          Response$new("Schema successfully deleted.", resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # overwrite swagger::ModelManageAoi$model_put
+      # remove toJSON
+      model_put = function(instance, model, source, content_type, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        if (!missing(`content_type`)) {
+          headerParams['Content-Type'] <- `content_type`
+        }
+
+        if (!missing(`source`)) {
+          body <- `source`
+        } else {
+          body <- NULL
+        }
+
+        urlPath <- "/{instance}/1/model/{model}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`model`)) {
+          urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "PUT",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          Response$new("Model successfully added/updated", resp)
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
           Response$new("API client error", resp)
         } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
@@ -201,6 +277,8 @@ ModelManage <- R6::R6Class("ModelManage",
         }
 
       }
+
+
 
     )
 )
