@@ -123,7 +123,7 @@ ModelManage <- R6::R6Class("ModelManage",
 
       },
 
-      # overwrite unfinished swagger::ModelManageApi$schema_get
+      # overwrite unfinished swagger::ModelManageApi$schema_get()
       schema_get = function(instance, schema, ...){
         args <- list(...)
         queryParams <- list()
@@ -162,7 +162,7 @@ ModelManage <- R6::R6Class("ModelManage",
 
       },
 
-      # overwrite swagger::ModelManageApi$schema_put
+      # overwrite swagger::ModelManageApi$schema_put()
       # ...add rjson::toJSON()
       schema_put = function(instance, schema, source, ...){ # ****************
         args <- list(...)
@@ -202,7 +202,7 @@ ModelManage <- R6::R6Class("ModelManage",
 
       },
 
-      # overwrite swagger::ModelManageApi$schema_delete,
+      # overwrite swagger::ModelManageApi$schema_delete(),
       # ...add Response$new() for http response 204
       schema_delete = function(instance, schema, ...){
         args <- list(...)
@@ -235,7 +235,7 @@ ModelManage <- R6::R6Class("ModelManage",
 
       },
 
-      # overwrite swagger::ModelManageAoi$model_put
+      # overwrite swagger::ModelManageApi$model_put()
       # remove toJSON
       model_put = function(instance, model, source, content_type, ...){
         args <- list(...)
@@ -276,9 +276,178 @@ ModelManage <- R6::R6Class("ModelManage",
           Response$new("API server error", resp)
         }
 
+      },
+
+      # overwrite swagger::ModelManageApi$model_delete()
+      # add 'successfully deleted' message
+      model_delete = function(instance, model, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/model/{model}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`model`)) {
+          urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "DELETE",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          Response$new("Model successfully deleted.", resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # overwrite unfinished swagger::ModelManageApi$stream_get()
+      stream_get = function(instance, stream, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/stream/{stream}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`stream`)) {
+          urlPath <- gsub(paste0("\\{", "stream", "\\}"), `stream`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "GET",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+
+          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          Response$new(result, resp)
+
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # overwrite swagger::ModelManageApi$stream_stream_list()
+      stream_list = function(instance, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/stream"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "GET",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          # returnObject <- Character$new()
+          # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          # Response$new(returnObject, resp)
+
+          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          Response$new(result, resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # overwrite...
+      stream_put = function(instance, stream, desc, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        if (!missing(`desc`)) {
+          # body <- `desc`$toJSONString()
+          body <- rjson::toJSON(desc)
+        } else {
+          body <- NULL
+        }
+
+        urlPath <- "/{instance}/1/stream/{stream}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`stream`)) {
+          urlPath <- gsub(paste0("\\{", "stream", "\\}"), `stream`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "PUT",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          Response$new("Stream successfully added/updated.", resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # add success message
+      stream_delete = function(instance, stream, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/stream/{stream}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`stream`)) {
+          urlPath <- gsub(paste0("\\{", "stream", "\\}"), `stream`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "DELETE",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          Response$new("Stream successfully deleted.", resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
       }
-
-
-
     )
 )
