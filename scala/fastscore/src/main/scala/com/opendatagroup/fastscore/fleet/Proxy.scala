@@ -4,6 +4,15 @@ import com.opendatagroup.fastscore.util.FastScoreError
 
 import scala.util.matching.Regex
 
+/** FastScore Proxy class
+  *
+  * ==Overview==
+  * A Proxy prefix can be set implicitly for any FastScore instance, like so:
+  * {{{
+  *     scala> implicit val proxy = new Proxy("https://localhost:8000")
+  *     scala> val connect  = new Connect() // Proxy prefix retrieved implicitly
+  * }}}
+  */
 class Proxy(
     prefix: String
 ) {
@@ -23,6 +32,10 @@ class Proxy(
 
     var basePath = constructBasePath(prefix)
 
+    /** Set the prefix
+      *
+      * @param prefix
+      */
     def prefix_=(prefix: String) = {
         this.basePath = constructBasePath(prefix)
     }

@@ -494,18 +494,18 @@ object StreamSerializer {
                 val batchingField = c.downField("Batching")
                 val lingerTimeField = c.downField("LingerTime")
                 val loop =
-                    if (c.downField("Loop").succeeded)
+                    if (c.downField("Loop").succeeded && !c.downField("Loop").as[Boolean].isLeft)
                         c.downField("Loop").as[Boolean].right.get
                     else
                         false
                 val version =
-                    if (c.downField("Version").succeeded)
+                    if (c.downField("Version").succeeded && !c.downField("Version").as[String].isLeft)
                         c.downField("Version").as[String].right.get
                     else
                         "1.2"
                 
                 val skipToRecord =
-                    if (skipToRecordField.succeeded)
+                    if (skipToRecordField.succeeded && !(skipToRecordField.as[Int].isLeft && skipToRecordField.as[String].isLeft))
                         skipToRecordField.as[Int] match {
                             case Right(s) => Some(Left(s))
                             case _ => Some(Right(KafkaSkipToRecord.withName(skipToRecordField.as[String].right.get)))
@@ -521,7 +521,7 @@ object StreamSerializer {
                                     case _ => None
                                 }
                             case Left(_) =>
-                                if (envelopeField.downField("Type").succeeded)
+                                if (envelopeField.downField("Type").succeeded && !envelopeField.as[StreamEnvelope].isLeft)
                                     Some(envelopeField.as[StreamEnvelope].right.get)
                                 else
                                     None
@@ -529,12 +529,12 @@ object StreamSerializer {
                     else
                         None
                 val encoding =
-                    if (encodingField.succeeded)
+                    if (encodingField.succeeded && !encodingField.as[String].isLeft)
                         Some(StreamEncoding.withName(encodingField.as[String].right.get))
                     else
                         None
                 val schema =
-                    if (schemaField.succeeded)
+                    if (schemaField.succeeded && !(schemaField.as[String].isLeft && schemaField.as[StreamSchemaRef].isLeft))
                         schemaField.as[String] match {
                             case Right(s) => Some(Left(s))
                             case Left(_) =>
@@ -546,7 +546,7 @@ object StreamSerializer {
                     else
                         throw FastScoreError("Malformed Stream: Schema field not defined")
                 val batching =
-                    if (batchingField.succeeded)
+                    if (batchingField.succeeded && !batchingField.as[String].isLeft)
                         batchingField.as[String] match {
                             case Right(b) => Left(StreamBatchingMode.withName(b))
                             case Left(_) => Right(batchingField.as[StreamBatching].right.get)
@@ -554,7 +554,7 @@ object StreamSerializer {
                     else
                         Left(StreamBatchingMode.normal)
                 val lingerTime =
-                    if (lingerTimeField.succeeded)
+                    if (lingerTimeField.succeeded && !lingerTimeField.as[Int].isLeft)
                         lingerTimeField.as[Int].right.get
                     else
                         3000

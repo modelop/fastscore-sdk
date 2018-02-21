@@ -33,6 +33,8 @@ lazy val root = (project in file(".")).
           "-feature"
         ),
 
+        coverageExcludedPackages := "com.opendatagroup.fastscore.swagger.*;com.opendatagroup.fastscore.experimental.*",
+
         publishArtifact in (Compile, packageDoc) := false
     )
 
