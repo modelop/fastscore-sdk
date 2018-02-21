@@ -43,7 +43,7 @@ ModelManage <- R6::R6Class("ModelManage",
                                        ...)
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
           Response$new(result, resp)
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
           Response$new("API client error", resp)
@@ -107,12 +107,7 @@ ModelManage <- R6::R6Class("ModelManage",
                                        ...)
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-
-          # returnObject <- Character$new()
-          # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-          # Response$new(returnObject, resp)
-
-          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
           Response$new(result, resp)
 
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
@@ -151,7 +146,7 @@ ModelManage <- R6::R6Class("ModelManage",
           # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
           # Response$new(returnObject, resp)
 
-          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
           Response$new(result, resp)
 
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
@@ -171,7 +166,7 @@ ModelManage <- R6::R6Class("ModelManage",
 
         # converts 'source' to JSON
         if (!missing(`source`)) {
-          body <- rjson::toJSON(`source`)
+          body <- rjson::toJSON(source)
         } else {
           body <- NULL
         }
@@ -335,7 +330,7 @@ ModelManage <- R6::R6Class("ModelManage",
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
 
-          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
           Response$new(result, resp)
 
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
@@ -365,11 +360,7 @@ ModelManage <- R6::R6Class("ModelManage",
                                        ...)
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-          # returnObject <- Character$new()
-          # result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-          # Response$new(returnObject, resp)
-
-          result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
           Response$new(result, resp)
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
           Response$new("API client error", resp)
@@ -448,6 +439,138 @@ ModelManage <- R6::R6Class("ModelManage",
           Response$new("API server error", resp)
         }
 
+      },
+
+      # overwrite, add rjson::toJSON(desc), add success message
+      sensor_put = function(instance, sensor, desc, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        if (!missing(desc)) {
+          body <- rjson::toJSON(desc)
+        } else {
+          body <- NULL
+        }
+
+        urlPath <- "/{instance}/1/sensor/{sensor}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`sensor`)) {
+          urlPath <- gsub(paste0("\\{", "sensor", "\\}"), `sensor`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "PUT",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          Response$new("Sensor successfully added.", resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
+      },
+
+      # overwrite, add
+      sensor_list = function(instance, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/sensor"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "GET",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          Response$new(result, resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+      },
+
+      sensor_get = function(instance, sensor, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/sensor/{sensor}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`sensor`)) {
+          urlPath <- gsub(paste0("\\{", "sensor", "\\}"), `sensor`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "GET",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          Response$new(result, resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+      },
+
+      sensor_delete = function(instance, sensor, ...){
+        args <- list(...)
+        queryParams <- list()
+        headerParams <- character()
+
+        urlPath <- "/{instance}/1/sensor/{sensor}"
+        if (!missing(`instance`)) {
+          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+        }
+
+        if (!missing(`sensor`)) {
+          urlPath <- gsub(paste0("\\{", "sensor", "\\}"), `sensor`, urlPath)
+        }
+
+        resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                       method = "DELETE",
+                                       queryParams = queryParams,
+                                       headerParams = headerParams,
+                                       body = body,
+                                       ...)
+
+        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+          Response$new("Sensor deleted.", resp)
+        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+          Response$new("API client error", resp)
+        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+          Response$new("API server error", resp)
+        }
+
       }
+
+
+
+
     )
 )
