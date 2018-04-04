@@ -43,12 +43,12 @@ ModelManage <- R6::R6Class("ModelManage",
                                        ...)
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-          result <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-          Response$new(result, resp)
+          parsed <- rjson::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+          Response$new(content = parsed, path = urlPath, response = resp)
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
-          Response$new("API client error", resp)
+          Response$new("API client error", path = urlPath, response = resp)
         } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
-          Response$new("API server error", resp)
+          Response$new("API server error", path = urlPath, response = resp)
         }
 
       },
@@ -79,7 +79,6 @@ ModelManage <- R6::R6Class("ModelManage",
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
           result <- httr::content(resp, "text", encoding = "UTF-8")
           Response$new(result, resp)
-
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
           Response$new("API client error", resp)
         } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
