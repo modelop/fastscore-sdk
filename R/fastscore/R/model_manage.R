@@ -78,7 +78,10 @@ ModelManage <- R6::R6Class("ModelManage",
 
         if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
           result <- httr::content(resp, "text", encoding = "UTF-8")
-          Response$new(result, resp)
+          # Response$new(result, resp)
+          Response$new(content = result, path = urlPath, response = resp)
+          # Response$new(content = "Model successfully added.", path = urlPath, response = resp)
+
         } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
           Response$new("API client error", resp)
         } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {

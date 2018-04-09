@@ -17,6 +17,7 @@ Engine <- R6::R6Class("Engine",
 
        if (!missing(`content_type`)) {
          headerParams['Content-Type'] <- `content_type`
+         # paste('x-model; name="', model$name, '"', sep='')
        }
 
        if (!missing(`content_disposition`)) {
@@ -38,20 +39,19 @@ Engine <- R6::R6Class("Engine",
          urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
        }
 
-       resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
-                                      method = "PUT",
-                                      queryParams = queryParams,
-                                      headerParams = headerParams,
-                                      body = body,
-                                      ...)
+       resp <- self$apiClient$callApi(
+         url = paste0(self$apiClient$basePath, urlPath),
+         method = "PUT",
+         queryParams = queryParams,
+         headerParams = headerParams,
+         body = body, ...)
 
        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-         Response$new("Model successfully added.", resp)
-
+         Response$new(content = "Model successfully added.", path = urlPath, response = resp)
        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
-         Response$new("API client error", resp)
+         Response$new("API client error", path = urlPath, response = resp)
        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
-         Response$new("API server error", resp)
+         Response$new("API server error", path = urlPath, response = resp)
        }
 
      },

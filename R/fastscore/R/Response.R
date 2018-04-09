@@ -8,7 +8,7 @@ Response  <- R6::R6Class('Response',
     content = NULL,
     path = NULL,
     response = NULL,
-    initialize = function(content, path, response){
+    initialize = function(content, path, response = NULL){
       self$content <- content
       self$path <- path
       self$response <- response
