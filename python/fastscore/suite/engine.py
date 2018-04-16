@@ -1,5 +1,6 @@
 ## -- Engine class -- ##
 import json
+import re
 import time
 import fastscore.errors as errors
 from tabulate import tabulate
@@ -303,7 +304,14 @@ class Engine(InstanceBase):
             ct = MODEL_CONTENT_TYPES[model.mtype]
             attachments = list(model.attachments)
             if len(attachments) == 0 and len(embedded_schemas) == 0:
-                data = model.source
+
+                ## If Content-Type contains 'json' (sic!) Swagger serializes the
+                ## body itself - deserialize to negate the behaviour.
+                ## See v1/rest.py, line 155(?).
+                json_like = re.search('json', ct, re.IGNORECASE)
+
+                data = json.loads(model.source) if json_like else model.source
+
                 cd = 'x-model; name="%s"' % model.name
                 return self.swg.model_load(self.name,
                                            data,
