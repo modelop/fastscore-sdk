@@ -12,8 +12,6 @@ from ..constants import MODEL_CONTENT_TYPES
 from ..v1 import ModelManageApi
 from ..v2 import ModelManageApi as ModelManageApi2
 
-from .secrets import hide
-
 class ModelManage(InstanceBase):
     """
     An instance of a Model Manage service. Use :class:`.Connect` to create a
@@ -118,7 +116,7 @@ class ModelManage(InstanceBase):
 
         def __getitem__(self, name):
             try:
-                desc = hide(self.mm.swg.stream_get(self.mm.name, name))
+                desc = self.mm.swg.stream_get(self.mm.name, name)
             except Exception as e:
                 if isinstance(e, ApiException) and e.status == 404:
                     raise FastScoreError("Stream '%s' not found" % name)
