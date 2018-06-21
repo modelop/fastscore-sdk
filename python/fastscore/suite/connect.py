@@ -116,7 +116,7 @@ class Connect(InstanceBase):
 
         def socket(self, **kwargs):
             try:
-                return PneumoSock(self._connect._proxy_prefix, **kwargs)
+                return PneumoSock(self._connect._proxy_prefix, basicauth_secret=self._connect._basicauth_secret, **kwargs)
             except Exception as e:
                 raise FastScoreError("Unable to open Pneumo socket", caused_by=e)
 
