@@ -240,7 +240,7 @@ class Engine(InstanceBase):
         """
         return self._policy
 
-    def load_model(self, model, force_inline=False, embedded_schemas={}, dry_run=False):
+    def load_model(self, model, attachment_override=None, force_inline=False, embedded_schemas={}, dry_run=False):
         """
         Load a model into this engine.
 
@@ -302,7 +302,11 @@ class Engine(InstanceBase):
 
         try:
             ct = MODEL_CONTENT_TYPES[model.mtype]
-            attachments = list(model.attachments)
+            if attachment_override == None:
+                attachments = list(model.attachments)
+            else:
+                attachments = [ attachment_override ]
+
             if len(attachments) == 0 and len(embedded_schemas) == 0:
 
                 ## If Content-Type contains 'json' (sic!) Swagger serializes the
