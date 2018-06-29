@@ -302,7 +302,7 @@ class Engine(InstanceBase):
 
         try:
             ct = MODEL_CONTENT_TYPES[model.mtype]
-            if attachment_override_list == None:
+            if attachment_override_list is None:
                 attachments = list(model.attachments)
             else:
                 attachments = attachment_override_list
