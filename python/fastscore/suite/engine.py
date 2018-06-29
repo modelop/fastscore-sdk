@@ -240,7 +240,7 @@ class Engine(InstanceBase):
         """
         return self._policy
 
-    def load_model(self, model, attachment_override=None, force_inline=False, embedded_schemas={}, dry_run=False):
+    def load_model(self, model, attachment_override_list=None, force_inline=False, embedded_schemas={}, dry_run=False):
         """
         Load a model into this engine.
 
@@ -302,10 +302,10 @@ class Engine(InstanceBase):
 
         try:
             ct = MODEL_CONTENT_TYPES[model.mtype]
-            if attachment_override == None:
+            if attachment_override_list == None:
                 attachments = list(model.attachments)
             else:
-                attachments = [ attachment_override ]
+                attachments = attachment_override_list
 
             if len(attachments) == 0 and len(embedded_schemas) == 0:
 
