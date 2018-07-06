@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 setup(
     name = "fastscore",
     description = "FastScore SDK",
-    version = "dev",
+    version = "1.7.3",
     packages = find_packages(),
     use_2to3=True,
     author="Open Data Group",
