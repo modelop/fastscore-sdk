@@ -89,15 +89,15 @@ class Engine(InstanceBase):
 
         """
 
-        if self._active_model == None:
-            try:
-                self._active_model = self.swg2.active_model_get(self.name)
-                self._active_model._eng = self
-            except Exception as e:
-                if isinstance(e, ApiException2) and e.status == 404:
-                    return None
-                else:
-                    raise FastScoreError("Unable to retrieve active model", caused_by=e)
+        #if self._active_model == None:  ---Removing this line to avoid picking up cached instances.
+        try:
+            self._active_model = self.swg2.active_model_get(self.name)
+            self._active_model._eng = self
+        except Exception as e:
+            if isinstance(e, ApiException2) and e.status == 404:
+                return None
+            else:
+                raise FastScoreError("Unable to retrieve active model", caused_by=e)
         return self._active_model
 
     @property
