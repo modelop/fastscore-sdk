@@ -1,0 +1,18 @@
+Package: fastscoRe
+Type: Package
+Title: An R Software Development Kit for FastScore.
+Version: 0.1.0
+Author: Chris Comiskey
+Maintainer: Chris Comiskey <chris.comiskey@opendatagroup.com>
+Description: Use this package to interact with FastScore from R.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: R6,
+    rjson,
+    yaml,
+    httr,
+    swagger,
+    devtools,
+    roxygen2
+RoxygenNote: 6.1.0
