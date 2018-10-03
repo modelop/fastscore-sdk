@@ -15,25 +15,39 @@
 #' @export
 Instance <- R6::R6Class(
   classname = "Instance",
-  inherit = swagger::ApiClient,
   public = list(
-    name = NA,
-    api = NA,
-    basePath = NA,
-
-      initialize = function(name = NA, api = NA, basePath){
-
+    basePath = swagger::ApiClient$public_fields$basePath,
+    configuration = NULL,
+    userAgent = NULL,
+    defaultHeaders = NULL,
+    initialize = function(basePath, configuration, defaultHeaders){
+      if (!missing(basePath)) {
         if(!grepl("://", basePath)) {
           stop("basePath must be an URL, e.g. 'https://dashboard:8000' ")
-          }
+        }
         if(!grepl("https:", basePath)) {
           stop("basePath must use HTTPS scheme, e.g. 'https://dashboard:8000' ")
         }
-
-        self$name <- name
-        self$api <- api
-        self$basePath <- paste0(basePath, "/", httr::parse_url(swagger::ApiClient$new()$basePath)$path)
+        self$basePath <- paste0(
+          basePath, "/", httr::parse_url(swagger::ApiClient$public_fields$basePath)$path
+          )
       }
 
+      if (!missing(configuration)) {
+        self$configuration <- configuration
+      }
+
+      if (!missing(defaultHeaders)) {
+        self$defaultHeaders <- defaultHeaders
+      }
+
+      self$`userAgent` <- 'Swagger-Codegen/1.0.0/r'
+    },
+    callApi = function(url, method, queryParams, headerParams, body, ...){
+      swagger::ApiClient$public_methods$callApi(
+        url = url, method = method, queryParams = queryParams,
+        headerParams = headerParams, body = body, ...
+      )
+    }
     )
 )
