@@ -109,3 +109,4 @@ pom.xml
 
 # Scala-codegen artifacts
 git_push.sh
+.Rproj.user

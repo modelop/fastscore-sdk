@@ -16,3 +16,6 @@ Imports: R6,
     devtools,
     roxygen2
 RoxygenNote: 6.1.0
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

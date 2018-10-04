@@ -2,6 +2,8 @@
 
 # devtools ======
 library(help = "swagger")
+# devtools::build_vignettes()
+
 
 # ignore self-certify  ========
 # httr::GET(url = paste0(basePath, urlPath),

@@ -8,15 +8,25 @@
 \usage{
 Instance
 }
+\value{
+An R6 class instance, and R client for the FastScore API.
+}
 \description{
 An R6 class to instantiate an R client for the
-FastScore API
+FastScore API. Wraps R6 class generator \code{swagger::ApiClient}
 }
 \section{Fields}{
 
 \describe{
+\item{\code{name}}{name for client}
+
+\item{\code{api}}{name of API}
+
 \item{\code{basePath}}{the HTTPS scheme URL for the FastScore Microservices
 Dashboard being used for the FastScore instance you wish to connect to}
 }}
 
+\examples{
+api_cli <- fastscoRe::Instance$new(basePath = "https://localhost:8000")
+}
 \keyword{datasets}

@@ -1,10 +1,10 @@
 #' R client for the FastScore API
 #'
 #' An R6 class to instantiate an R client for the
-#' FastScore API. Wraps R6 class generator swagger::ApiClient
+#' FastScore API. Wraps R6 class generator \code{swagger::ApiClient}
 #'
-#' @field name
-#' @field api
+#' @field name name for client
+#' @field api name of API
 #' @field basePath the HTTPS scheme URL for the FastScore Microservices
 #' Dashboard being used for the FastScore instance you wish to connect to
 #'
