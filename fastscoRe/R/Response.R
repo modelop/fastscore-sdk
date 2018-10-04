@@ -2,15 +2,13 @@
 #'
 #' Response Class
 #' @export
-Response  <- R6::R6Class('Response',
-  inherit = swagger::Response, # (overwrite) swagger twin
+Response  <- R6::R6Class(
+  'Response',
   public = list(
     content = NULL,
-    path = NULL,
     response = NULL,
-    initialize = function(content, path, response = NULL){
+    initialize = function(content, response){
       self$content <- content
-      self$path <- path
       self$response <- response
     }
   )

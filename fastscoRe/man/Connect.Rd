@@ -13,7 +13,7 @@ An R6 class object
 }
 \description{
 \code{connect} creates an R6 class with methods for connect operations;
-it wraps \code{swagger::ConnectApi}
+inherits from \code{swaggerv1::ConnectApi}
 }
 \section{Fields}{
 
@@ -28,16 +28,14 @@ it wraps \code{swagger::ConnectApi}
 \section{Methods}{
 
 \describe{
-
 \item{\code{$active_sensor_install()}}{install active sensor}
-
-\item{\code{$active_sensor_list()}}
-
-\item{\code{$active_sensor_points()}}
-
-\item{\code{$active_sensor_uninstall()}}
-
-\item{\code{$pneumo_get()}}
+\item{\code{$active_sensor_list()}}{}
+\item{\code{$active_sensor_points()}}{}
+\item{\code{$active_sensor_uninstall()}}{}
+\item{\code{$pneumo_get()}}{}
+\item{\code{$connect_get()}}{}
+\item{\code{$health_get()}}{}
+\item{\code{$swagger_get()}}{}
 }
 }
 

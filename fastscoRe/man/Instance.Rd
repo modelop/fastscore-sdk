@@ -13,7 +13,7 @@ An R6 class instance, and R client for the FastScore API.
 }
 \description{
 An R6 class to instantiate an R client for the
-FastScore API. Wraps R6 class generator \code{swagger::ApiClient}
+FastScore API. Wraps R6 class generator \code{swaggerv2::ApiClient}
 }
 \section{Fields}{
 

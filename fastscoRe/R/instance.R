@@ -1,7 +1,7 @@
 #' R client for the FastScore API
 #'
 #' An R6 class to instantiate an R client for the
-#' FastScore API. Wraps R6 class generator \code{swagger::ApiClient}
+#' FastScore API. Wraps R6 class generator \code{swaggerv2::ApiClient}
 #'
 #' @field name name for client
 #' @field api name of API
@@ -16,7 +16,7 @@
 Instance <- R6::R6Class(
   classname = "Instance",
   public = list(
-    basePath = swagger::ApiClient$public_fields$basePath,
+    basePath = swaggerv2::ApiClient$public_fields$basePath,
     configuration = NULL,
     userAgent = NULL,
     defaultHeaders = NULL,
@@ -29,7 +29,7 @@ Instance <- R6::R6Class(
           stop("basePath must use HTTPS scheme, e.g. 'https://dashboard:8000' ")
         }
         self$basePath <- paste0(
-          basePath, "/", httr::parse_url(swagger::ApiClient$public_fields$basePath)$path
+          basePath, "/", httr::parse_url(swaggerv2::ApiClient$public_fields$basePath)$path
           )
       }
 
@@ -44,7 +44,7 @@ Instance <- R6::R6Class(
       self$`userAgent` <- 'Swagger-Codegen/1.0.0/r'
     },
     callApi = function(url, method, queryParams, headerParams, body, ...){
-      swagger::ApiClient$public_methods$callApi(
+      swaggerv2::ApiClient$public_methods$callApi(
         url = url, method = method, queryParams = queryParams,
         headerParams = headerParams, body = body, ...
       )

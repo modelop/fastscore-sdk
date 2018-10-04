@@ -3,24 +3,69 @@
 \docType{data}
 \name{ModelManage}
 \alias{ModelManage}
-\title{RC implementation of Queue}
+\title{ModelManage operations}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
 ModelManage
 }
 \description{
-A simple example of what is possible using roxygen 4.1.1
+swagger.ModelManage
+}
+\details{
+FastScore Model Manage (proxy) API Client
+
+An R6 class generator for Model Manage functions.
+Inherits methods and fields from class
+generator \code{swaggerv1::ModelManageApi}.
 }
 \section{Fields}{
 
 \describe{
-\item{\code{queue}}{a list of items in the queue}
+\item{\code{path}}{Stores url path of the request.}
+
+\item{\code{apiClient}}{Handles the client-server communication.}
+
+\item{\code{userAgent}}{Set the user agent of the request.}
 }}
 
-\examples{
-(qrc <- QueueRC(5, 6, "foo"))
-qrc$add("add something")
-qrc$add("and something else")
-qrc$remove()
+\section{Methods}{
+
+\describe{
+\item{\code{$active_sensor_attach()}}{}
+\item{\code{$active_sensor_available()}}{}
+\item{\code{$active_sensor_describe()}}{}
+\item{\code{$active_sensor_detach()}}{}
+\item{\code{$active_sensor_list()}}{}
+\item{\code{$attachment_delete()}}{}
+\item{\code{$attachment_get()}}{overwrites \code{swaggerv1} method of same name}
+\item{\code{$attachment_head()}}{}
+\item{\code{$attachment_list()}}{}
+\item{\code{$attachment_put()}}{}
+\item{\code{$health_get()}}{}
+\item{\code{$model_delete()}}{}
+\item{\code{$model_get()}}{}
+\item{\code{$model_list()}}{overwrites \code{swaggerv1} method of same name}
+\item{\code{$model_put()}}{}
+\item{\code{$schema_delete()}}{}
+\item{\code{$schema_get()}}{overwrites \code{swaggerv1} method of same name}
+\item{\code{$schema_list()}}{}
+\item{\code{$schema_put()}}{}
+\item{\code{$sensor_delete()}}{}
+\item{\code{$sensor_get()}}{}
+\item{\code{$sensor_list()}}{}
+\item{\code{$sensor_put()}}{}
+\item{\code{$snapshot_delete()}}{}
+\item{\code{$snapshot_get()}}{}
+\item{\code{$snapshot_get_contents()}}{}
+\item{\code{$snapshot_get_metadata()}}{}
+\item{\code{$snapshot_list()}}{}
+\item{\code{$snapshot_put()}}{}
+\item{\code{$stream_delete()}}{}
+\item{\code{$stream_get()}}{overwrites \code{swaggerv1} method of same name}{}
+\item{\code{$stream_list()}}{}
+\item{\code{$stream_put()}}{}
+\item{\code{$swagger_get()}}{overwrites \code{swaggerv1} method of same name}
 }
+}
+
 \keyword{datasets}

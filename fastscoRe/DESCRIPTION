@@ -12,9 +12,10 @@ Imports: R6,
     rjson,
     yaml,
     httr,
-    swagger,
     devtools,
-    roxygen2
+    roxygen2,
+    swaggerv1,
+    swaggerv2
 RoxygenNote: 6.1.0
 Suggests: knitr,
     rmarkdown
