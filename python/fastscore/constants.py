@@ -7,10 +7,11 @@ MODEL_CONTENT_TYPES = {
     'python':     'application/vnd.fastscore.model-python',
     'python3':    'application/vnd.fastscore.model-python3',
     'R':          'application/vnd.fastscore.model-r',
-    'r':        'application/vnd.fastscore.model-r',
+    'r':          'application/vnd.fastscore.model-r',
     'java':       'application/vnd.fastscore.model-java',
     'c':          'application/vnd.fastscore.model-c',
     'octave':     'application/vnd.fastscore.model-m',
+    'jupyter':    'application/vnd.fastscore.model-ipynb',
     'sas':        'application/vnd.fastscore.model-sas',
 }
 

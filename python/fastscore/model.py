@@ -127,6 +127,7 @@ class Model(object):
         * **java**: a Java model.
         * **c**: a C model.
         * **octave**: an Octave model.
+        * **jupyter**: an Jupyter model.
         * **sas**: a SAS model.
 
         """
