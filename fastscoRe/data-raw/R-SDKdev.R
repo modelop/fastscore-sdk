@@ -25,11 +25,43 @@ con <- fastscoRe::Connect$new(apiClient = api_cli)
 # ModelManageApi$new(...) =======
 modman <- fastscoRe::ModelManage$new(apiClient = api_cli)
 
+  # MODEL
+  modman$model_delete(instance = "model-manage-1", model = "test")
   modman$model_list(instance = "model-manage-1")$content
   modman$model_get(instance = "model-manage-1", model = "surv_tree")
+  modman$model_put(
+    instance = "model-manage-1", model = 'grist',
+    source = "/Users/cwcomiskey/Desktop/grist.R",
+    content_type = 'application/vnd.fastscore.model-r' # GRABBED FROM $model_get
+    )
 
+  # STREAM
   strmlist <- modman$stream_list(instance = "model-manage-1")
-    strmlist$content # [1] "demo-1"   "demo-2"   "rest-in"  "rest-out"
+    strmlist$content
+    strmlist$response
+
+  strm <- modman$stream_get(instance = "model-manage-1", stream = "demo-1")
+    strm$response
+    strm$content
+    rjson::toJSON(strm$content)
+
+  modman$stream_put(
+    instance = "model-manage-1", stream = "stream_eg2",
+    desc = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/eg_input_stream.jsons",
+    httr::content_type('application/json')
+    )
+
+
+
+
+
+
+  # SCHEMA
+
+
+  # ATTACHMENT
+
+
 
 # EngingeApi$new(...) =========
 eng <- swagger::EngineApi$new(apiClient = api_cli)

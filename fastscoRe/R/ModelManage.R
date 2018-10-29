@@ -5,7 +5,7 @@
 #' generator \code{swaggerv1::ModelManageApi}.
 #
 #' @title ModelManage operations
-#' @description swagger.ModelManage
+#' @description fastscoRe::ModelManage
 #'
 #' @field path Stores url path of the request.
 #' @field apiClient Handles the client-server communication.
@@ -21,17 +21,17 @@
 #' \item{\code{$active_sensor_detach()}}{}
 #' \item{\code{$active_sensor_list()}}{}
 #' \item{\code{$attachment_delete()}}{}
-#' \item{\code{$attachment_get()}}{overwrites \code{swaggerv1} method of same name}
+#' \item{\code{$attachment_get()}}{overwrites \code{swaggerv1::ModelManageApi$attachment_get()}}
 #' \item{\code{$attachment_head()}}{}
 #' \item{\code{$attachment_list()}}{}
 #' \item{\code{$attachment_put()}}{}
 #' \item{\code{$health_get()}}{}
 #' \item{\code{$model_delete()}}{}
-#' \item{\code{$model_get()}}{}
-#' \item{\code{$model_list()}}{overwrites \code{swaggerv1} method of same name}
-#' \item{\code{$model_put()}}{}
+#' \item{\code{$model_get()}}{overwrites \code{swaggerv1::ModelManageApi$model_get()}}
+#' \item{\code{$model_list()}}{overwrites \code{swaggerv1::ModelManageApi$model_list()}}
+#' \item{\code{$model_put()}}{overwrites \code{swaggerv1::ModelManageApi$model_put()}}
 #' \item{\code{$schema_delete()}}{}
-#' \item{\code{$schema_get()}}{overwrites \code{swaggerv1} method of same name}
+#' \item{\code{$schema_get()}}{overwrites \code{swaggerv1::ModelManageApi$schema_get()}}
 #' \item{\code{$schema_list()}}{}
 #' \item{\code{$schema_put()}}{}
 #' \item{\code{$sensor_delete()}}{}
@@ -45,17 +45,16 @@
 #' \item{\code{$snapshot_list()}}{}
 #' \item{\code{$snapshot_put()}}{}
 #' \item{\code{$stream_delete()}}{}
-#' \item{\code{$stream_get()}}{overwrites \code{swaggerv1} method of same name}{}
-#' \item{\code{$stream_list()}}{}
-#' \item{\code{$stream_put()}}{}
-#' \item{\code{$swagger_get()}}{overwrites \code{swaggerv1} method of same name}
+#' \item{\code{$stream_get()}}{overwrites \code{swaggerv1::ModelManageApi$stream_get()}
+#' \item{\code{$stream_list()}}{overwrites \code{swaggerv1::ModelManageApi$stream_list()}
+#' \item{\code{$stream_put()}}{IN PROGRESS}
+#' \item{\code{$swagger_get()}}{overwrites \code{swaggerv1::ModelManageApi$swagger_get()}
 #' }
 #'
 #' @export
-
 ModelManage <- R6::R6Class(
   classname = "ModelManage",
-  inherit = swaggerv1::ModelManageApi,
+  inherit = swaggerv1::ModelManageApi, # **
   public = list(
     userAgent = "Swagger-Codegen/1.0.0/r",
     apiClient = NULL,
@@ -95,6 +94,47 @@ ModelManage <- R6::R6Class(
       if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
         result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
         Response$new(result, resp)
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
+
+    model_put = function(instance, model, source, content_type, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      if (!missing(`content_type`)) {
+        headerParams['Content-Type'] <- `content_type`
+      }
+
+      if (!missing(`source`)) {
+        body <- readr::read_file(source)
+      } else {
+        body <- NULL
+      }
+
+      urlPath <- "/{instance}/1/model/{model}"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+      }
+
+      if (!missing(`model`)) {
+        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "PUT",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
       } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
         Response$new("API client error", resp)
       } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
@@ -165,6 +205,7 @@ ModelManage <- R6::R6Class(
       }
 
     },
+
     schema_get = function(instance, schema, ...){
       args <- list(...)
       queryParams <- list()
@@ -177,6 +218,34 @@ ModelManage <- R6::R6Class(
 
       if (!missing(`schema`)) {
         urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "GET",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+        Response$new(result, resp)
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
+
+    stream_list = function(instance, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      urlPath <- "/{instance}/1/stream"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
       }
 
       resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
@@ -227,6 +296,43 @@ ModelManage <- R6::R6Class(
       }
 
     },
+    stream_put = function(instance, stream, desc, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      if (!missing(`desc`)) {
+        body <- readr::read_file(desc) # stream descriptor
+      } else {
+        body <- NULL
+      }
+
+      urlPath <- "/{instance}/1/stream/{stream}"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+      }
+
+      if (!missing(`stream`)) {
+        urlPath <- gsub(paste0("\\{", "stream", "\\}"), `stream`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "PUT",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
+
     swagger_get = function(instance, accept, ...){
       args <- list(...)
       queryParams <- list()

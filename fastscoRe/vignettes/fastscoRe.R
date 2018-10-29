@@ -52,7 +52,3 @@ knitr::opts_chunk$set(
 #  >   resp$url
 #  [1] "https://localhost:8000/api/1/service/connect/1/health"
 
-## ---- fig.show='hold'----------------------------------------------------
-plot(1:10)
-plot(10:1)
-

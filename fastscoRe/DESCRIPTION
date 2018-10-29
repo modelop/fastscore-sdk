@@ -15,7 +15,8 @@ Imports: R6,
     devtools,
     roxygen2,
     swaggerv1,
-    swaggerv2
+    swaggerv2,
+    readr
 RoxygenNote: 6.1.0
 Suggests: knitr,
     rmarkdown
