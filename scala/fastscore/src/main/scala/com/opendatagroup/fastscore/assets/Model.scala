@@ -83,6 +83,7 @@ object ModelParseOps {
             case "java" => throw FastScoreError("Not implemented")
             case "c" => throw FastScoreError("Not implemented")
             case "octave" => throw FastScoreError("Not implemented")
+            case "jupyter" => throw FastScoreError("Not implemented")
         }
     }
 }

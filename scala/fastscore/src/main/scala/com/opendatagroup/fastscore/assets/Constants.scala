@@ -17,7 +17,8 @@ object Constants {
         "R" ->          "application/vnd.fastscore.model-r",
         "java" ->       "application/vnd.fastscore.model-java",
         "c" ->          "application/vnd.fastscore.model-c",
-        "octave" ->     "application/vnd.fastscore.model-m"
+        "octave" ->     "application/vnd.fastscore.model-m",
+        "jupyter" ->    "application/vnd.fastscore.model-jupyter"
     )
 
     /** Canonical model file extension to model format
