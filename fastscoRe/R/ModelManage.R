@@ -21,10 +21,10 @@
 #' \item{\code{$active_sensor_detach()}}{}
 #' \item{\code{$active_sensor_list()}}{}
 #' \item{\code{$attachment_delete()}}{}
-#' \item{\code{$attachment_get()}}{overwrites \code{swaggerv1::ModelManageApi$attachment_get()}}
+#' \item{\code{$attachment_get()}}{overwrites \code{swaggerv1::ModelManageApi$attachment_get()}; saves attachment to file of same name, in current working directory}
 #' \item{\code{$attachment_head()}}{}
 #' \item{\code{$attachment_list()}}{}
-#' \item{\code{$attachment_put()}}{}
+#' \item{\code{$attachment_put()}}{IN PROGRESS}
 #' \item{\code{$health_get()}}{}
 #' \item{\code{$model_delete()}}{}
 #' \item{\code{$model_get()}}{overwrites \code{swaggerv1::ModelManageApi$model_get()}}
@@ -32,8 +32,8 @@
 #' \item{\code{$model_put()}}{overwrites \code{swaggerv1::ModelManageApi$model_put()}}
 #' \item{\code{$schema_delete()}}{}
 #' \item{\code{$schema_get()}}{overwrites \code{swaggerv1::ModelManageApi$schema_get()}}
-#' \item{\code{$schema_list()}}{}
-#' \item{\code{$schema_put()}}{}
+#' \item{\code{$schema_list()}}{overwrites \code{swaggerv1::ModelManageApi$schema_list()}}
+#' \item{\code{$schema_put()}}{overwrites \code{swaggerv1::ModelManageApi$schema_put()}}
 #' \item{\code{$sensor_delete()}}{}
 #' \item{\code{$sensor_get()}}{}
 #' \item{\code{$sensor_list()}}{}
@@ -368,6 +368,37 @@ ModelManage <- R6::R6Class(
     # swagger::ModelManage$stream_delete()
 
     # ATTACHMENT
+    attachment_list = function(instance, model, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      urlPath <- "/{instance}/1/model/{model}/attachment"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+      }
+
+      if (!missing(`model`)) {
+        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "GET",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+        Response$new(result, resp)
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
     attachment_get = function(instance, model, attachment, ...){
       args <- list(...)
       queryParams <- list()
@@ -394,8 +425,13 @@ ModelManage <- R6::R6Class(
                                      ...)
 
       if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-        result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-        Response$new(result, resp)
+
+        f <- file(attachment, "wb")
+        writeBin(httr::content(resp, encoding = "UTF-8"), con = f)
+        close(f)
+        print(paste("Attachment downloaded as", attachment))
+        Response$new("See file: model.tar.gz", response = resp)
+
       } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
         Response$new("API client error", resp)
       } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
@@ -403,6 +439,66 @@ ModelManage <- R6::R6Class(
       }
 
     },
+    attachment_put = function(instance, model, attachment, attachment_file, content_type, ...){
+      # attachment = attachment name
+
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      if (!missing(`content_type`)) {
+        headerParams['Content-Type'] <- `content_type`
+      }
+      else if(tools::file_ext(attachment_file) == 'zip'){
+        headerParams['Content-Type'] <- 'application/zip'
+      }
+      else if(tools::file_ext(attachment_file) == 'gz'){
+        headerParams['Content-Type'] <- 'application/gzip'
+      }
+      else{
+        stop(paste('Attachment content_type not provided, and attachment does not have a known extension (.zip or .gz)'))
+        }
+
+      if(!file.exists(attachment_file)){
+        stop(paste('Attachment', attachment_file, 'not found'))
+      }
+
+      if (!missing(`attachment_file`)) {
+        body <- httr::upload_file(attachment_file)
+      } else {
+        body <- NULL
+      }
+
+      urlPath <- "/{instance}/1/model/{model}/attachment/{attachment}"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+      }
+
+      if (!missing(`model`)) {
+        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+      }
+
+      if (!missing(`attachment`)) {
+        urlPath <- gsub(paste0("\\{", "attachment", "\\}"), `attachment`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "PUT",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
+
 
     swagger_get = function(instance, accept, ...){
       args <- list(...)

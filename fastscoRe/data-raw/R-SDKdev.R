@@ -35,7 +35,6 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli)
   modman$model_get(instance = "model-manage-1", model = "surv_tree")$content
   modman$model_delete(instance = "model-manage-1", model = "grist")
 
-
   # STREAM ----
   strmlist <- modman$stream_list(instance = "model-manage-1")
     strmlist$content
@@ -78,6 +77,23 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli)
   modman$schema_delete(instance = "model-manage-1", schema = "output_eg")
 
   # ATTACHMENT ----
+  attchlist <- modman$attachment_list(instance = "model-manage-1", model = "echo-py")
+    attchlist$content
+    attchlist$response
+
+  modman$attachment_get(
+    instance = "model-manage-1", model = "logit", attachment = "model.tar.gz"
+    ) # need to add path argument (where to save)
+
+  modman$attachment_put(instance = "model-manage-1",
+                        model = "echo-py",                # any model will do
+                        attachment = "att_eg2",            # attachment e.g.
+                        attachment_file = "model.tar.gz")
+
+  modman$attachment_delete(instance = "model-manage-1",
+                           model = "echo-py",
+                           attachment = "att_eg")
+
 
 
 
