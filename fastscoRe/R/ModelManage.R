@@ -47,7 +47,7 @@
 #' \item{\code{$stream_delete()}}{}
 #' \item{\code{$stream_get()}}{overwrites \code{swaggerv1::ModelManageApi$stream_get()}
 #' \item{\code{$stream_list()}}{overwrites \code{swaggerv1::ModelManageApi$stream_list()}
-#' \item{\code{$stream_put()}}{IN PROGRESS}
+#' \item{\code{$stream_put()}}{overwrites \code{swaggerv1::ModelManageApi$stream_put()}
 #' \item{\code{$swagger_get()}}{overwrites \code{swaggerv1::ModelManageApi$swagger_get()}
 #' }
 #'
@@ -66,42 +66,8 @@ ModelManage <- R6::R6Class(
         self$apiClient <- swaggerv2::ApiClient$new()
         }
       },
-    attachment_get = function(instance, model, attachment, ...){
-      args <- list(...)
-      queryParams <- list()
-      headerParams <- character()
 
-      urlPath <- "/{instance}/1/model/{model}/attachment/{attachment}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
-
-      if (!missing(`model`)) {
-        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
-      }
-
-      if (!missing(`attachment`)) {
-        urlPath <- gsub(paste0("\\{", "attachment", "\\}"), `attachment`, urlPath)
-      }
-
-      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
-                                     method = "GET",
-                                     queryParams = queryParams,
-                                     headerParams = headerParams,
-                                     body = body,
-                                     ...)
-
-      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-        result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
-        Response$new(result, resp)
-      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
-        Response$new("API client error", resp)
-      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
-        Response$new("API server error", resp)
-      }
-
-    },
-
+    # MODEL
     model_put = function(instance, model, source, content_type, ...){
       args <- list(...)
       queryParams <- list()
@@ -205,7 +171,36 @@ ModelManage <- R6::R6Class(
       }
 
     },
+    # swagger::ModelManage$model_delete()
 
+    # SCHEMA
+    schema_list = function(instance, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      urlPath <- "/{instance}/1/schema"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "GET",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        result <- jsonlite::fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+        Response$new(result, resp)
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
     schema_get = function(instance, schema, ...){
       args <- list(...)
       queryParams <- list()
@@ -237,7 +232,45 @@ ModelManage <- R6::R6Class(
       }
 
     },
+    schema_put = function(instance, schema, source, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
 
+      if (!missing(`source`)) {
+        body <- readr::read_file(source)
+      } else {
+        body <- NULL
+      }
+
+      urlPath <- "/{instance}/1/schema/{schema}"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+      }
+
+      if (!missing(`schema`)) {
+        urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "PUT",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
+    # swagger::ModelManage$schema_delete()
+
+    # STREAM
     stream_list = function(instance, ...){
       args <- list(...)
       queryParams <- list()
@@ -325,6 +358,44 @@ ModelManage <- R6::R6Class(
 
       if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
         # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
+    # swagger::ModelManage$stream_delete()
+
+    # ATTACHMENT
+    attachment_get = function(instance, model, attachment, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      urlPath <- "/{instance}/1/model/{model}/attachment/{attachment}"
+      if (!missing(`instance`)) {
+        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
+      }
+
+      if (!missing(`model`)) {
+        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+      }
+
+      if (!missing(`attachment`)) {
+        urlPath <- gsub(paste0("\\{", "attachment", "\\}"), `attachment`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "GET",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        result <- returnObject$fromJSON(httr::content(resp, "text", encoding = "UTF-8"))
+        Response$new(result, resp)
       } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
         Response$new("API client error", resp)
       } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
