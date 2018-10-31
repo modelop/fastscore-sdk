@@ -499,7 +499,6 @@ ModelManage <- R6::R6Class(
 
     },
 
-
     swagger_get = function(instance, accept, ...){
       args <- list(...)
       queryParams <- list()

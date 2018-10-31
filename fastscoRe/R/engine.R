@@ -1,16 +1,62 @@
-
-Engine <- R6::R6Class("Engine",
-   inherit = EngineApi, # swagger twin
-   public = list(
-     apiClient = NA,
-     basePath = NA,
-     initialize = function(apiClient, basePath = NA){
-       self$apiClient <- apiClient # fastscore parent
-       self$basePath <- apiClient$basePath
-     },
-
-     model_load = function(instance, data, dry_run, content_type,
-                           content_disposition, ...){
+#' FastScore Engine (proxy) API Client
+#'
+#' An R6 class generator for Engine functions.
+#' Inherits methods and fields from class
+#' generator \code{swaggerv1::EngineApi}.
+#'
+#' @title FastScore Engine operations
+#' @description fastscoRe::Engine
+#'
+#' @field path Stores url path of the request.
+#' @field apiClient Handles the client-server communication.
+#' @field userAgent Set the user agent of the request.
+#'
+#' @importFrom R6 R6Class
+#'
+#' @section Methods:
+#' \describe{
+#'
+#' \item{\code{$health_get()}}{}
+#'
+#' \item{\code{$input_stream_set()}}{}
+#'
+#' \item{\code{$job_delete()}}{}
+#'
+#' \item{\code{$job_io_input()}}{}
+#'
+#' \item{\code{$job_io_input0()}}{}
+#'
+#' \item{\code{$job_io_output()}}{}
+#'
+#' \item{\code{$job_io_output1()}}{}
+#'
+#' \item{\code{$job_state_restore()}}{}
+#'
+#' \item{\code{$job_status()}}{}
+#'
+#' \item{\code{$model_load()}}{}
+#'
+#' \item{\code{$model_unload()}}{}
+#'
+#' \item{\code{$output_stream_set()}}{}
+#'
+#' \item{\code{$stream_attach()}}{}
+#' }
+#'
+#' @export
+Engine <- R6::R6Class(
+  classname = "Engine",
+  inherit = swaggerv1::EngineApi,
+  public = list(
+    apiClient = NA,
+    basePath = NA,
+    initialize = function(apiClient, basePath = NA){
+      self$apiClient <- apiClient # fastscore parent
+      self$basePath <- apiClient$basePath
+      },
+    model_load = function(
+       instance, data, dry_run, content_type, content_disposition, ...
+       ){
        args <- list(...)
        queryParams <- list()
        headerParams <- character()
@@ -29,7 +75,7 @@ Engine <- R6::R6Class("Engine",
        }
 
        if (!missing(`data`)) {
-         body <- `data`
+         body <- readr::read_file(data)
        } else {
          body <- NULL
        }
@@ -47,16 +93,15 @@ Engine <- R6::R6Class("Engine",
          body = body, ...)
 
        if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
-         Response$new(content = "Model successfully added.", path = urlPath, response = resp)
+         Response$new(content = "Model successfully added.", response = resp)
        } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
-         Response$new("API client error", path = urlPath, response = resp)
+         Response$new("API client error", response = resp)
        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
-         Response$new("API server error", path = urlPath, response = resp)
+         Response$new("API server error", response = resp)
        }
 
      },
-
-     model_unload = function(instance, ...){
+    model_unload = function(instance, ...){
        args <- list(...)
        queryParams <- list()
        headerParams <- character()
@@ -80,7 +125,6 @@ Engine <- R6::R6Class("Engine",
        } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
          Response$new("API server error", resp)
        }
-
-     }
-                           )
-)
+       }
+    )
+  )
