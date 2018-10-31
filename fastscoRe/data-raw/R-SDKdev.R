@@ -4,12 +4,6 @@
 library(help = "swagger")
 # devtools::build_vignettes()
 
-# ignore self-certify  ========
-# ConnectApi$health_get() to ignore "self certify:
-# httr::GET(url, config = httr::config(ssl_verifypeer = FALSE))
-
-httr::set_config(httr::config(ssl_verifypeer = FALSE)) # global ignore-self-certify config
-
 # fastscoRe::Instance$new() =======
 api_cli <- fastscoRe::Instance$new(basePath = "https://localhost:8000")
 
@@ -22,7 +16,7 @@ con <- fastscoRe::Connect$new(apiClient = api_cli)
   str(resp)
   resp$url
 
-# ModelManageApi$new(...) =======
+# fastscoRe::ModelManageApi$new(...) =======
 modman <- fastscoRe::ModelManage$new(apiClient = api_cli)
 
   # MODEL ----
@@ -97,5 +91,17 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli)
 
 
 
+
+
+
 # EngingeApi$new(...) =========
-eng <- swagger::EngineApi$new(apiClient = api_cli)
+eng <- fastscoRe::Engine$new(apiClient = api_cli)
+
+  # MODEL ====
+  eng$model_load(
+    instance = "engine-1",
+    data = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/grist.R",
+    # dry_run = ,
+    content_type = "application/vnd.fastscore.model-r",
+    content_disposition = "x-model; name='huzzah!!'"
+  )

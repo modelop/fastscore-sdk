@@ -107,6 +107,12 @@ pc.stdout.log
 *gradle*
 pom.xml
 
+# Project file for my own organization
+python/fastscore/suite/.Rhistory
+
 # Scala-codegen artifacts
 git_push.sh
+
+# R stuff, added by hand
 .Rproj.user
+R/fastscore/fastscore.Rproj
