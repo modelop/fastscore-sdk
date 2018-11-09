@@ -24,11 +24,10 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-mana
 
   # MODEL ----
   modman$model_put(
-    model = 'W_o_instance',
+    model = 'c_t_test',
     source = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/grist.R",
-    content_type = 'application/vnd.fastscore.model-r' # GRABBED FROM $model_get
+    content_type = 'R'
     )
-  # have 'R' map to ^^ instead of the whole long ugly string (see constants.R)
 
   modman$model_list()$content # + (i.e. 'instance' updated)
   modman$model_get(model = "surv_tree")$content

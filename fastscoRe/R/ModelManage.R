@@ -82,7 +82,13 @@ ModelManage <- R6::R6Class(
       headerParams <- character()
 
       if (!missing(`content_type`)) {
-        headerParams['Content-Type'] <- `content_type`
+
+        if(!(`content_type` %in% c('pfa-json', 'pfa-yaml', 'pfa-pretty', 'h2o-java',
+                                   'python', 'python3', 'R', 'java', 'c'))
+           ){ stop("Content type must be one of: 'pfa-json', 'pfa-yaml', 'pfa-pretty', 'h2o-java',
+                   'python', 'python3', 'R', 'java', or 'c' ")
+          } else
+        headerParams['Content-Type'] <- MODEL_CONTENT_TYPES[[`content_type`]]
       }
 
       if (!missing(`source`)) {
