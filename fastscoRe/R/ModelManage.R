@@ -58,17 +58,25 @@ ModelManage <- R6::R6Class(
   public = list(
     userAgent = "Swagger-Codegen/1.0.0/r",
     apiClient = NULL,
-    initialize = function(apiClient){
+    instance = NULL,
+    initialize = function(apiClient, instance){
+
       if (!missing(apiClient)) {
         self$apiClient <- apiClient
-        }
-      else {
+        } else {
         self$apiClient <- swaggerv2::ApiClient$new()
         }
+
+      if(!missing(instance)){
+        self$instance <- instance
+      } else {
+        stop("Please specify instance. e.g. instance = 'model-manage-1' ")
+      }
+
       },
 
     # MODEL
-    model_put = function(instance, model, source, content_type, ...){
+    model_put = function(model, source, content_type, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
@@ -84,9 +92,8 @@ ModelManage <- R6::R6Class(
       }
 
       urlPath <- "/{instance}/1/model/{model}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
 
       if (!missing(`model`)) {
         urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
@@ -108,7 +115,7 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    model_list = function(instance, return, ...){
+    model_list = function(return, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
@@ -117,10 +124,7 @@ ModelManage <- R6::R6Class(
         queryParams['return'] <- return
       }
 
-      urlPath <- "/{instance}/1/model"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- paste0("/", self$instance, "/1/model")
 
       resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
                                      method = "GET",
@@ -139,15 +143,14 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    model_get = function(instance, model, ...){
+    model_get = function(model, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
       urlPath <- "/{instance}/1/model/{model}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
 
       if (!missing(`model`)) {
         urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
@@ -171,18 +174,44 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    # swagger::ModelManage$model_delete()
+    model_delete = function(model, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      urlPath <- "/{instance}/1/model/{model}"
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
+      if (!missing(`model`)) {
+        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "DELETE",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
 
     # SCHEMA
-    schema_list = function(instance, ...){
+    schema_list = function(...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
       urlPath <- "/{instance}/1/schema"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
                                      method = "GET",
@@ -201,15 +230,14 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    schema_get = function(instance, schema, ...){
+    schema_get = function(schema, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
       urlPath <- "/{instance}/1/schema/{schema}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       if (!missing(`schema`)) {
         urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
@@ -232,7 +260,7 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    schema_put = function(instance, schema, source, ...){
+    schema_put = function(schema, source, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
@@ -244,9 +272,8 @@ ModelManage <- R6::R6Class(
       }
 
       urlPath <- "/{instance}/1/schema/{schema}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       if (!missing(`schema`)) {
         urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
@@ -268,18 +295,45 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    # swagger::ModelManage$schema_delete()
+    schema_delete = function(schema, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      urlPath <- "/{instance}/1/schema/{schema}"
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
+
+      if (!missing(`schema`)) {
+        urlPath <- gsub(paste0("\\{", "schema", "\\}"), `schema`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "DELETE",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
 
     # STREAM
-    stream_list = function(instance, ...){
+    stream_list = function(...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
       urlPath <- "/{instance}/1/stream"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
                                      method = "GET",
@@ -298,15 +352,14 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    stream_get = function(instance, stream, ...){
+    stream_get = function(stream, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
       urlPath <- "/{instance}/1/stream/{stream}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       if (!missing(`stream`)) {
         urlPath <- gsub(paste0("\\{", "stream", "\\}"), `stream`, urlPath)
@@ -329,7 +382,7 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    stream_put = function(instance, stream, desc, ...){
+    stream_put = function(stream, desc, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
@@ -341,9 +394,8 @@ ModelManage <- R6::R6Class(
       }
 
       urlPath <- "/{instance}/1/stream/{stream}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       if (!missing(`stream`)) {
         urlPath <- gsub(paste0("\\{", "stream", "\\}"), `stream`, urlPath)
@@ -365,18 +417,45 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    # swagger::ModelManage$stream_delete()
+    stream_delete = function(stream, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
+
+      urlPath <- "/{instance}/1/stream/{stream}"
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
+
+      if (!missing(`stream`)) {
+        urlPath <- gsub(paste0("\\{", "stream", "\\}"), `stream`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "DELETE",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
 
     # ATTACHMENT
-    attachment_list = function(instance, model, ...){
+    attachment_list = function(model, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
       urlPath <- "/{instance}/1/model/{model}/attachment"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       if (!missing(`model`)) {
         urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
@@ -399,15 +478,14 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    attachment_get = function(instance, model, attachment, ...){
+    attachment_get = function(model, attachment, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
       urlPath <- "/{instance}/1/model/{model}/attachment/{attachment}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       if (!missing(`model`)) {
         urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
@@ -439,7 +517,7 @@ ModelManage <- R6::R6Class(
       }
 
     },
-    attachment_put = function(instance, model, attachment, attachment_file, content_type, ...){
+    attachment_put = function(model, attachment, attachment_file, content_type, ...){
       # attachment = attachment name
 
       args <- list(...)
@@ -470,9 +548,8 @@ ModelManage <- R6::R6Class(
       }
 
       urlPath <- "/{instance}/1/model/{model}/attachment/{attachment}"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       if (!missing(`model`)) {
         urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
@@ -498,8 +575,40 @@ ModelManage <- R6::R6Class(
       }
 
     },
+    attachment_delete = function(model, attachment, ...){
+      args <- list(...)
+      queryParams <- list()
+      headerParams <- character()
 
-    swagger_get = function(instance, accept, ...){
+      urlPath <- "/{instance}/1/model/{model}/attachment/{attachment}"
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
+      if (!missing(`model`)) {
+        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
+      }
+
+      if (!missing(`attachment`)) {
+        urlPath <- gsub(paste0("\\{", "attachment", "\\}"), `attachment`, urlPath)
+      }
+
+      resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
+                                     method = "DELETE",
+                                     queryParams = queryParams,
+                                     headerParams = headerParams,
+                                     body = body,
+                                     ...)
+
+      if (httr::status_code(resp) >= 200 && httr::status_code(resp) <= 299) {
+        # void response, no need to return anything
+      } else if (httr::status_code(resp) >= 400 && httr::status_code(resp) <= 499) {
+        Response$new("API client error", resp)
+      } else if (httr::status_code(resp) >= 500 && httr::status_code(resp) <= 599) {
+        Response$new("API server error", resp)
+      }
+
+    },
+
+    swagger_get = function(accept, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
@@ -509,9 +618,8 @@ ModelManage <- R6::R6Class(
       }
 
       urlPath <- "/{instance}/1/swagger"
-      if (!missing(`instance`)) {
-        urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
+
 
       resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
                                      method = "GET",

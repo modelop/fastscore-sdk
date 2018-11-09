@@ -1,5 +1,7 @@
 # Working on R-SDK built on swagger-codegen generated client ("swagger")
 
+httr::set_config(httr::config(ssl_verifypeer = FALSE)) # global ignore-self-certify config
+
 # devtools ======
 library(help = "swagger")
 # devtools::build_vignettes()
@@ -15,47 +17,50 @@ con <- fastscoRe::Connect$new(apiClient = api_cli)
   httr::content(resp)
   str(resp)
   resp$url
+  # *** MAKE 'instance' a Connect field ***
 
 # fastscoRe::ModelManageApi$new(...) =======
-modman <- fastscoRe::ModelManage$new(apiClient = api_cli)
+modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-manage-1')
 
   # MODEL ----
   modman$model_put(
-    instance = "model-manage-1", model = 'grist',
+    model = 'W_o_instance',
     source = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/grist.R",
     content_type = 'application/vnd.fastscore.model-r' # GRABBED FROM $model_get
     )
-  modman$model_list(instance = "model-manage-1")$content
-  modman$model_get(instance = "model-manage-1", model = "surv_tree")$content
-  modman$model_delete(instance = "model-manage-1", model = "grist")
+  # have 'R' map to ^^ instead of the whole long ugly string (see constants.R)
+
+  modman$model_list()$content # + (i.e. 'instance' updated)
+  modman$model_get(model = "surv_tree")$content
+  modman$model_delete(model = 'W_o_instance')
 
   # STREAM ----
-  strmlist <- modman$stream_list(instance = "model-manage-1")
+  strmlist <- modman$stream_list()
     strmlist$content
     strmlist$response
     rm(strmlist)
 
-  strm <- modman$stream_get(instance = "model-manage-1", stream = "demo-1")
+  strm <- modman$stream_get(stream = "demo-1")
     strm$response
     strm$content
     rjson::toJSON(strm$content)
     rm(strm)
 
   modman$stream_put(
-    instance = "model-manage-1", stream = "stream_eg2",
+    stream = "CWC",
     desc = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/eg_input_stream.jsons",
     httr::content_type('application/json')
     )
 
-  modman$stream_delete(instance = "model-manage-1", stream = "stream_eg2")
+  modman$stream_delete(stream = "CWC")
 
   # SCHEMA ----
-  schlist <- modman$schema_list(instance = "model-manage-1")
+  schlist <- modman$schema_list()
     schlist$content
     schlist$response
     rm(schlist)
 
-  sch <- modman$schema_get(instance = "model-manage-1", schema = "output")
+  sch <- modman$schema_get(schema = "output")
     sch$content
     sch$response
     rjson::toJSON(sch$content)
@@ -63,39 +68,31 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli)
     rm(sch)
 
   modman$schema_put(
-    instance = "model-manage-1", schema = "output_eg",
+    schema = "output_eg",
     source = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/output.avsc",
     httr::content_type('application/json')
   )
 
-  modman$schema_delete(instance = "model-manage-1", schema = "output_eg")
+  modman$schema_delete(schema = "output_eg")
 
   # ATTACHMENT ----
-  attchlist <- modman$attachment_list(instance = "model-manage-1", model = "echo-py")
+  attchlist <- modman$attachment_list(model = "echo-py")
     attchlist$content
     attchlist$response
 
-  modman$attachment_get(
-    instance = "model-manage-1", model = "logit", attachment = "model.tar.gz"
-    ) # need to add path argument (where to save)
+  modman$attachment_get(model = "logit", attachment = "model.tar.gz") # need to add path argument (where to save)
 
-  modman$attachment_put(instance = "model-manage-1",
-                        model = "echo-py",                # any model will do
+  modman$attachment_put(model = "echo-py",                 # any model will do
                         attachment = "att_eg2",            # attachment e.g.
                         attachment_file = "model.tar.gz")
 
-  modman$attachment_delete(instance = "model-manage-1",
-                           model = "echo-py",
-                           attachment = "att_eg")
-
-
-
-
-
+  modman$attachment_delete(model = "echo-py",
+                           attachment = "att_eg2")
 
 
 # EngingeApi$new(...) =========
 eng <- fastscoRe::Engine$new(apiClient = api_cli)
+  # same issues to fix with instance, content_type, content_disposition
 
   # MODEL ====
   eng$model_load(
@@ -105,3 +102,8 @@ eng <- fastscoRe::Engine$new(apiClient = api_cli)
     content_type = "application/vnd.fastscore.model-r",
     content_disposition = "x-model; name='huzzah!!'"
   )
+  # Change so supply engine with 'model object', instance of model class;
+  # Model manage should return model objects, etc.
+  # Same applies for schema, streams, etc.; give them classes
+
+  #
