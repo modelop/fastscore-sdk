@@ -45,10 +45,10 @@
 #' \item{\code{$snapshot_list()}}{}
 #' \item{\code{$snapshot_put()}}{}
 #' \item{\code{$stream_delete()}}{}
-#' \item{\code{$stream_get()}}{overwrites \code{swaggerv1::ModelManageApi$stream_get()}
-#' \item{\code{$stream_list()}}{overwrites \code{swaggerv1::ModelManageApi$stream_list()}
-#' \item{\code{$stream_put()}}{overwrites \code{swaggerv1::ModelManageApi$stream_put()}
-#' \item{\code{$swagger_get()}}{overwrites \code{swaggerv1::ModelManageApi$swagger_get()}
+#' \item{\code{$stream_get()}}{overwrites \code{swaggerv1::ModelManageApi$stream_get()}}
+#' \item{\code{$stream_list()}}{overwrites \code{swaggerv1::ModelManageApi$stream_list()}}
+#' \item{\code{$stream_put()}}{overwrites \code{swaggerv1::ModelManageApi$stream_put()}}
+#' \item{\code{$swagger_get()}}{overwrites \code{swaggerv1::ModelManageApi$swagger_get()}}
 #' }
 #'
 #' @export

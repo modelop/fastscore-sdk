@@ -49,22 +49,26 @@ Engine <- R6::R6Class(
   inherit = swaggerv1::EngineApi,
   public = list(
     apiClient = NA,
+    instance = NA,
     basePath = NA,
-    initialize = function(apiClient, basePath = NA){
+    initialize = function(apiClient, instance, basePath = NA){
       self$apiClient <- apiClient # fastscore parent
+      self$instance <- instance
       self$basePath <- apiClient$basePath
       },
-    model_load = function(
-       instance, data, dry_run, content_type, content_disposition, ...
-       ){
+    model_load = function(data, dry_run, content_type, content_disposition, ...){
        args <- list(...)
        queryParams <- list()
        headerParams <- character()
 
        if (!missing(`content_type`)) {
-         headerParams['Content-Type'] <- `content_type`
-         # paste('x-model; name="', model$name, '"', sep='')
-       }
+
+         if(!(`content_type` %in% c('pfa-json', 'pfa-yaml', 'pfa-pretty', 'h2o-java', 'python', 'python3', 'R', 'java', 'c'))){
+           stop("Content type must be one of: 'pfa-json', 'pfa-yaml', 'pfa-pretty', 'h2o-java', 'python', 'python3', 'R', 'java', or 'c' ")
+           } else{
+           headerParams['Content-Type'] <- MODEL_CONTENT_TYPES[[`content_type`]]
+           }
+         }
 
        if (!missing(`content_disposition`)) {
          headerParams['Content-Disposition'] <- `content_disposition`
@@ -81,9 +85,7 @@ Engine <- R6::R6Class(
        }
 
        urlPath <- "/{instance}/1/job/model"
-       if (!missing(`instance`)) {
-         urlPath <- gsub(paste0("\\{", "instance", "\\}"), `instance`, urlPath)
-       }
+       urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
 
        resp <- self$apiClient$callApi(
          url = paste0(self$apiClient$basePath, urlPath),

@@ -28,4 +28,44 @@ generator \code{swaggerv1::ModelManageApi}.
 \item{\code{userAgent}}{Set the user agent of the request.}
 }}
 
+\section{Methods}{
+
+\describe{
+\item{\code{$active_sensor_attach()}}{}
+\item{\code{$active_sensor_available()}}{}
+\item{\code{$active_sensor_describe()}}{}
+\item{\code{$active_sensor_detach()}}{}
+\item{\code{$active_sensor_list()}}{}
+\item{\code{$attachment_delete()}}{}
+\item{\code{$attachment_get()}}{overwrites \code{swaggerv1::ModelManageApi$attachment_get()}; saves attachment to file of same name, in current working directory}
+\item{\code{$attachment_head()}}{}
+\item{\code{$attachment_list()}}{}
+\item{\code{$attachment_put()}}{IN PROGRESS}
+\item{\code{$health_get()}}{}
+\item{\code{$model_delete()}}{}
+\item{\code{$model_get()}}{overwrites \code{swaggerv1::ModelManageApi$model_get()}}
+\item{\code{$model_list()}}{overwrites \code{swaggerv1::ModelManageApi$model_list()}}
+\item{\code{$model_put()}}{overwrites \code{swaggerv1::ModelManageApi$model_put()}}
+\item{\code{$schema_delete()}}{}
+\item{\code{$schema_get()}}{overwrites \code{swaggerv1::ModelManageApi$schema_get()}}
+\item{\code{$schema_list()}}{overwrites \code{swaggerv1::ModelManageApi$schema_list()}}
+\item{\code{$schema_put()}}{overwrites \code{swaggerv1::ModelManageApi$schema_put()}}
+\item{\code{$sensor_delete()}}{}
+\item{\code{$sensor_get()}}{}
+\item{\code{$sensor_list()}}{}
+\item{\code{$sensor_put()}}{}
+\item{\code{$snapshot_delete()}}{}
+\item{\code{$snapshot_get()}}{}
+\item{\code{$snapshot_get_contents()}}{}
+\item{\code{$snapshot_get_metadata()}}{}
+\item{\code{$snapshot_list()}}{}
+\item{\code{$snapshot_put()}}{}
+\item{\code{$stream_delete()}}{}
+\item{\code{$stream_get()}}{overwrites \code{swaggerv1::ModelManageApi$stream_get()}}
+\item{\code{$stream_list()}}{overwrites \code{swaggerv1::ModelManageApi$stream_list()}}
+\item{\code{$stream_put()}}{overwrites \code{swaggerv1::ModelManageApi$stream_put()}}
+\item{\code{$swagger_get()}}{overwrites \code{swaggerv1::ModelManageApi$swagger_get()}}
+}
+}
+
 \keyword{datasets}

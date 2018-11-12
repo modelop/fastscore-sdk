@@ -3,6 +3,8 @@
 export(Connect)
 export(Engine)
 export(Instance)
+export(Model)
 export(ModelManage)
 export(Response)
+export(Stream)
 importFrom(R6,R6Class)

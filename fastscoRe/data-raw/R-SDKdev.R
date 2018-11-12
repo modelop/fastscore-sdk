@@ -1,6 +1,6 @@
 # Working on R-SDK built on swagger-codegen generated client ("swagger")
 
-httr::set_config(httr::config(ssl_verifypeer = FALSE)) # global ignore-self-certify config
+httr::set_config(httr::config(ssl_verifypeer = FALSE))
 
 # devtools ======
 library(help = "swagger")
@@ -8,8 +8,24 @@ library(help = "swagger")
 
 # fastscoRe::Instance$new() =======
 api_cli <- fastscoRe::Instance$new(basePath = "https://localhost:8000")
+# FastScore Asset Classes =====
+  # MODEL =====
+  eg <- Model$new(
+    name = 'test_model',
+    mtype = 'R',
+    source = "../../SDK_egs/grist.R",
+    model_manage = modman
+    )
 
-# fastscoRe::Connect$new() ======
+  # STREAM ====
+  eg2 <- Stream$new(
+    name = 'test_stream',
+    source = '../../SDK_egs/eg_input_stream.jsons',
+    model_manage = 'modman'
+    )
+
+
+# fastscoRe::Connect class ======
 con <- fastscoRe::Connect$new(apiClient = api_cli)
   con
   con$health_get(instance = "connect")$response
@@ -19,25 +35,22 @@ con <- fastscoRe::Connect$new(apiClient = api_cli)
   resp$url
   # *** MAKE 'instance' a Connect field ***
 
-# fastscoRe::ModelManageApi$new(...) =======
+# fastscoRe::ModelManageApi class =======
 modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-manage-1')
 
   # MODEL ----
   modman$model_put(
-    model = 'c_t_test',
-    source = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/grist.R",
+    model = 'model_attach',
+    source = "../../SDK_egs/grist.R",
     content_type = 'R'
     )
 
-  modman$model_list()$content # + (i.e. 'instance' updated)
+  modman$model_list()$content
   modman$model_get(model = "surv_tree")$content
-  modman$model_delete(model = 'W_o_instance')
+  modman$model_delete(model = 'c_t_test')
 
   # STREAM ----
-  strmlist <- modman$stream_list()
-    strmlist$content
-    strmlist$response
-    rm(strmlist)
+  modman$stream_list()$content
 
   strm <- modman$stream_get(stream = "demo-1")
     strm$response
@@ -47,7 +60,7 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-mana
 
   modman$stream_put(
     stream = "CWC",
-    desc = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/eg_input_stream.jsons",
+    desc = "../../SDK_egs/eg_input_stream.jsons",
     httr::content_type('application/json')
     )
 
@@ -75,13 +88,13 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-mana
   modman$schema_delete(schema = "output_eg")
 
   # ATTACHMENT ----
-  attchlist <- modman$attachment_list(model = "echo-py")
+  attchlist <- modman$attachment_list(model = "model_attach")
     attchlist$content
     attchlist$response
 
   modman$attachment_get(model = "logit", attachment = "model.tar.gz") # need to add path argument (where to save)
 
-  modman$attachment_put(model = "echo-py",                 # any model will do
+  modman$attachment_put(model = "model_attach",            # any model will do
                         attachment = "att_eg2",            # attachment e.g.
                         attachment_file = "model.tar.gz")
 
@@ -89,20 +102,24 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-mana
                            attachment = "att_eg2")
 
 
-# EngingeApi$new(...) =========
-eng <- fastscoRe::Engine$new(apiClient = api_cli)
-  # same issues to fix with instance, content_type, content_disposition
+# fastscoRe::EngingeApi class =========
+eng <- fastscoRe::Engine$new(apiClient = api_cli, instance = 'engine-1')
+  # same issues to fix with:
+    # instance - Engine class field, not method arg
+    # content_type - map 'R' to the long ugly actual thing
+    # content_disposition - same; map 'R' to...
 
   # MODEL ====
   eng$model_load(
-    instance = "engine-1",
-    data = "/Users/cwcomiskey/Desktop/ODG/R-SDK/SDK_egs/grist.R",
-    # dry_run = ,
-    content_type = "application/vnd.fastscore.model-r",
-    content_disposition = "x-model; name='huzzah!!'"
+    data = "../../SDK_egs/grist.R",
+    content_type = "R",
+    content_disposition = "x-model; name='c_t_test!!'"
   )
+
+
+
+# Overarching fix to-dos =====
   # Change so supply engine with 'model object', instance of model class;
   # Model manage should return model objects, etc.
   # Same applies for schema, streams, etc.; give them classes
 
-  #
