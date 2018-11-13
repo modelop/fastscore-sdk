@@ -76,34 +76,31 @@ ModelManage <- R6::R6Class(
       },
 
     # MODEL
-    model_put = function(model, source, content_type, ...){
+    model_put = function(model, ...){
       args <- list(...)
       queryParams <- list()
       headerParams <- character()
 
-      if (!missing(`content_type`)) {
-
-        if(!(`content_type` %in% c('pfa-json', 'pfa-yaml', 'pfa-pretty', 'h2o-java',
-                                   'python', 'python3', 'R', 'java', 'c'))
-           ){ stop("Content type must be one of: 'pfa-json', 'pfa-yaml', 'pfa-pretty', 'h2o-java',
-                   'python', 'python3', 'R', 'java', or 'c' ")
-          } else
-        headerParams['Content-Type'] <- MODEL_CONTENT_TYPES[[`content_type`]]
+      # Verify 'Model' class
+      if(!("Model" %in% class(model))){
+        stop("$model_put() requires a 'Model' class object")
       }
 
-      if (!missing(`source`)) {
-        body <- readr::read_file(source)
-      } else {
-        body <- NULL
-      }
+      # Model type
+      if(!(model$mtype %in% names(MODEL_CONTENT_TYPES))){
+        stop("Model type must be one of: 'pfa-json', 'pfa-yaml', 'pfa-pretty', 'h2o-java', 'python', 'python3', 'R', 'java', or 'c' ")
+          } else{
+        headerParams['Content-Type'] <- MODEL_CONTENT_TYPES[[model$mtype]]
+        }
+
+      # Model 'source' code
+      body <- readr::read_file(model$source)
 
       urlPath <- "/{instance}/1/model/{model}"
 
       urlPath <- gsub(paste0("\\{", "instance", "\\}"), self$instance, urlPath)
 
-      if (!missing(`model`)) {
-        urlPath <- gsub(paste0("\\{", "model", "\\}"), `model`, urlPath)
-      }
+      urlPath <- gsub(paste0("\\{", "model", "\\}"), model$name, urlPath)
 
       resp <- self$apiClient$callApi(url = paste0(self$apiClient$basePath, urlPath),
                                      method = "PUT",

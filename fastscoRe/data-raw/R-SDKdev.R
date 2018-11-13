@@ -10,20 +10,26 @@ library(help = "swagger")
 api_cli <- fastscoRe::Instance$new(basePath = "https://localhost:8000")
 # FastScore Asset Classes =====
   # MODEL =====
-  eg <- Model$new(
-    name = 'test_model',
+  m_ob <- Model$new(
+    name = 'model1',
     mtype = 'R',
     source = "../../SDK_egs/grist.R",
-    model_manage = modman
+    model_manage = NA
     )
 
   # STREAM ====
-  eg2 <- Stream$new(
-    name = 'test_stream',
+  str_ob <- Stream$new(
+    name = 'stream1',
     source = '../../SDK_egs/eg_input_stream.jsons',
-    model_manage = 'modman'
+    model_manage = NA
     )
 
+  # SCHEMA ====
+  sch_ob <- Schema$new(
+    name = 'schema1',
+    source = "../../SDK_egs/eg_input_stream.jsons",
+    model_manage = NA
+  )
 
 # fastscoRe::Connect class ======
 con <- fastscoRe::Connect$new(apiClient = api_cli)
@@ -39,15 +45,10 @@ con <- fastscoRe::Connect$new(apiClient = api_cli)
 modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-manage-1')
 
   # MODEL ----
-  modman$model_put(
-    model = 'model_attach',
-    source = "../../SDK_egs/grist.R",
-    content_type = 'R'
-    )
-
+  modman$model_put(model = m_ob) # * R object name != FS model name
   modman$model_list()$content
   modman$model_get(model = "surv_tree")$content
-  modman$model_delete(model = 'c_t_test')
+  modman$model_delete(model = 'model1')
 
   # STREAM ----
   modman$stream_list()$content
@@ -104,10 +105,6 @@ modman <- fastscoRe::ModelManage$new(apiClient = api_cli, instance = 'model-mana
 
 # fastscoRe::EngingeApi class =========
 eng <- fastscoRe::Engine$new(apiClient = api_cli, instance = 'engine-1')
-  # same issues to fix with:
-    # instance - Engine class field, not method arg
-    # content_type - map 'R' to the long ugly actual thing
-    # content_disposition - same; map 'R' to...
 
   # MODEL ====
   eng$model_load(
@@ -118,8 +115,4 @@ eng <- fastscoRe::Engine$new(apiClient = api_cli, instance = 'engine-1')
 
 
 
-# Overarching fix to-dos =====
-  # Change so supply engine with 'model object', instance of model class;
-  # Model manage should return model objects, etc.
-  # Same applies for schema, streams, etc.; give them classes
 
