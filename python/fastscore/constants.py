@@ -11,7 +11,7 @@ MODEL_CONTENT_TYPES = {
     'java':       'application/vnd.fastscore.model-java',
     'c':          'application/vnd.fastscore.model-c',
     'octave':     'application/vnd.fastscore.model-m',
-    'jupyter':    'application/vnd.fastscore.model-jupyter',
+    'jupyter':    'application/vnd.fastscore.model-jupyter+json',
     'sas':        'application/vnd.fastscore.model-sas',
 }
 
