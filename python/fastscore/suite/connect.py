@@ -29,6 +29,11 @@ else:
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def set_oauth_token(oauth_token, client1, client2):
+    token = 'token ' + oauth_token
+    client1.set_default_header('Authorization', token)
+    client2.set_default_header('Authorization', token)
+
 def set_auth_cookie(auth_secret, client1, client2):
     cookie = 'connect.sid=' + quote(auth_secret)
     client1.cookie = cookie
@@ -53,7 +58,7 @@ class Connect(InstanceBase):
 
     """
 
-    def __init__(self, proxy_prefix, auth_secret=None):
+    def __init__(self, proxy_prefix, auth_secret=None, oauth_token=None):
         """
         :param proxy_prefix: URL of the FastScore proxy endpoint
         """
@@ -84,6 +89,9 @@ class Connect(InstanceBase):
         self._auth_secret = auth_secret
         if auth_secret:
             set_auth_cookie(auth_secret, self.swg.api_client, self.swg2.api_client)
+        self._oauth_token = oauth_token
+        if oauth_token:
+            set_oauth_token(oauth_token, self.swg.api_client, self.swg2.api_client)
         self._pneumo =  Connect.PneumoProxy(self)
 
     @property
@@ -331,6 +339,7 @@ class Connect(InstanceBase):
                 'preferred':    self._preferred,
                 'target-name':  self.target.name if self.target else None,
                 'auth-secret':  self._auth_secret,
+                'oauth-token':  self._oauth_token if self._oauth_token else None,
             }
             with open(savefile, "w") as f:
                 yaml.dump(cap, stream = f)
@@ -349,7 +358,8 @@ class Connect(InstanceBase):
             with open(savefile, "r") as f:
                 cap = yaml.load(f)
                 auth_secret = cap['auth-secret'] if 'auth-secret' in cap else None
-                connect = Connect(cap['proxy-prefix'], auth_secret)
+                oauth_token = cap['oauth-token'] if 'oauth-token' in cap else None
+                connect = Connect(cap['proxy-prefix'], auth_secret, oauth_token)
                 connect._preferred = cap['preferred']
                 if cap['target-name']:
                     try:
