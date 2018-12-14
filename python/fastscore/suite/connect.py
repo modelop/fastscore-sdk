@@ -29,6 +29,10 @@ else:
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def set_basicauth_secret(basicauth_secret, client1, client2):
+    client1.set_default_header('Authorization', basicauth_secret)
+    client2.set_default_header('Authorization', basicauth_secret)
+
 def set_auth_cookie(auth_secret, client1, client2):
     cookie = 'connect.sid=' + quote(auth_secret)
     client1.cookie = cookie
@@ -53,7 +57,7 @@ class Connect(InstanceBase):
 
     """
 
-    def __init__(self, proxy_prefix, auth_secret=None):
+    def __init__(self, proxy_prefix, auth_secret=None, basicauth_secret=None):
         """
         :param proxy_prefix: URL of the FastScore proxy endpoint
         """
@@ -82,8 +86,11 @@ class Connect(InstanceBase):
         self._preferred = {}
         self._target = None
         self._auth_secret = auth_secret
+        self._basicauth_secret = basicauth_secret
         if auth_secret:
             set_auth_cookie(auth_secret, self.swg.api_client, self.swg2.api_client)
+        if basicauth_secret:
+            set_basicauth_secret(basicauth_secret, self.swg.api_client, self.swg2.api_client)
         self._pneumo =  Connect.PneumoProxy(self)
 
     @property
@@ -109,7 +116,7 @@ class Connect(InstanceBase):
 
         def socket(self, **kwargs):
             try:
-                return PneumoSock(self._connect._proxy_prefix, **kwargs)
+                return PneumoSock(self._connect._proxy_prefix, basicauth_secret=self._connect._basicauth_secret, **kwargs)
             except Exception as e:
                 raise FastScoreError("Unable to open Pneumo socket", caused_by=e)
 
@@ -331,6 +338,7 @@ class Connect(InstanceBase):
                 'preferred':    self._preferred,
                 'target-name':  self.target.name if self.target else None,
                 'auth-secret':  self._auth_secret,
+                'basicauth-secret': self._basicauth_secret,
             }
             with open(savefile, "w") as f:
                 yaml.dump(cap, stream = f)
@@ -349,7 +357,8 @@ class Connect(InstanceBase):
             with open(savefile, "r") as f:
                 cap = yaml.load(f)
                 auth_secret = cap['auth-secret'] if 'auth-secret' in cap else None
-                connect = Connect(cap['proxy-prefix'], auth_secret)
+                basicauth_secret = cap['basicauth-secret'] if 'basicauth-secret' in cap else None
+                connect = Connect(cap['proxy-prefix'], auth_secret, basicauth_secret)
                 connect._preferred = cap['preferred']
                 if cap['target-name']:
                     try:
