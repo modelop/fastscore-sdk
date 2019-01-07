@@ -1,11 +1,6 @@
 
 import random
-import six
-
-if six.PY2:
-    from urllib import unquote
-else:
-    from urllib.parse import unquote
+from six.moves.urllib.parse import unquote
 from base64 import b64encode
 
 from fastscore.errors import FastScoreError

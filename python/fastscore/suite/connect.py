@@ -29,12 +29,11 @@ else:
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def set_basicauth_secret(basicauth_secret, client1, client2):
-    client1.set_default_header('Authorization', basicauth_secret)
-    client2.set_default_header('Authorization', basicauth_secret)
+def set_auth_header_secret(secret, client1, client2):
+    client1.set_default_header('Authorization', 'Bearer ' + secret)
+    client2.set_default_header('Authorization', 'Bearer ' + secret)
 
-def set_auth_cookie(auth_secret, client1, client2):
-    cookie = 'connect.sid=' + quote(auth_secret)
+def set_auth_cookie(cookie, client1, client2):
     client1.cookie = cookie
     client2.cookie = cookie
 
@@ -57,7 +56,7 @@ class Connect(InstanceBase):
 
     """
 
-    def __init__(self, proxy_prefix, auth_secret=None, basicauth_secret=None):
+    def __init__(self, proxy_prefix, ldap_secret=None, basic_auth_secret=None, oauth_secret=None, session_cookie=None):
         """
         :param proxy_prefix: URL of the FastScore proxy endpoint
         """
@@ -85,13 +84,75 @@ class Connect(InstanceBase):
         self._resolved = {}
         self._preferred = {}
         self._target = None
-        self._auth_secret = auth_secret
-        self._basicauth_secret = basicauth_secret
-        if auth_secret:
-            set_auth_cookie(auth_secret, self.swg.api_client, self.swg2.api_client)
-        if basicauth_secret:
-            set_basicauth_secret(basicauth_secret, self.swg.api_client, self.swg2.api_client)
+        self._ldap_secret = ldap_secret
+        self._basic_auth_secret = basic_auth_secret
+        self._oauth_secret = oauth_secret
+        self._session_cookie = session_cookie
+        if ldap_secret is not None:
+            set_auth_cookie('connect.sid=' + quote(auth_secret), self.swg.api_client, self.swg2.api_client)
+        if basic_auth_secret is not None:
+            set_auth_header_secret(basic_auth_secret, self.swg.api_client, self.swg2.api_client)
+        if oauth_secret is not None:
+            set_auth_header_secret(oauth_secret, self.swg.api_client, self.swg2.api_client)
+        if session_cookie is not None:
+            set_auth_cookie(session_cookie, self.swg.api_client, self.swg2.api_client)
         self._pneumo =  Connect.PneumoProxy(self)
+
+    def set_ldap_secret(self, auth_secret):
+        """
+        Set LDAP auth secret
+
+        >>> connect.connect("<proxy-prefix>")
+            Authorization required
+        >>> connect.fleet()
+            Authorization required
+        >>> connect.set_ldap_secret("ABCD")
+        >>> connect.fleet()
+        """
+        self._ldap_secret = auth_secret
+        set_auth_cookie('connect.sid=' + quote(auth_secret), self.swg.api_client, self.swg2.api_client)
+
+    def set_basic_auth_secret(self, auth_secret):
+        """
+        Set basic auth secret
+
+        >>> connect.connect("<proxy-prefix>")
+            Authorization required
+        >>> connect.fleet()
+            Authorization required
+        >>> connect.set_basic_auth_secret("ABCD")
+        >>> connect.fleet()
+        """
+        self._basic_auth_secret = auth_secret
+        set_auth_header_secret(auth_secret, self.swg.api_client, self.swg2.api_client)
+    
+    def set_session_cookie(self, session_cookie):
+        """
+        Set session cookie
+
+        >>> connect.connect("<proxy-prefix>")
+            Authorization required
+        >>> connect.fleet()
+            Authorization required
+        >>> connect.set_session_cookie("session-abcd")
+        >>> connect.fleet()
+        """
+        self._session_cookie = session_cookie
+        set_auth_cookie(session_cookie, self.swg.api_client, self.swg2.api_client)
+
+    def set_oauth_secret(self, auth_secret):
+        """
+        Set oauth auth secret
+
+        >>> connect.connect("<proxy-prefix>")
+            Authorization required
+        >>> connect.fleet()
+            Authorization required
+        >>> connect.set_oauth_secret("ABCD")
+        >>> connect.fleet()
+        """
+        self._oauth_secret = auth_secret
+        set_auth_header_secret(auth_secret, self.swg.api_client, self.swg2.api_client)
 
     @property
     def target(self):
@@ -116,7 +177,12 @@ class Connect(InstanceBase):
 
         def socket(self, **kwargs):
             try:
-                return PneumoSock(self._connect._proxy_prefix, basicauth_secret=self._connect._basicauth_secret, **kwargs)
+                if self._connect._basic_auth_secret is not None:
+                    return PneumoSock(self._connect._proxy_prefix, auth_secret='Bearer ' + self._connect._basic_auth_secret, auth_cookie='connect.sid=' + quote(self._connect._ldap_secret) if self._connect._ldap_secret is not None else self._connect._session_cookie, **kwargs)
+                elif self._connect._oauth_secret is not None:
+                    return PneumoSock(self._connect._proxy_prefix, auth_secret='Bearer ' + self._connect._oauth_secret, auth_cookie='connect.sid=' + quote(self._connect._ldap_secret) if self._connect._ldap_secret is not None else self._connect._session_cookie, **kwargs)
+                else:
+                    return PneumoSock(self._connect._proxy_prefix, auth_cookie='connect.sid=' + quote(self._connect._ldap_secret) if self._connect._ldap_secret is not None else self._connect._session_cookie, **kwargs)
             except Exception as e:
                 raise FastScoreError("Unable to open Pneumo socket", caused_by=e)
 
@@ -216,9 +282,9 @@ class Connect(InstanceBase):
         """
         self._preferred[sname] = name
 
-    def login(self, username, password):
+    def ldap_login(self, username, password):
         """
-        Login to FastScore.
+        Authenticate through FastScore LDAP proxy
 
         :param username: a user name.
         :param password: a password.
@@ -337,8 +403,10 @@ class Connect(InstanceBase):
                 'proxy-prefix': self._proxy_prefix,
                 'preferred':    self._preferred,
                 'target-name':  self.target.name if self.target else None,
-                'auth-secret':  self._auth_secret,
-                'basicauth-secret': self._basicauth_secret,
+                'ldap-auth-secret':  self._ldap_secret,
+                'basic-auth-secret': self._basic_auth_secret,
+                'oauth2-secret': self._oauth_secret,
+                'session-cookie': self._session_cookie
             }
             with open(savefile, "w") as f:
                 yaml.dump(cap, stream = f)
@@ -356,9 +424,11 @@ class Connect(InstanceBase):
         try:
             with open(savefile, "r") as f:
                 cap = yaml.load(f)
-                auth_secret = cap['auth-secret'] if 'auth-secret' in cap else None
-                basicauth_secret = cap['basicauth-secret'] if 'basicauth-secret' in cap else None
-                connect = Connect(cap['proxy-prefix'], auth_secret, basicauth_secret)
+                ldap_secret = cap['ldap-auth-secret'] if 'ldap-auth-secret' in cap else None
+                basic_auth_secret = cap['basic-auth-secret'] if 'basic-auth-secret' in cap else None
+                oauth_secret = cap['oauth2-secret'] if 'oauth2-secret' in cap else None
+                session_cookie = cap['session-cookie'] if 'session-cookie' in cap else None
+                connect = Connect(cap['proxy-prefix'], ldap_secret, basic_auth_secret, oauth_secret, session_cookie)
                 connect._preferred = cap['preferred']
                 if cap['target-name']:
                     try:
