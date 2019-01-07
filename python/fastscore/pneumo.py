@@ -25,7 +25,7 @@ class PneumoSock(object):
 
     """
 
-    def __init__(self, proxy_prefix, timeout=None, src=None, type=None, basicauth_secret=None, **kwargs):
+    def __init__(self, proxy_prefix, timeout=None, src=None, type=None, auth_secret=None, auth_cookie=None, **kwargs):
         url = proxy_prefix.replace('https:', 'wss:') + PNEUMO_WS_PATH
         params = {}
         if src != None:
@@ -34,10 +34,12 @@ class PneumoSock(object):
             params['type'] = type
         if len(params) > 0:
             url += "?" + urlencode(params)
-        if basicauth_secret == None:
-            self._ws = create_connection(url, sslopt = {'cert_reqs': CERT_NONE})
+        if auth_secret is not None:
+            self._ws = create_connection(url, header=["Authorization: " + auth_secret], sslopt = {'cert_reqs': CERT_NONE})
+        elif auth_cookie is not None:
+            self._ws = create_connection(url, header=["Cookie: " + auth_cookie], sslopt = {'cert_reqs': CERT_NONE})
         else:
-            self._ws = create_connection(url, header=["Authorization: " + basicauth_secret], sslopt = {'cert_reqs': CERT_NONE})
+            self._ws = create_connection(url, sslopt = {'cert_reqs': CERT_NONE})
         if timeout != None:
             self._ws.settimeout(timeout)
 
