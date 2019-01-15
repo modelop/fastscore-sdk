@@ -30,8 +30,8 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def set_auth_header_secret(secret, client1, client2):
-    client1.set_default_header('Authorization', 'Bearer ' + secret)
-    client2.set_default_header('Authorization', 'Bearer ' + secret)
+    client1.set_default_header('Authorization', secret)
+    client2.set_default_header('Authorization', secret)
 
 def set_auth_cookie(cookie, client1, client2):
     client1.cookie = cookie
@@ -151,7 +151,7 @@ class Connect(InstanceBase):
         >>> connect.set_oauth_secret("ABCD")
         >>> connect.fleet()
         """
-        self._oauth_secret = auth_secret
+        self._oauth_secret = 'Bearer ' + auth_secret
         set_auth_header_secret(auth_secret, self.swg.api_client, self.swg2.api_client)
 
     @property
