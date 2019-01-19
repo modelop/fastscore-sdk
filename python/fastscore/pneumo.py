@@ -81,6 +81,8 @@ class PneumoSock(object):
                                    delta_time)
         elif ptype == 'model-error':
             return ModelErrorMsg(src, timestamp, data['input'], data['console'])
+        elif ptype == 'metadata-event':
+            return data
         else:
             raise FastScoreError("Unexpected Pneumo message type '%s'" % ptype)
 
