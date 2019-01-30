@@ -181,13 +181,19 @@ class Engine(InstanceBase):
         """
         # workaround for Swagger encoding bug
         # Should be removed if swagger-codegen is fixed.
+        try:
+            headers = {
+                'Authorization': self.swg.api_client.default_headers['Authorization']
+            }
+        except KeyError:
+            headers = {}
         params = {
             'host': self.swg.api_client.host,
             'instance': self.name,
             'slot' : slot
         }
         path = "{host}/{instance}/1/job/output/{slot}".format(**params)
-        r = requests.get(path, verify=False)
+        r = requests.get(path, verify=False, headers=headers)
         data, status = r.content, r.status_code
 
         # swagger-codegen way
