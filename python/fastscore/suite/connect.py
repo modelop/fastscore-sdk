@@ -178,7 +178,7 @@ class Connect(InstanceBase):
         def socket(self, **kwargs):
             try:
                 if self._connect._basic_auth_secret is not None:
-                    return PneumoSock(self._connect._proxy_prefix, auth_secret='Bearer ' + self._connect._basic_auth_secret, auth_cookie='connect.sid=' + quote(self._connect._ldap_secret) if self._connect._ldap_secret is not None else self._connect._session_cookie, **kwargs)
+                    return PneumoSock(self._connect._proxy_prefix, auth_secret=self._connect._basic_auth_secret, auth_cookie='connect.sid=' + quote(self._connect._ldap_secret) if self._connect._ldap_secret is not None else self._connect._session_cookie, **kwargs)
                 elif self._connect._oauth_secret is not None:
                     return PneumoSock(self._connect._proxy_prefix, auth_secret='Bearer ' + self._connect._oauth_secret, auth_cookie='connect.sid=' + quote(self._connect._ldap_secret) if self._connect._ldap_secret is not None else self._connect._session_cookie, **kwargs)
                 else:
