@@ -71,11 +71,11 @@ Connect <- setRefClass("Connect",
         configure = function(config){
             status <- .self$swg$config_put_with_http_info(.self$name,
                 config=config,
-                content_type='application/x-yaml')[[2]]
+                content_type='application/x-yaml')
             return(status == 204)
         },
         get_config = function(section=NULL){
-            if(!is.NULL(section)){
+            if(!is.null(section)){
                 conf <- .self$swg$config_get(.self$name,
                     q=section,
                     accept='application/x-yaml')
@@ -116,7 +116,7 @@ Connect.load <- function(savefile){
     cap <- yaml.load_file(savefile)
     co <- Connect$new(cap[['proxy-prefix']])
     co$preferred <- cap[['preferred']]
-    if(!is.NULL(cap[['target-name']])){
+    if(!is.null(cap[['target-name']])){
         co$target <- co$get(cap[['target-name']])
     }
     return(co)

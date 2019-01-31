@@ -1,0 +1,8 @@
+{
+    "name":"sp500",
+    "type":"record",
+    "fields":[
+        {"name": "Date", "type":"double"},
+        {"name": "Close", "type": "double"}
+    ]
+}

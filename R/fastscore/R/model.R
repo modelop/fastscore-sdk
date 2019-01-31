@@ -15,6 +15,11 @@ Model <- setRefClass("Model",
         source="character"
         ),
     methods = list(
+        saved = function(){
+          if(is.null(.self$model_manage)){
+            stop(paste("FastScoreError: Model ", .self$name, " not saved (use update() method)."))
+          }
+        },
         update = function(model_manage = NULL){
             if(is.null(model_manage) && is.null(.self$model_manage)){
                 stop("FastScoreError: Model is not associated with Model Manage")
@@ -25,36 +30,77 @@ Model <- setRefClass("Model",
             .self$model_manage$save_model(.self)
         },
         attachment_list = function(){
-            if(!is.null(.self$model_manage)){
-                .self$model_manage$swg$attachment_list(.self$model_manage$name, .self$name)
-            }
-            else{
-                stop("FastScoreError: Model is not associated with Model Manage")
-            }
+            .self$saved()
+            .self$model_manage$swg$attachment_list(.self$model_manage$name, .self$name)
         },
         attachment_get = function(name){
-            stop("Not implemented!") # TODO
+          .self$saved()
+          r <- GET(paste(proxy_prefix(), .self$model_manage$name, "/1/model/", .self$name, "/attachment/", name, sep=""))
+          ct = headers(r)['content-type']
+          sz = as.integer(headers(r)['content-length'])
+          for(atype in names(ATTACHMENT_CONTENT_TYPES)){
+            if(ATTACHMENT_CONTENT_TYPES[[atype]] == ct){
+              return(list(atype, sz))
+              }
+          }
+          return(paste("FastScoreError: Unexpected model MIME type:", ct))
         },
         attachment_download = function(name){
-            stop("Not implemented!") # TODO
+          .self$saved()
+         return(api.get_attachment(.self$name, name))
         },
         attachment_delete = function(name){
-            stop("Not implemented!") # TODO
+          .self$saved()
+          return(api.remove_attachment(.self$name, name))
         },
-        save_attachment = function(att){
-            stop("Not implemented!") # TODO
+        attachment_save = function(att){
+          .self$saved()
+          api.add_attachment(att$model$name, att$datafilepath)
         },
-        snapshot_list = function(date1, date2, count){
-            stop("Not implemented!") # TODO
+        snapshot_list = function(date1=NULL, date2=NULL, count=10){
+          .self$saved()
+          prefix <- proxy_prefix()
+          date_range <- ""
+          if(!is.null(date1)){
+            data_range <- paste(data_range, as.character(date1), "--")
+          }
+          if(!is.null(date2)){
+            data_range <- paste(data_range, as.character(date2))
+          }
+          r <- GET(paste(prefix, .self$model_manage$name, "/1/model/", .self$name, "/snapshot/count=", count, "&date-range=", date_range, sep=""))
+          if(status_code(r) == 200){return(content(r))}
+          else{stop("FastScoreError: Cannot list snapshots.")}
         },
         snapshot_get = function(snapid){
-            stop("Not implemented!") # TODO
+          .self$saved()
+          prefix <- proxy_prefix()
+          r <- GET(paste(prefix, .self$model_manage$name, "/1/model", .self$name, "/snapshot/", snapid, "/metadata", sep=""))
+          if(status_code(r) == 200){return(content(r))}
+          else if(status_code(r) == 300){stop("FastScoreError: The id prefix is ambiguous.")}
+          else if(status_code(r) == 404){stop("FastScoreError: Snapshot not found.")}
+          else{stop("FastScoreError: Error getting snapshot.")}
         },
         snapshot_delete = function(snapid){
-            stop("Not implemented!") # TODO
+          .self$saved()
+          prefix <- proxy_prefix()
+          r <- DELETE(paste(prefix, .self$model_manage$name, "/1/model", .self$name, "/snapshot/", snapid, sep=""))
+          if(status_code(r) == 204){return(status_code(r))}
+          else if(status_code(r) == 300){stop("FastScoreError: The id prefix is ambiguous.")}
+          else if(status_code(r) == 404){stop("FastScoreError: Snapshot not found.")}
+          else{stop("FastScoreError: Error deleting snapshot.")}
+        },
+        snapshot_download = function(snapid){
+          .self$saved()
+          prefix <- proxy_prefix()
+          r <- GET(paste(prefix, .self$model_manage$name, "/1/model", .self$name, "/snapshot/", snapid, "/contents", sep=""))
+          if(status_code(r) == 204){return(content(r))}
+          else if(status_code(r) == 300){stop("FastScoreError: The id prefix is ambiguous.")}
+          else if(status_code(r) == 404){stop("FastScoreError: Snapshot not found.")}
+          else{stop("FastScoreError: Error deleting snapshot.")}
         },
         deploy = function(engine){
-            engine$load_model(.self)
+          .self$saved()
+          engine$load_model(.self)
         }
         )
 )

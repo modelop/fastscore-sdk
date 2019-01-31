@@ -20,13 +20,13 @@ Collate:
     'api.proxy.R'
     'api.schema.R'
     'api.stream.R'
+    'suite.instance.R'
+    'suite.model_manage.R'
+    'model.R'
     'attachment.R'
     'codec.R'
     'codec.datatype.R'
     'constants.R'
-    'suite.instance.R'
-    'suite.model_manage.R'
-    'model.R'
     'deploy.model.R'
     'errors.R'
     'pneumo.R'
@@ -38,4 +38,6 @@ Collate:
     'suite.engine.R'
     'utils.R'
     'version.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
+Suggests: 
+    testthat

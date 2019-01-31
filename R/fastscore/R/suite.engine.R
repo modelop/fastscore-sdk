@@ -17,46 +17,59 @@ Engine <- setRefClass("Engine",
             callSuper(...)
             .self
         },
-        input_set = function(slot, stream){
-            if(slot != 1){
-                stop("FastScoreError: Only stream slot 1 is currently supported")
-            }
-            return(.self$swg$input_stream_set(.self$name, stream$desc))
+        input_set = function(slot = 0, stream){
+          if((slot %% 2) != 0){
+            stop("FastScore Error: Input stream only set to even slots.")
+          }
+          if(slot == 0){
+              return(.self$swg$input_stream_set(.self$name, stream$desc))
+          }
+          else{
+            prefix <- proxy_prefix()
+            r <- PUT(paste(prefix, .self$name, "/2/active/stream/", slot, sep=""),
+                       add_headers('Content-Type'='application/json'),
+                       body=toJSON(stream$desc))
+            return(status_code(r) == 204)
+          }
         },
-        output_set = function(slot, stream){
-            if(slot != 1){
-                stop("FastScoreError: Only stream slot 1 is currently supported")
-            }
+        output_set = function(slot = 1, stream){
+          if((slot %% 2) == 0){
+            stop("FastScore Error: Input stream only set to odd slots.")
+          }
+          if(slot == 1){
             return(.self$swg$output_stream_set(.self$name, stream$desc))
+          }
+          else{
+            prefix <- proxy_prefix()
+            r <- PUT(paste(prefix, .self$name, "/2/active/stream/", slot, sep=""),
+                     add_headers('Content-Type'='application/json'),
+                     body=toJSON(stream$desc))
+            return(status_code(r) == 204)
+          }
         },
         load_model = function(model, force_inline=FALSE){
 
             maybe_externalize <- function(att){
                 ctype <- ATTACHMENT_CONTENT_TYPES[[att$atype]]
-                # we always externalize attachments, because reading binary in R
-                # is annoying.
+                # we always externalize attachments, because reading binary in R is annoying.
                 # if(att$datasize > Engine.MAX_INLINE_ATTACHMENT && !force_inline){
 
                     ext_type <- paste('message/external-body; ',
-                                      'access-type=x-model-manage; ',
-                                      'ref="urn:fastscore:attachment:"',
+                                      'access-type="x-model-manage"; ',
+                                      'ref="urn:fastscore:attachment:',
                                       model$name,
                                       ':',
                                       att$name,
+                                      '"',
                                       sep='')
-                    body <- paste('Content-Type: ',
-                                  ctype,
-                                  '\r\n',
-                                  'Content-Length: ',
-                                  att$datasize,
-                                  '\r\n\r\n', sep='')
+                    body <- paste('Content-Type: ', ctype, '\r\n\r\n', sep='')
                     return(list(att$name, body, ext_type))
                 # }
             }
 
             quirk <- function(name){
                 if(name == 'x-model'){
-                    return(name)
+                    return('name')
                 }
                 else{
                     return('filename')
@@ -67,22 +80,33 @@ Engine <- setRefClass("Engine",
                 noodle <- ''
                 for(part in parts){
                     tag <- part[[1]]
-                    name <- part[[2]][[1]]
+                    body_name <- part[[2]][[1]]
                     body <- part[[2]][[2]]
                     ctype <- part[[2]][[3]]
                     noodle <- paste(noodle,
                         '\r\n--',boundary,'\r\n',
+                        'Content-Type: ',ctype,'\r\n\r\n',
                         'Content-Disposition: ', tag,'; ',
-                        quirk(name),'="',name,'"\r\n',
-                        'Content-Type: ',ctype,'\r\n',
-                        body, sep='')
+                        quirk(tag),'="',body_name,'"\r\n',
+                        body,
+                        sep='')
                 }
-                noodle <- paste(noodle, '\r\n--', boundary, '--\r\n', sep='')
                 return(noodle)
             }
 
             ct <- MODEL_CONTENT_TYPES[[model$mtype]]
-            attachments <- model$attachment_list()
+            attachments <- list()
+            l <- 0
+            for(name in model$attachment_list()){
+              l <- l + 1
+              attachments[[l]] <- Attachement(name=name,
+                                            model=model,
+                                            atype=model$attachment_get(name)[[1]],
+                                            datafilepath="",
+                                            datasize=model$attachment_get(name)[[2]]
+                                            )
+            }
+
             if(length(attachments) == 0){
                 data <- model$source
                 cd = paste('x-model; name="', model$name, '"', sep='')
@@ -95,9 +119,13 @@ Engine <- setRefClass("Engine",
                     parts[[k]] <- list('attachment', maybe_externalize(x))
                     k <- k + 1
                 }
-                parts[[k+1]] <- list('x-model', list(model$name, model$source, ct))
                 boundary <- paste(as.hexmode(sample.int(16^2, 12)), collapse='')
                 data <- multipart_body(parts, boundary)
+                data <- paste(data, '\r\n--',boundary,'\r\n',
+                              'Content-Type: ',ct,'\r\n',
+                              'Content-Disposition: x-model; name="', model$name, '"\r\n\r\n',
+                              model$source, '\r\n--',boundary,'--\r\n',
+                              sep='')
                 return(.self$swg$model_load(.self$name,
                         data,
                         content_type=paste('multipart/mixed; boundary=', boundary, sep='')))
@@ -175,7 +203,47 @@ Engine <- setRefClass("Engine",
                 }
                 return(lapply(outputs, from_json, schema=output_schema))
             }
-        }
+        },
 
+        #added functions starts here
+
+        #when all the files are saved in /library/* corresponding directories
+        #attachment_list of attachment names
+        #input/output_list are lists consisting of streams and slots
+        load_model_super = function(modalmanage, model_name, attachment_list = list(), input_list, output_list){
+          #load all schemas in first lines of model
+          in_out_total <- length(input_list) + length(output_list)
+          model_lines <- readLines(paste("./fastscore/library/models/", model_name, sep=""), n = in_out_total)
+          model_schema <- list()
+          for(i in 1:in_out_total){
+            model_schema[i] <- strsplit(model_lines[i], ": ")[[1]][2]
+          }
+          for(x in model_schema){
+            message(paste(x, ": ", modalmanage$schema_load_from_file(x), sep=""))
+          }
+          #load all streams
+          for(x in input_list){
+            message(paste(x[[1]], ": ", modalmanage$stream_load_from_file(x[[1]]), sep=""))
+          }
+          for(x in output_list){
+            message(paste(x[[1]], ": ", modalmanage$stream_load_from_file(x[[1]]), sep=""))
+          }
+          #load model
+          modalmanage$model_load_from_file(model_name)
+          #include all attachments
+          for(x in attachment_list){
+            modalmanage$model_add_attachment(model_name, x)
+          }
+          #set all streams
+          for(x in input_list){
+            message(paste(x[[1]], " attach: ", .self$input_set(slot=x[[2]], mm$stream_get(x[[1]])), sep=""))
+          }
+          for(x in output_list){
+            message(paste(x[[1]], " attach: ", .self$output_set(slot=x[[2]], mm$stream_get(x[[1]])), sep=""))
+          }
+          #set model
+          message(paste(model_name, " attach: ", .self$load_model(modalmanage$model_get(model_name)), sep=""))
+          return(paste("Engine health: ", .self$check_health(), sep=""))
+        }
     )
 )

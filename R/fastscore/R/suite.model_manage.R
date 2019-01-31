@@ -67,7 +67,15 @@ ModelManage <- setRefClass("ModelManage",
                 model$name,
                 model$source,
                 content_type=ct)[[2]]
-            return(status==204)
+            if(status == 201){
+              return("New model loaded into ModelManage.")
+            }
+            else if(status == 204){
+              return("Existing model updated.")
+            }
+            else{
+              return("FastScoreError: Model cannot be saved.")
+            }
         },
         save_schema = function(schema){
             if(is.null(schema$source)){
@@ -76,7 +84,15 @@ ModelManage <- setRefClass("ModelManage",
             status <- .self$swg$schema_put_with_http_info(.self$name,
                 schema$name,
                 schema$source)[[2]]
-            return(status==204)
+            if(status == 201){
+              return("New schema loaded into ModelManage.")
+            }
+            else if(status == 204){
+              return("Existing schema updated.")
+            }
+            else{
+              return("FastScoreError: Schema cannot be saved.")
+            }
         },
         save_stream = function(stream){
             if(is.null(stream$desc)){
@@ -85,7 +101,15 @@ ModelManage <- setRefClass("ModelManage",
             status <- .self$swg$stream_put_with_http_info(.self$name,
                 stream$name,
                 stream$desc)[[2]]
-            return(status == 204)
+            if(status == 201){
+              return("New stream loaded into ModelManage.")
+            }
+            else if(status == 204){
+              return("Existing stream updated.")
+            }
+            else{
+              return("FastScoreError: Stream cannot be saved.")
+            }
         },
         save_sensor = function(sensor){
             if(is.null(sensor$desc)){
@@ -95,7 +119,58 @@ ModelManage <- setRefClass("ModelManage",
                 sensor$name,
                 sensor$desc
                 )
-        }
+        },
 
+
+        #added functions starts here
+        model_load_from_file = function(name, path = "./fastscore/library/models/"){
+          if(!file.exists(paste(path, name, sep=""))){
+            stop("FastScore Error: model file does not exists in directory (check if extension is included in name).")
+          }
+          model <- Model(name = name, mtype = guess_mtype(name),
+                source = paste(readLines(paste(path, name, sep="")), collapse="\n"),
+                model_manage = .self)
+          .self$save_model(model)
+        },
+
+        schema_load_from_file = function(name, path = "./fastscore/library/schemas/"){
+          if(!file.exists(paste(path, name, ".avsc", sep=""))){
+            stop("FastScore Error: schema file does not exists in directory. (DO NOT included extension in name)")
+          }
+          schema <- Schema(name = name,
+                         source = fromJSON(file=paste(path, name, ".avsc", sep="")),
+                         model_manage = .self)
+          .self$save_schema(schema)
+        },
+
+        stream_load_from_file = function(name, path = "./fastscore/library/streams/"){
+          if(!file.exists(paste(path, name, ".json", sep=""))){
+            stop("FastScore Error: stream file does not exists in directory. (DO NOT included extension in name)")
+          }
+          stream <- Stream(name = name,
+                           desc = fromJSON(file=paste(path, name, ".json", sep="")),
+                           model_manage = .self)
+          .self$save_stream(stream)
+        },
+        model_add_attachment = function(model_name, attachment_name, attachment_path = "./fastscore/library/attachments/"){
+          api.add_attachment(model_name, paste(attachment_path, attachment_name, sep=""))
+        }
     )
 )
+
+#need to implement more model types
+guess_mtype = function(name){
+  ext <- tools::file_ext(name)
+  if(ext == 'R'){
+    return('R')
+  }
+  else if(ext=='py'){
+    return('python')
+  }
+  else if(ext=='py3'){
+    return('python3')
+  }
+  else{
+    stop(paste('Model', name, 'does not have a known file type.'))
+  }
+}

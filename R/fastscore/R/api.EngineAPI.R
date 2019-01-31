@@ -42,7 +42,7 @@ EngineAPI <- setRefClass("EngineAPI",
                          add_headers('Content-Type'=content_type),
                          body=body)
                 if(status_code(r) != 204){
-                    stop(paste("FastScoreError:", content(r, 'text', encoding='UTF-8')))
+                    stop(paste("FastScoreError: ", content(r, 'text', encoding='UTF-8'), sep=""))
                 }
                 return(status_code(r) == 204)
             }
@@ -63,9 +63,10 @@ EngineAPI <- setRefClass("EngineAPI",
             }
             return(status_code(r) == 204)
         },
-        stream_sample = function(instance, desc, n){
+        stream_sample = function(instance, desc, n = 10){
             prefix <- proxy_prefix()
             r <- POST(paste(prefix, instance, '/1/stream/sample?n=', n, sep=''),
+                      add_headers('Content-Type'='application/json'),
                       body=toJSON(desc))
             return(content(r))
         },

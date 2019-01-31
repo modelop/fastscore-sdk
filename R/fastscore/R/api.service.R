@@ -52,12 +52,6 @@ service.get <- function(name, path, generic=TRUE, preferred=list()){
 }
 
 #' @export
-service.get_str <- function(name, path, generic=TRUE, preferred=list()){
-  r <- GET(paste(lookup(name, generic, preferred), path, sep=''))
-  return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
-}
-
-#' @export
 service.get_with_ct <- function(name, path, generic=TRUE, preferred=list()){
   r <- GET(paste(lookup(name, generic, preferred), path, sep=''))
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8'), headers(r)[['content-type']]))
@@ -144,7 +138,7 @@ lookup <- function(name, generic, preferred=list()){
     return(lookup_api(name, preferred))
   }
   else{
-    return(paste(proxy_prefix(), '/api/1/service/', name, sep=''))
+    return(paste(proxy_prefix(), name, sep=''))
   }
 }
 
@@ -152,7 +146,7 @@ lookup <- function(name, generic, preferred=list()){
 lookup_api <- function(api, preferred=list()){
   if(!is.null(preferred[[api]])){
     name <- preferred[[api]]
-    r <- GET(paste(proxy_prefix(), '/api/1/service/connect/1/connect?name=', name, sep=''))
+    r <- GET(paste(proxy_prefix(), 'connect/1/connect?name=', name, sep=''))
     if(status_code(r) != 200){
       stop(content(r))
     }
@@ -162,7 +156,7 @@ lookup_api <- function(api, preferred=list()){
     }
     x <- fleet[[1]]
     if(x[['health']] == 'ok'){
-      prefix <- paste(proxy_prefix(), '/api/1/service/', name, sep='')
+      prefix <- paste(proxy_prefix(), name, sep='')
       resolved[[api]] <- prefix
       return(prefix)
     }
@@ -175,7 +169,7 @@ lookup_api <- function(api, preferred=list()){
     return(resolved[[api]])
   }
   else{
-    r <- GET(paste(proxy_prefix(), '/api/1/service/connect/1/connect?api=', api, sep=''))
+    r <- GET(paste(proxy_prefix(), 'connect/1/connect?api=', api, sep=''))
     if(status_code(r) != 200){
       stop(content(r))
     }
@@ -185,7 +179,7 @@ lookup_api <- function(api, preferred=list()){
     }
     for(x in fleet){
       if(x[['health']] == 'ok'){
-        prefix <- paste(proxy_prefix(), '/api/1/service/', x[['name']], sep='')
+        prefix <- paste(proxy_prefix(), x[['name']], sep='')
         resolved[[api]] <- prefix
         return(prefix)
       }

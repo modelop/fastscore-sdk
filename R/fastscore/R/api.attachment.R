@@ -11,7 +11,8 @@ api.add_attachment <- function(model_name, attachment_file){
     candb <- service.put('model-manage',
                 paste('/1/model/', model_name,
                       '/attachment/', att_name, sep=''),
-                ctype=guess_att_ctype(attachment_file), upload_file(attachment_file))
+                ctype=guess_att_ctype(attachment_file),
+                upload_file(attachment_file))
     code <- candb[[1]]
     if(code == 201){
       message(paste('Attachment', att_name, 'added to model', model_name))
@@ -35,12 +36,12 @@ api.add_attachment <- function(model_name, attachment_file){
 #'                        defaults to current working directory)
 #' @export
 api.get_attachment <- function(model_name, attachment_name, attachment_path=''){
-    result <- service.get('model-manage', paste('/1/model/', model_name, '/attachment', sep=''))
+    result <- service.get('model-manage', paste('/1/model/', model_name, '/attachment/', attachment_name, sep=''))
     code <- result[[1]]
     body <- result[[2]]
     if(code == 200){
-      f <- file(paste(attachment_path, attachment_name, sep=''))
-      writeBin(body, f)
+      f <- file(paste(attachment_path, attachment_name, sep=''), 'wb')
+      writeBin(con=f,object=body)
       close(f)
       return(TRUE)
     }
@@ -96,7 +97,7 @@ guess_att_ctype <- function(resource){
     if(ext == 'zip'){
         return('application/zip')
     }
-    else if(ext=='gz'){
+    else if(ext=='gz' || ext == "tgz"){
         return('application/gzip')
     }
     else{
