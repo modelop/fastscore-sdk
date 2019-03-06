@@ -1,10 +1,3 @@
-#' Runs the named model using the specified input and output streams.
-#' @return True, if successful.
-#' @param model The name of the model in Model Manage.
-#' @param input_stream The name of the input stream descriptor.
-#' @param output_stream The name of the output stream descriptor.
-#' @param container The name of the container to use (optional)
-#' @export
 api.run_job <- function(model, input_stream, output_stream, container=NULL){
   input_desc <- api.get_stream(input_stream)
   output_desc <- api.get_stream(output_stream)
@@ -23,13 +16,6 @@ api.run_job <- function(model, input_stream, output_stream, container=NULL){
   return(output_set && input_set && model_set)
 }
 
-#' Deploys the named model.
-#' @return True, if successful.
-#' @param model_content The contents of the model.
-#' @param model_name A name for the model.
-#' @param ctype The content-type disposition for the model.
-#' @param container The name of the container to use (optional)
-#' @export
 api.deploy_model <- function(model_content, model_name, ctype, attachments = list(), container=NULL){
   preferred = list()
   if(!is.null(container)){
@@ -57,12 +43,6 @@ api.deploy_model <- function(model_content, model_name, ctype, attachments = lis
   }
 }
 
-#' Deploys the named stream to the engine (input).
-#' @return True, if successful.
-#' @param stream_content A stream descriptor string.
-#' @param stream_name A name for this stream.
-#' @param container The name of the container to use (optional)
-#' @export
 api.deploy_input_stream <- function(stream_content, stream_name, container=NULL){
   preferred = list()
   if(!is.null(container)){
@@ -84,12 +64,6 @@ api.deploy_input_stream <- function(stream_content, stream_name, container=NULL)
   }
 }
 
-#' Deploys the named stream to the engine (output).
-#' @return True, if successful.
-#' @param stream_content A stream descriptor string.
-#' @param stream_name A name for this stream.
-#' @param container The name of the container to use (optional)
-#' @export
 api.deploy_output_stream <- function(stream_content, stream_name, container=NULL){
   preferred = list()
   if(!is.null(container)){
@@ -111,11 +85,6 @@ api.deploy_output_stream <- function(stream_content, stream_name, container=NULL
   }
 }
 
-#' Send inputs to the engine for scoring, and return the results.
-#' @param input_data The data to send to the engine for scoring (an array of JSON strings)
-#' @param container The name of the container to use (optional)
-#' @return A list of output records (JSON strings).
-#' @export
 api.job_input <- function(input_data, container=NULL){
   preferred = list()
   if(!is.null(container)){
@@ -164,10 +133,6 @@ api.job_input <- function(input_data, container=NULL){
   return(outputs)
 }
 
-#' Stop the current job.
-#' @return True if successful.
-#' @param container The name of the container to use (optional)
-#' @export
 api.stop_job <- function(container=NULL){
   preferred = list()
   if(!is.null(container)){
@@ -180,11 +145,6 @@ api.stop_job <- function(container=NULL){
   return(TRUE)
 }
 
-#' Retrieve the status of the currently running job on the specified engine.
-#' @return A JSON object whose top-level fields are 'jets', 'model', 'input',
-#'         and 'output'
-#' @param container The name of the container to use (optional)
-#' @export
 api.job_status <- function(container=NULL){
   preferred = list()
   if(!is.null(container)){
@@ -199,7 +159,6 @@ api.job_status <- function(container=NULL){
   }
 }
 
-#' @export
 get_att <- function(model_name, att_name){
   result <- service.head('model-manage', paste('/1/model/', model_name, '/attachment/', att_name, sep=''))
   if(result[[1]] != 200){

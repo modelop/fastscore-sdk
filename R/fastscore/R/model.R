@@ -47,7 +47,7 @@ Model <- setRefClass("Model",
         },
         attachment_download = function(name){
           .self$saved()
-         return(api.get_attachment(.self$name, name))
+         return(api.get_attachment(.self, name))
         },
         attachment_delete = function(name){
           .self$saved()

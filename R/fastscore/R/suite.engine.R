@@ -210,7 +210,7 @@ Engine <- setRefClass("Engine",
         #when all the files are saved in /library/* corresponding directories
         #attachment_list of attachment names
         #input/output_list are lists consisting of streams and slots
-        load_model_super = function(modalmanage, model_name, attachment_list = list(), input_list, output_list){
+        run_in_library = function(modalmanage, model_name, attachment_list = list(), input_list, output_list){
           #load all schemas in first lines of model
           in_out_total <- length(input_list) + length(output_list)
           model_lines <- readLines(paste("./fastscore/library/models/", model_name, sep=""), n = in_out_total)
@@ -231,6 +231,9 @@ Engine <- setRefClass("Engine",
           #load model
           modalmanage$model_load_from_file(model_name)
           #include all attachments
+          if(length(attachment_list) == 0){
+            attachment_list <- modalmanage$model_get(model_name)$attachment_list()
+          }
           for(x in attachment_list){
             modalmanage$model_add_attachment(model_name, x)
           }
@@ -243,7 +246,7 @@ Engine <- setRefClass("Engine",
           }
           #set model
           message(paste(model_name, " attach: ", .self$load_model(modalmanage$model_get(model_name)), sep=""))
-          return(paste("Engine health: ", .self$check_health(), sep=""))
+          message(paste("Engine health: ", .self$check_health(), sep=""))
         }
     )
 )

@@ -1,4 +1,4 @@
-RELEASE <- '1.4'
+RELEASE <- '1.9'
 API_NAMES <- list('engine', 'model-manage', 'engine-x')
 options <- new.env()
 
@@ -18,7 +18,6 @@ resolved <- list()
   httr::set_config(config(ssl_verifypeer=0L))
 }
 
-#' @export
 update_config <- function(){
   opt_names <- list('proxy-prefix', 'auth-secret', 'engine-api')
   fileconn <- file('.fastscore')
@@ -30,41 +29,27 @@ update_config <- function(){
   close(fileconn)
 }
 
-#' @export
-proxy_prefix <- function(){
-  if(is.null(options[['proxy-prefix']]))
-  {
-    stop('Not connected - set the proxy prefix!')
-  }
-  return(options[['proxy-prefix']])
-}
-
-#' @export
 service.head <- function(name, path, generic=TRUE, preferred=list()){
   r <- HEAD(paste(lookup(name, generic, preferred), path, sep=''))
   return(list(status_code(r), headers(r)))
 }
 
-#' @export
 service.get <- function(name, path, generic=TRUE, preferred=list()){
   r <- GET(paste(lookup(name, generic, preferred), path, sep=''))
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
-#' @export
 service.get_with_ct <- function(name, path, generic=TRUE, preferred=list()){
   r <- GET(paste(lookup(name, generic, preferred), path, sep=''))
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8'), headers(r)[['content-type']]))
 }
 
-#' @export
 service.put <- function(name, path, ctype, data, generic=TRUE, preferred=list()){
   r <- PUT(paste(lookup(name, generic, preferred), path, sep=''),
       add_headers('Content-Type'=ctype), body=data)
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
-#' @export
 service.put_with_headers <- function(name, path, headers, data, generic=TRUE, preferred=list()){
   r <- PUT(paste(lookup(name, generic, preferred), path, sep=''),
       add_headers(headers),
@@ -72,7 +57,6 @@ service.put_with_headers <- function(name, path, headers, data, generic=TRUE, pr
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
-#' @export
 service.put_multi <- function(name, path, parts, generic=TRUE, preferred=list()){
   # The format of parts is a list of 4-item tuples
   # of the form (name, body, content-type, content-disposition)
@@ -96,7 +80,6 @@ service.put_multi <- function(name, path, parts, generic=TRUE, preferred=list())
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
-#' @export
 service.post <- function(name, path, ctype=NULL, data=NULL, generic=TRUE, preferred=list()){
   if(!is.null(ctype)){
     r <- POST(paste(lookup(name, generic, preferred), path, sep=''),
@@ -111,7 +94,6 @@ service.post <- function(name, path, ctype=NULL, data=NULL, generic=TRUE, prefer
   }
 }
 
-#' @export
 service.post_with_ct <- function(name, path, ctype=NULL, data=NULL, generic=TRUE, preferred=list()){
   if(!is.null(ctype)){
     r <- POST(paste(lookup(name, generic, preferred), path, sep=''),
@@ -126,13 +108,11 @@ service.post_with_ct <- function(name, path, ctype=NULL, data=NULL, generic=TRUE
   }
 }
 
-#' @export
 service.delete <- function(name, path, generic=TRUE, preferred=list()){
   r <- DELETE(paste(lookup(name, generic, preferred), path, sep=''))
   return(list(status_code(r), content(r, 'text', encoding = 'UTF-8')))
 }
 
-#' @export
 lookup <- function(name, generic, preferred=list()){
   if(generic){
     return(lookup_api(name, preferred))
@@ -142,7 +122,6 @@ lookup <- function(name, generic, preferred=list()){
   }
 }
 
-#' @export
 lookup_api <- function(api, preferred=list()){
   if(!is.null(preferred[[api]])){
     name <- preferred[[api]]

@@ -1,6 +1,6 @@
 context("Connect Test")
 
-setwd("/Users/nanshi/Documents/GitHub")
+setwd("~/Documents/GitHub")
 connect <- Connect(proxy_prefix="https://localhost:8000")
 
 test_that("test_connect",
@@ -50,7 +50,6 @@ test_that("test_fleet",
           }
 )
 
-#dump not tested
-
+#dump?
 #Connect.make_instance?
 #Connect.load?

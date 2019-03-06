@@ -1,8 +1,3 @@
-#' Add an attachment to the specified model.
-#' @return True, if successful.
-#' @param model_name The name of the model
-#' @param attachment_file The path to the file.
-#' @export
 api.add_attachment <- function(model_name, attachment_file){
     if(!file.exists(attachment_file)){
       stop(paste('Attachment', attachment_file, 'not found'))
@@ -28,17 +23,10 @@ api.add_attachment <- function(model_name, attachment_file){
 
 }
 
-#' Retrieve an attachment from a model, and save it to a file.
-#' @return True, if successful.
-#' @param model_name The name of the model.
-#' @param attachment_name The name of the attachment.
-#' @param attachment_path The path to save the attachment to (optional;
-#'                        defaults to current working directory)
-#' @export
-api.get_attachment <- function(model_name, attachment_name, attachment_path=''){
-    result <- service.get('model-manage', paste('/1/model/', model_name, '/attachment/', attachment_name, sep=''))
-    code <- result[[1]]
-    body <- result[[2]]
+api.get_attachment <- function(model, attachment_name, attachment_path=''){
+    r <- GET(paste(proxy_prefix(), model$model_manage$name, '/1/model/', model$name, '/attachment/', attachment_name, sep=''))
+    code <- status_code(r)
+    body <- content(r)
     if(code == 200){
       f <- file(paste(attachment_path, attachment_name, sep=''), 'wb')
       writeBin(con=f,object=body)
@@ -54,11 +42,6 @@ api.get_attachment <- function(model_name, attachment_name, attachment_path=''){
     }
 }
 
-#' Remove the named attachment from the specified model.
-#' @return True, if successful.
-#' @param model_name The name of the model
-#' @param attachment_name The name of the attachment
-#' @export
 api.remove_attachment <- function(model_name, attachment_name){
     result <- service.delete('model-manage',
                 paste('/1/model/', model_name, '/attachment/', attachment_name, sep=''))
@@ -77,10 +60,6 @@ api.remove_attachment <- function(model_name, attachment_name){
     }
 }
 
-#' List the names of all the attachments associated with the given model.
-#' @return A list of all the attachments.
-#' @param model_name The name of the model.
-#' @export
 api.list_attachments <- function(model_name){
     result <- service.get('model-manage', paste('/1/model/', model_name, '/attachment', sep=''))
     code <- result[[1]]

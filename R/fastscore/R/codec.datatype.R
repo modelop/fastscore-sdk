@@ -224,10 +224,6 @@ jsonNodeToAvroType <- function(x, fromString=TRUE){
   stop(paste('Unable to decode schema', x))
 }
 
-#' Write an AvroType object to a JSON object.
-#' @return A JSON object.
-#' @param schema The AvroType object.
-#' @param toString Should the result be a string? (Default: TRUE)
 #' @export
 avroTypeToJsonNode <- function(schema, toString=TRUE){
   out <- NULL

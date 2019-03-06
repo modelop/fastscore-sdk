@@ -12,6 +12,7 @@ MODEL_CONTENT_TYPES <- list(
     'python3'       ='application/vnd.fastscore.model-python3',
     'R'             ='application/vnd.fastscore.model-r',
     'java'          ='application/vnd.fastscore.model-java',
+    'jupyter'       ='application/vnd.fastscore.model-jupyter',
     'c'             ='application/vnd.fastscore.model-c'
     )
 

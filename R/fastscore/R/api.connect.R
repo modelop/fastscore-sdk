@@ -1,7 +1,3 @@
-#' Connect to the FastScore Fleet.
-#' @return True, if successful.
-#' @include api.service.R
-#' @export
 api.connect <- function(proxy_prefix){
   test_url <- paste(proxy_prefix, '/api/1/service/connect/1/health', sep='')
   last_status <- ping_url(test_url)

@@ -101,23 +101,23 @@ Connect <- setRefClass("Connect",
 )
 
 Connect.make_instance <- function(api, name){
-    if(api == 'model-manage'){
-        return(ModelManage$new(name=name, api=api, swg=ModelManageAPI$new()))
-    }
-    else if(api == 'engine'){
-        return(Engine$new(name=name, api=api, swg=EngineAPI$new()))
-    }
-    else{
-        stop("FastScoreError: Unknown API")
-    }
+  if(api == 'model-manage'){
+    return(ModelManage$new(name=name, api=api, swg=ModelManageAPI$new()))
+  }
+  else if(api == 'engine'){
+    return(Engine$new(name=name, api=api, swg=EngineAPI$new()))
+  }
+  else{
+    stop("FastScoreError: Unknown API")
+  }
 }
 
 Connect.load <- function(savefile){
-    cap <- yaml.load_file(savefile)
-    co <- Connect$new(cap[['proxy-prefix']])
-    co$preferred <- cap[['preferred']]
-    if(!is.null(cap[['target-name']])){
-        co$target <- co$get(cap[['target-name']])
-    }
-    return(co)
+  cap <- yaml.load_file(savefile)
+  co <- Connect$new(cap[['proxy-prefix']])
+  co$preferred <- cap[['preferred']]
+  if(!is.null(cap[['target-name']])){
+    co$target <- co$get(cap[['target-name']])
+  }
+  return(co)
 }

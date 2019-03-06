@@ -170,6 +170,9 @@ guess_mtype = function(name){
   else if(ext=='py3'){
     return('python3')
   }
+  else if(ext=='ipynb'){
+    return('jupyter')
+  }
   else{
     stop(paste('Model', name, 'does not have a known file type.'))
   }

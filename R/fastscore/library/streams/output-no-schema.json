@@ -3,9 +3,8 @@
   "Loop": false,
   "Transport": {
     "Type": "file",
-    "Path": "/data/schemaOutputAdjustment.jsons"
+    "Path": "/data/Output.jsons"
   },
   "Envelope": "delimited",
-  "Encoding": "json",
-  "Schema": {"$ref":"adjustment"}
+  "Encoding": "json"
 }

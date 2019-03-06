@@ -3,7 +3,7 @@
   "Loop": false,
   "Transport": {
     "Type": "file",
-    "Path": "/tmp/data/schemaOutputString.jsons"
+    "Path": "/data/schemaOutputString.jsons"
   },
   "Envelope": "delimited",
   "Encoding": "json",

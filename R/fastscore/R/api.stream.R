@@ -1,6 +1,3 @@
-#' List the streams in Model Manage.
-#' @return A list of stream names.
-#' @export
 api.list_streams <- function(){
   result <- service.get('model-manage', '/1/stream')
   if(result[[1]] == 200){
@@ -11,11 +8,6 @@ api.list_streams <- function(){
   }
 }
 
-#' Add the named stream to Model Manage.
-#' @return True if successful.
-#' @param stream_name A name for the stream.
-#' @param stream_content The stream descriptor.
-#' @export
 api.add_stream <- function(stream_name, stream_content){
   ctype <- 'application/json'
   result <- service.put('model-manage', paste('/1/stream/', stream_name, sep=''),
@@ -33,10 +25,6 @@ api.add_stream <- function(stream_name, stream_content){
   }
 }
 
-#' Retrieve the stream descriptor for the named stream.
-#' @return A string with the stream descriptor for the named stream.
-#' @param stream_name The name of the stream to retrieve.
-#' @export
 api.get_stream <- function(stream_name){
   result <- service.get('model-manage', paste('/1/stream/', stream_name, sep=''))
   if(result[[1]] == 200){
@@ -51,10 +39,6 @@ api.get_stream <- function(stream_name){
   }
 }
 
-#' Remove the named stream from Model Manage.
-#' @return True, if successful.
-#' @param stream_name The name of the stream to remove.
-#' @export
 api.remove_stream <- function(stream_name){
   result <- service.delete('model-manage', paste('/1/stream/', stream_name, sep=''))
   if(result[[1]] == 404){

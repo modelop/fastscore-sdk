@@ -1,4 +1,4 @@
-#' @export InstanceBase
+#' @export
 InstanceBase <- setRefClass("InstanceBase",
     fields = list(
         name="character",

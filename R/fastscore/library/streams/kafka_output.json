@@ -1,7 +1,7 @@
 {
   "Envelope": null,
   "Transport": {
-    "Topic": "output",
+    "Topic": "kafka_output",
     "BootstrapServers": [
       "kafka:9092"
     ],

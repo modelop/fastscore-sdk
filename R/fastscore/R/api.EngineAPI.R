@@ -9,7 +9,7 @@ EngineAPI <- setRefClass("EngineAPI",
                      add_headers('Content-Type'='application/json'),
                      body=body)
             if(status_code(r) != 204){
-                stop("FastScoreError: Invalid stream descriptor for input stream.")
+                stop("FastScoreError: Invalid stream descriptor for input stream. (Is the model running?)")
             }
             return(status_code(r) == 204)
         },

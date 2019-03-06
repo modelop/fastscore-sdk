@@ -4,7 +4,7 @@
   "Loop": true,
   "Transport": {
     "Type": "file",
-    "Path": "/tmp/data/cpi.jsons"
+    "Path": "/data/cpi.jsons"
   },
   "Envelope": "delimited",
   "Encoding": "json",

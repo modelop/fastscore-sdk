@@ -1,6 +1,3 @@
-#' List all of the schemata in Model Manage, by name.
-#' @return A list of the names of every schema in Model Manage.
-#' @export
 api.list_schemata <- function(){
   result <- service.get('model-manage', '/1/schema')
   if(result[[1]] == 200){
@@ -11,11 +8,6 @@ api.list_schemata <- function(){
   }
 }
 
-#' Add a schema to Model Manage.
-#' @return True if successful.
-#' @param schema_name The name of the schema in Model Manage
-#' @param schema_content The Avro schema (a JSON string)
-#' @export
 api.add_schema <- function(schema_name, schema_content){
 
   ctype <- 'application/json'
@@ -34,10 +26,6 @@ api.add_schema <- function(schema_name, schema_content){
   }
 }
 
-#' Retrieve a schema from Model Manage.
-#' @return The contents of the named schema (a JSON string)
-#' @param schema_name The name of the schema in Model Manage.
-#' @export
 api.get_schema <- function(schema_name){
 
   result <- service.get('model-manage', paste('/1/schema/', schema_name, sep=''))
@@ -53,10 +41,6 @@ api.get_schema <- function(schema_name){
   }
 }
 
-#' Remove a schema from Model Manage.
-#' @return True, if successful.
-#' @param schema_name The name of the schema to remove.
-#' @export
 api.remove_schema <- function(schema_name){
   result <- service.delete('model-manage', paste('/1/schema/', schema_name, sep=''))
   if(result[[1]] == 404){
