@@ -7,8 +7,14 @@
 remove_all(type)
 }
 \arguments{
-\item{type}{type of instance to clear}
+\item{type}{type of instance to clear ("model", "schema", "stream")}
+}
+\value{
+operation message or error message
 }
 \description{
 remove all model/stream/schema loaded
+}
+\examples{
+remove_all("model")
 }

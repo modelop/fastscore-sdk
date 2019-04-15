@@ -13,6 +13,9 @@ Attachment_upload(model_name, att_name, att_path)
 
 \item{att_path}{path of the attachment (inluding file name)}
 }
+\value{
+operation message or error message
+}
 \description{
 Upload an attqchment to a model from local path
 }

@@ -9,6 +9,9 @@ Config_set(path)
 \arguments{
 \item{path}{path of the configuration file}
 }
+\value{
+operation message or error message
+}
 \description{
 Set configuration from a local file
 }

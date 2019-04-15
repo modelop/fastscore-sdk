@@ -9,6 +9,9 @@ Composer_delete(name)
 \arguments{
 \item{name}{name of the composer to delete}
 }
+\value{
+operation message or error message
+}
 \description{
 Delete a composer
 }

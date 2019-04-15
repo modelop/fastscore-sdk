@@ -9,6 +9,9 @@ Stream_remove(name)
 \arguments{
 \item{name}{stream name}
 }
+\value{
+operation message or error message
+}
 \description{
 Remove a stream
 }

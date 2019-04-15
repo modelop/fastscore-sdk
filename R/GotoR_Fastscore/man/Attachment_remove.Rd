@@ -11,6 +11,9 @@ Attachment_remove(model_name, att_name)
 
 \item{att_name}{attachment name}
 }
+\value{
+operation message or error message
+}
 \description{
 Remove an attachment from a model
 }

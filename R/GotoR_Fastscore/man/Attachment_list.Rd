@@ -9,6 +9,9 @@ Attachment_list(model_name)
 \arguments{
 \item{model_name}{name of the model to check for attachments}
 }
+\value{
+list of names or error message
+}
 \description{
 List all attchments of a model
 }

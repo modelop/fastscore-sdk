@@ -9,6 +9,9 @@ Engine_reset(name_or_all)
 \arguments{
 \item{name}{engine name, "all" to reset all engines}
 }
+\value{
+operation message or error message
+}
 \description{
 Reset an engine, or reset all engines
 }

@@ -9,6 +9,9 @@ Sensor_uninstall(name)
 \arguments{
 \item{name}{sensor name}
 }
+\value{
+operation message or error message
+}
 \description{
 Uninstall a sensor
 }

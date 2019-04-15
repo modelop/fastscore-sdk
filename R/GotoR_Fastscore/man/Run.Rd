@@ -15,6 +15,9 @@ Run(engine_name, model_name, stream0_name, stream1_name)
 
 \item{stream1_name}{output stream name}
 }
+\value{
+operation message or error message
+}
 \description{
 Run a model in an engine, need to specify input and output streams
 }

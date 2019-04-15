@@ -9,6 +9,9 @@ Use(engine_name)
 \arguments{
 \item{engine_name}{engine name}
 }
+\value{
+operation message or error message
+}
 \description{
 Use a certain engine
 }

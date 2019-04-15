@@ -9,6 +9,9 @@ Engine_unpause(name)
 \arguments{
 \item{name}{engine name}
 }
+\value{
+operation message or error message
+}
 \description{
 Unpause an engine
 }

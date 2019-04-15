@@ -9,6 +9,9 @@ Composer_show(name)
 \arguments{
 \item{name}{composer name}
 }
+\value{
+instance info or error message
+}
 \description{
 Show content of a composer
 }

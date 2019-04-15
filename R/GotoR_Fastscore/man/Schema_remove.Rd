@@ -9,6 +9,9 @@ Schema_remove(name)
 \arguments{
 \item{name}{schema name}
 }
+\value{
+operation message or error message
+}
 \description{
 Remove a schema
 }

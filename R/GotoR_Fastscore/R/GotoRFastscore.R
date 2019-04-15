@@ -739,6 +739,7 @@ setMethod('copyToC', 'GoSlice', CopyToC_GoSlice);
 #' @param model_name model name
 #' @param att_name attachment name
 #' @param att_path path of the attachment (inluding file name)
+#' @return operation message or error message
 `Attachment_upload` = function(model_name, att_name, att_path)
 {
   p0 = as(model_name, "character"); 
@@ -758,6 +759,7 @@ class(`Attachment_upload`) = c("SWIGFunction", class('Attachment_upload'))
 #' @param model_name model name
 #' @param att_name attachment name
 #' @param att_path path of the attachment (inluding file name)
+#' @return operation message or error message
 `Attachment_download` = function(model_name, att_name, att_path)
 {
   p0 = as(model_name, "character"); 
@@ -775,6 +777,7 @@ class(`Attachment_download`) = c("SWIGFunction", class('Attachment_download'))
 #' List all attchments of a model
 #' @export
 #' @param model_name name of the model to check for attachments
+#' @return list of names or error message
 `Attachment_list` = function(model_name)
 {
   p0 = as(model_name, "character"); 
@@ -792,6 +795,7 @@ class(`Attachment_list`) = c("SWIGFunction", class('Attachment_list'))
 #' @export
 #' @param model_name model name
 #' @param att_name attachment name
+#' @return operation message or error message
 `Attachment_remove` = function(model_name, att_name)
 {
   p0 = as(model_name, "character"); 
@@ -807,6 +811,7 @@ class(`Attachment_remove`) = c("SWIGFunction", class('Attachment_remove'))
 # Start of Composer_list
 #' List all composers
 #' @export
+#' @return list of names or error message
 `Composer_list` = function()
 {
   ;ans = .Call('R_swig_Composer_list', PACKAGE='GotoRFastscore');
@@ -821,7 +826,8 @@ class(`Composer_list`) = c("SWIGFunction", class('Composer_list'))
 #' Create a composer from a local file
 #' @export
 #' @param name composer name
-#' @param path path of the composer file
+#' @param path path of the composer file (including file name)
+#' @return operation message or error message
 `Composer_create` = function(name, path)
 {
   p0 = as(name, "character"); 
@@ -838,6 +844,7 @@ class(`Composer_create`) = c("SWIGFunction", class('Composer_create'))
 #' Show content of a composer
 #' @export
 #' @param name composer name
+#' @return instance info or error message
 `Composer_show` = function(name)
 {
   p0 = as(name, "character"); 
@@ -853,6 +860,7 @@ class(`Composer_show`) = c("SWIGFunction", class('Composer_show'))
 #' Delete a composer
 #' @export
 #' @param name name of the composer to delete
+#' @return operation message or error message
 `Composer_delete` = function(name)
 {
   p0 = as(name, "character"); 
@@ -867,6 +875,7 @@ class(`Composer_delete`) = c("SWIGFunction", class('Composer_delete'))
 # Start of Composer_config_show
 #' Show composer configuration
 #' @export
+#' @return instance info or error message
 `Composer_config_show` = function()
 {
   ;.Call('R_swig_Composer_config_show', PACKAGE='GotoRFastscore');
@@ -880,6 +889,7 @@ class(`Composer_config_show`) = c("SWIGFunction", class('Composer_config_show'))
 #' Set composer configuration from a local file
 #' @export
 #' @param path path of the composer configuration file
+#' @return operation message or error message
 `Composer_config_set` = function(path)
 {
   p0 = as(path, "character"); 
@@ -894,6 +904,7 @@ class(`Composer_config_set`) = c("SWIGFunction", class('Composer_config_set'))
 # Start of Config_show
 #' Show configuration of Fastscore
 #' @export
+#' @return instance info or error message
 `Config_show` = function()
 {
   ;.Call('R_swig_Config_show', PACKAGE='GotoRFastscore');
@@ -907,6 +918,7 @@ class(`Config_show`) = c("SWIGFunction", class('Config_show'))
 #' Set configuration from a local file
 #' @export
 #' @param path path of the configuration file
+#' @return operation message or error message
 `Config_set` = function(path)
 {
   p0 = as(path, "character"); 
@@ -922,6 +934,7 @@ class(`Config_set`) = c("SWIGFunction", class('Config_set'))
 #' Connect to Fastscore, set proxy_prefix
 #' @export
 #' @param proxy_prefix prefix of connect
+#' @return proxy prefix + built date or error message
 `Connect` = function(proxy_prefix)
 {
   p0 = as(proxy_prefix, "character"); 
@@ -937,6 +950,7 @@ class(`Connect`) = c("SWIGFunction", class('Connect'))
 #' Inspect an engine
 #' @export
 #' @param name engine name
+#' @return instance info or error message
 `Engine_inspect` = function(name)
 {
   p0 = as(name, "character"); 
@@ -952,6 +966,7 @@ class(`Engine_inspect`) = c("SWIGFunction", class('Engine_inspect'))
 #' Pause an engine
 #' @export
 #' @param name engine name
+#' @return operation message or error message
 `Engine_pause` = function(name)
 {
   p0 = as(name, "character"); 
@@ -967,6 +982,7 @@ class(`Engine_pause`) = c("SWIGFunction", class('Engine_pause'))
 #' Unpause an engine
 #' @export
 #' @param name engine name
+#' @return operation message or error message
 `Engine_unpause` = function(name)
 {
   p0 = as(name, "character"); 
@@ -982,6 +998,7 @@ class(`Engine_unpause`) = c("SWIGFunction", class('Engine_unpause'))
 #' Reset an engine, or reset all engines
 #' @export
 #' @param name engine name, "all" to reset all engines
+#' @return operation message or error message
 `Engine_reset` = function(name_or_all)
 {
   p0 = as(name_or_all, "character"); 
@@ -994,8 +1011,9 @@ attr(`Engine_reset`, "inputTypes") = c('character')
 class(`Engine_reset`) = c("SWIGFunction", class('Engine_reset'))
 
 # Start of Get_Fleet
-#' Show all fleets
+#' Show all fleets and health
 #' @export
+#' @return list of name + health or error message
 `Get_Fleet` = function()
 {
   ;ans = .Call('R_swig_Get_Fleet', PACKAGE='GotoRFastscore');
@@ -1012,6 +1030,7 @@ class(`Get_Fleet`) = c("SWIGFunction", class('Get_Fleet'))
 #' @export
 #' @param name model name
 #' @param path model path (including file name)
+#' @return operation message or error message
 `Model_add` = function(name, path)
 {
   p0 = as(name, "character"); 
@@ -1028,6 +1047,7 @@ class(`Model_add`) = c("SWIGFunction", class('Model_add'))
 #' Show content of a model
 #' @export
 #' @param name model name
+#' @return instance info or error message
 `Model_show` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1042,6 +1062,7 @@ class(`Model_show`) = c("SWIGFunction", class('Model_show'))
 # Start of Model_list
 #' List all models
 #' @export
+#' @return list of names or error message
 `Model_list` = function()
 {
   ;ans = .Call('R_swig_Model_list', PACKAGE='GotoRFastscore');
@@ -1057,6 +1078,7 @@ class(`Model_list`) = c("SWIGFunction", class('Model_list'))
 #' Remove a model
 #' @export
 #' @param name model name
+#' @return operation message or error message
 `Model_remove` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1073,6 +1095,7 @@ class(`Model_remove`) = c("SWIGFunction", class('Model_remove'))
 #' @export 
 #' @param model_name model name
 #' @param engine_name model name
+#' @return operation message or error message
 `Model_load` = function(model_name, engine_name)
 {
   p0 = as(model_name, "character"); 
@@ -1089,6 +1112,7 @@ class(`Model_load`) = c("SWIGFunction", class('Model_load'))
 #' Inspect a model
 #' @export
 #' @param name model name
+#' @return instance info or error message
 `Model_inspect` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1171,6 +1195,7 @@ class(`Model_scale`) = c("SWIGFunction", class('Model_scale'))
 #' @param model_name model name
 #' @param stream0_name input stream name
 #' @param stream1_name output stream name
+#' @return operation message or error message
 `Run` = function(engine_name, model_name, stream0_name, stream1_name)
 {
   p0 = as(engine_name, "character"); 
@@ -1188,6 +1213,7 @@ class(`Run`) = c("SWIGFunction", class('Run'))
 # Start of Schema_list
 #' List all schemas
 #' @export
+#' @return list of names or error message
 `Schema_list` = function()
 {
   ;ans = .Call('R_swig_Schema_list', PACKAGE='GotoRFastscore');
@@ -1201,6 +1227,7 @@ class(`Schema_list`) = c("SWIGFunction", class('Schema_list'))
 # Start of Schema_show
 #' Show content of a schema
 #' @export
+#' @return instance info or error message
 `Schema_show` = function(p0)
 {
   p0 = as(p0, "character"); 
@@ -1217,6 +1244,7 @@ class(`Schema_show`) = c("SWIGFunction", class('Schema_show'))
 #' @export
 #' @param name schema name
 #' @param path path of file (including file name)
+#' @return operation message or error message
 `Schema_add` = function(name, path)
 {
   p0 = as(name, "character"); 
@@ -1233,6 +1261,7 @@ class(`Schema_add`) = c("SWIGFunction", class('Schema_add'))
 #' Remove a schema
 #' @export
 #' @param name schema name
+#' @return operation message or error message
 `Schema_remove` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1248,6 +1277,7 @@ class(`Schema_remove`) = c("SWIGFunction", class('Schema_remove'))
 #' Show content of a sensor
 #' @export
 #' @param name schema name
+#' @return instance info or error message
 `Sensor_show` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1262,6 +1292,7 @@ class(`Sensor_show`) = c("SWIGFunction", class('Sensor_show'))
 # Start of Sensor_list
 #' List all sensors
 #' @export
+#' @return list of names or error message
 `Sensor_list` = function()
 {
   ;ans = .Call('R_swig_Sensor_list', PACKAGE='GotoRFastscore');
@@ -1277,6 +1308,7 @@ class(`Sensor_list`) = c("SWIGFunction", class('Sensor_list'))
 #' @export
 #' @param name sensor name
 #' @param path sensor file path (including file name)
+#' @return operation message or error message
 `Sensor_add` = function(name, path)
 {
   p0 = as(name, "character"); 
@@ -1293,6 +1325,7 @@ class(`Sensor_add`) = c("SWIGFunction", class('Sensor_add'))
 #' Remove a sensor
 #' @export
 #' @param name sensor name
+#' @return operation message or error message
 `Sensor_remove` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1308,6 +1341,7 @@ class(`Sensor_remove`) = c("SWIGFunction", class('Sensor_remove'))
 #' Install a sensor
 #' @export
 #' @param name sensor name
+#' @return operation message or error message
 `Sensor_install` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1323,6 +1357,7 @@ class(`Sensor_install`) = c("SWIGFunction", class('Sensor_install'))
 #' Uninstall a sensor
 #' @export
 #' @param name sensor name
+#' @return operation message or error message
 `Sensor_uninstall` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1337,6 +1372,7 @@ class(`Sensor_uninstall`) = c("SWIGFunction", class('Sensor_uninstall'))
 # Start of Sensor_points
 #' List sensor points
 #' @export
+#' @return list of names or error message
 `Sensor_points` = function()
 {
   ;ans = .Call('R_swig_Sensor_points', PACKAGE='GotoRFastscore');
@@ -1351,6 +1387,7 @@ class(`Sensor_points`) = c("SWIGFunction", class('Sensor_points'))
 #' Inspect a sensor
 #' @export
 #' @param name sensor name
+#' @return instance info or error message
 `Sensor_inspect` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1366,6 +1403,7 @@ class(`Sensor_inspect`) = c("SWIGFunction", class('Sensor_inspect'))
 #' Show content of a stream
 #' @export
 #' @param name stream name
+#' @return instance info or error message
 `Stream_show` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1380,6 +1418,7 @@ class(`Stream_show`) = c("SWIGFunction", class('Stream_show'))
 # Start of Stream_list
 #' List all streams
 #' @export
+#' @return list of names or error message
 `Stream_list` = function()
 {
   ;ans = .Call('R_swig_Stream_list', PACKAGE='GotoRFastscore');
@@ -1395,6 +1434,7 @@ class(`Stream_list`) = c("SWIGFunction", class('Stream_list'))
 #' @export
 #' @param name stream name
 #' @param path stream file path (including file name)
+#' @return operation message or error message
 `Stream_add` = function(name, path)
 {
   p0 = as(name, "character"); 
@@ -1411,6 +1451,7 @@ class(`Stream_add`) = c("SWIGFunction", class('Stream_add'))
 #' Remove a stream
 #' @export
 #' @param name stream name
+#' @return operation message or error message
 `Stream_remove` = function(name)
 {
   p0 = as(name, "character"); 
@@ -1428,6 +1469,7 @@ class(`Stream_remove`) = c("SWIGFunction", class('Stream_remove'))
 #' @param stream_name stream name
 #' @param engine_name engine name
 #' @param slot attach slot number
+#' @return operation message or error message
 `Stream_attach` = function(slot, stream_name, engine_name)
 {
   p0 = as.integer(slot);
@@ -1451,6 +1493,7 @@ class(`Stream_attach`) = c("SWIGFunction", class('Stream_attach'))
 #' @export
 #' @param slot detach slot number
 #' @param engine_name engine name
+#' @return operation message or error message
 `Stream_detach` = function(slot, engine_name)
 {
   p0 = as.integer(slot);
@@ -1473,6 +1516,7 @@ class(`Stream_detach`) = c("SWIGFunction", class('Stream_detach'))
 #' @export
 #' @param stream_name stream name
 #' @param engine_name engine name
+#' @return instance info or error message
 `Stream_inspect` = function(stream_name, engine_name)
 {
   p0 = as(stream_name, "character"); 
@@ -1492,6 +1536,7 @@ class(`Stream_inspect`) = c("SWIGFunction", class('Stream_inspect'))
 #' @param stream_name stream name
 #' @param engine_name engine name
 #' @param count number of samples
+#' @return samples or error message
 `Stream_sample` = function(stream_name, engine_name, count)
 {
   p0 = as(stream_name, "character"); 
@@ -1515,6 +1560,7 @@ class(`Stream_sample`) = c("SWIGFunction", class('Stream_sample'))
 #' Use a certain engine
 #' @export
 #' @param engine_name engine name
+#' @return operation message or error message
 `Use` = function(engine_name)
 {
   p0 = as(engine_name, "character"); 

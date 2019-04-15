@@ -2,10 +2,13 @@
 % Please edit documentation in R/GotoRFastscore.R
 \name{Get_Fleet}
 \alias{Get_Fleet}
-\title{Show all fleets}
+\title{Show all fleets and health}
 \usage{
 Get_Fleet()
 }
+\value{
+list of name + health or error message
+}
 \description{
-Show all fleets
+Show all fleets and health
 }

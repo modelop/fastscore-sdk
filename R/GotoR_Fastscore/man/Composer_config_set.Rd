@@ -9,6 +9,9 @@ Composer_config_set(path)
 \arguments{
 \item{path}{path of the composer configuration file}
 }
+\value{
+operation message or error message
+}
 \description{
 Set composer configuration from a local file
 }

@@ -1,3 +1,5 @@
+# string to list convertion function
+# for Go-R linker usage, avoid passing double array
 StringToList <- function(input){
   if(length(input) < 1){
     return("Error: No instance")

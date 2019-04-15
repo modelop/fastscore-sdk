@@ -13,6 +13,9 @@ Stream_attach(slot, stream_name, engine_name)
 
 \item{engine_name}{engine name}
 }
+\value{
+operation message or error message
+}
 \description{
 Attach a stream to an engine, specify slot
 }

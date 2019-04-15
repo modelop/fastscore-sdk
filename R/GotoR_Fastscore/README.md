@@ -1,19 +1,33 @@
 Info about this project
 ===
 
-## Auto-convert to C: 
+### Documentation
+
+R standard documentation is done through roxygen. Generated documentation files:
+
+- DESCRIPTION: metadata of the package
+- NAMESPACE: list of all exported functions
+- /man/*.Rd: information of all exported functions
+- vignettes: long-form documentation
+- Manual FastscoreRSDK.pdf
+
+```
+system("R CMD Rd2pdf . --title=FastscoreRSDK FastscoreRSDK --output=./FastscoreRSDK.pdf --force --no-clean --internals")
+```
+
+### Auto-convert to C: 
 
 SWIG provides an automated conversion, where we need to build an interface file (GoToRFastscore.h is the header file generated when go build the shared library from Go to C) that looks like this:
 
 ```
-%module GotoRFastscore
+%module FastscoreRSDK
 
 %{
 /* Includes the header in the wrapper code */
 #include "_cgo_export.h"
 %}
 
-%include "GotoRFastscore.h"
+%include "FastscoreRSDK.h"
 ```
 Then, we can auto-gen with SWIG:
 ```
@@ -80,7 +94,7 @@ setMethod('[[<-', c('_p__GoString_', 'character'),function(x, i, j, ..., value)
 
 );
 ```
-## Array-to-String convertion
+### Array-to-String convertion
 
 (Manually) seperating combined string into lists using a (self-defined) seperator. The reason of doing this is discussed at the end. For those we need to add conversion functions to outputs that are supposed to be a list:
 
@@ -90,7 +104,7 @@ ans <- StringToList(ans)
 ans
 ```
 
-### Functions that need StringToList conversion:
+##### Functions that need StringToList conversion:
 
 - Get_Fleet
 - Attachment_list
@@ -104,19 +118,22 @@ ans
 - Stream_sample
 - Sensor_points
 
-##Roxygen comments 
+### Roxygen comments 
 
 SWIG codegen does not include these. (A lot of manual work. Any way to automate?)
 
 ```
 #' @useDynLib GotoRFastscore
 #' @export
+#' @param
+#' return
+#' examples
 ```
-## Parameter names
+### Parameter names
 
 We may need to rename all param of all functions since the names are all auto-generated so very hard to use the function. (A lot of manual work. Any way to automate?)
 
-## Double pointer linker?
+### Double pointer linker?
 
 (ERROR) Here is the real deal. SWIG does a great job of passing the double pointer as an external pointer in R
 

@@ -9,6 +9,9 @@ Model_inspect(name)
 \arguments{
 \item{name}{model name}
 }
+\value{
+instance info or error message
+}
 \description{
 Inspect a model
 }

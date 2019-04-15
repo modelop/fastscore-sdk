@@ -6,6 +6,9 @@
 \usage{
 Schema_show(p0)
 }
+\value{
+instance info or error message
+}
 \description{
 Show content of a schema
 }

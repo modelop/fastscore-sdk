@@ -1,0 +1,68 @@
+---
+title: "Fastscore R SDK (GoVersion)"
+author: "Nan Shi"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### Introduction
+
+A package for Fastscore R integration, using Fastscore GoSDK. This is for the ease of R users to interact with Fastscore services directly from R.
+
+### Example
+
+A quick example of an interaction with Fastscore:
+
+1. initializing Fastscore
+```
+library("FastscoreRSDK")
+GotoRFastscore::Connect("https://localhost:8000")
+# [1] "proxy prefix: https://localhost:8000. Built on Thu Jan 10 18:18:37 UTC 2019"
+Config_set("~/fastscore/config.yaml")
+# [1] "Configuration set."
+```
+2. loading model components from corresponding local directories
+```
+lib <- "~/fastscore/library/"
+import(list("model1.py", "model2.R"), "model", lib)
+# [1] "Model updated."
+import(list("array-double", "string"), "schema", lib)
+# [1] "Schema updated."
+import(list("array-double-input", "string-output"), "stream", lib)
+# [1] "Stream updated."
+```
+3. loading and firing up engine
+```
+Stream_attach(0, "array-double-input", "engine-1")
+# [1] "Stream attached to slot 0."
+Stream_attach(1, "string-output", "engine-1")
+# [1] "Stream attached to slot 1."
+Model_load("model1.py", "engine-1")
+# [1] "Model loaded."
+```
+4. inspect engine work and reset
+```
+Engine_inspect("engine-1")
+# [1] "engine-1 is finished"
+Engine_reset("all")
+# [1] "All engines reset."
+```
+
+### Installation
+
+Currently this package is installed through source file and RStudio devtools.
+
+### Package documentation
+
+Please refer to RSDK manual.

@@ -6,6 +6,9 @@
 \usage{
 Schema_list()
 }
+\value{
+list of names or error message
+}
 \description{
 List all schemas
 }

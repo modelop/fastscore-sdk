@@ -6,6 +6,9 @@
 \usage{
 Sensor_points()
 }
+\value{
+list of names or error message
+}
 \description{
 List sensor points
 }

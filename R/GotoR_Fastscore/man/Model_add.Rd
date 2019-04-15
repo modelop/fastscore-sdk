@@ -11,6 +11,9 @@ Model_add(name, path)
 
 \item{path}{model path (including file name)}
 }
+\value{
+operation message or error message
+}
 \description{
 Add a model from local file
 }

@@ -11,6 +11,9 @@ Sensor_add(name, path)
 
 \item{path}{sensor file path (including file name)}
 }
+\value{
+operation message or error message
+}
 \description{
 Add a sensor from local path
 }

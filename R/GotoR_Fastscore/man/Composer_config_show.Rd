@@ -6,6 +6,9 @@
 \usage{
 Composer_config_show()
 }
+\value{
+instance info or error message
+}
 \description{
 Show composer configuration
 }

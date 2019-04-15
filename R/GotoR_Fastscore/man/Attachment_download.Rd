@@ -13,6 +13,9 @@ Attachment_download(model_name, att_name, att_path)
 
 \item{att_path}{path of the attachment (inluding file name)}
 }
+\value{
+operation message or error message
+}
 \description{
 Download an attachment to a local path
 }

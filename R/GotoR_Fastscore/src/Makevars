@@ -5,5 +5,5 @@ CGO_LDFLAGS = "$(PKG_LIBS) $(SHLIB_LIBADD) $(LIBR)"
 GOPATH = $(CURDIR)/go:$(HOME)/go
 
 go:
-	rm -f GotoRFastscore.h
+	rm -f FastscoreRSDK.h
 	CGO_CFLAGS=$(CGO_CFLAGS) CGO_LDFLAGS=$(CGO_LDFLAGS) GOPATH=$(GOPATH) go build -o $(SHLIB) -x -buildmode=c-shared main

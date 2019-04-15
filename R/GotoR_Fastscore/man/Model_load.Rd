@@ -11,6 +11,9 @@ Model_load(model_name, engine_name)
 
 \item{engine_name}{model name}
 }
+\value{
+operation message or error message
+}
 \description{
 Load a model to an engine
 }

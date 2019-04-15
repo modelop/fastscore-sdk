@@ -11,6 +11,9 @@ Schema_add(name, path)
 
 \item{path}{path of file (including file name)}
 }
+\value{
+operation message or error message
+}
 \description{
 Add a schema from local path
 }

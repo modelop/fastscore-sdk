@@ -13,6 +13,9 @@ Stream_sample(stream_name, engine_name, count)
 
 \item{count}{number of samples}
 }
+\value{
+samples or error message
+}
 \description{
 Get samples from a stream, specify count
 }

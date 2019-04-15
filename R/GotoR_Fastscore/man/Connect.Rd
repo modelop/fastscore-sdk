@@ -9,6 +9,9 @@ Connect(proxy_prefix)
 \arguments{
 \item{proxy_prefix}{prefix of connect}
 }
+\value{
+proxy prefix + built date or error message
+}
 \description{
 Connect to Fastscore, set proxy_prefix
 }

@@ -9,10 +9,16 @@ import(namelist, type, dir)
 \arguments{
 \item{namelist}{a list of instance names}
 
-\item{type}{instance type}
+\item{type}{instance type ("model", "schema", "stream")}
 
 \item{dir}{directory path (example: ".../fastscore/library/")}
 }
+\value{
+operation message or error message
+}
 \description{
 import a list of certain instances from a given directory
+}
+\examples{
+import(list("array-double", "string"), "schema", "fastscore/library/")
 }

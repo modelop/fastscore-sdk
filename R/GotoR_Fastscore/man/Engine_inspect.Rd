@@ -9,6 +9,9 @@ Engine_inspect(name)
 \arguments{
 \item{name}{engine name}
 }
+\value{
+instance info or error message
+}
 \description{
 Inspect an engine
 }

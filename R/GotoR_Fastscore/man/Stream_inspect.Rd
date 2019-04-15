@@ -11,6 +11,9 @@ Stream_inspect(stream_name, engine_name)
 
 \item{engine_name}{engine name}
 }
+\value{
+instance info or error message
+}
 \description{
 Inspect a stream
 }

@@ -9,6 +9,9 @@ Sensor_show(name)
 \arguments{
 \item{name}{schema name}
 }
+\value{
+instance info or error message
+}
 \description{
 Show content of a sensor
 }

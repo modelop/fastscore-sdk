@@ -11,6 +11,9 @@ Stream_add(name, path)
 
 \item{path}{stream file path (including file name)}
 }
+\value{
+operation message or error message
+}
 \description{
 Add a stream from local file
 }

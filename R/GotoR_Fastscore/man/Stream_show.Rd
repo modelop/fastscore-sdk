@@ -9,6 +9,9 @@ Stream_show(name)
 \arguments{
 \item{name}{stream name}
 }
+\value{
+instance info or error message
+}
 \description{
 Show content of a stream
 }

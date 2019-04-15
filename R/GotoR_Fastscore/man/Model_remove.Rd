@@ -9,6 +9,9 @@ Model_remove(name)
 \arguments{
 \item{name}{model name}
 }
+\value{
+operation message or error message
+}
 \description{
 Remove a model
 }

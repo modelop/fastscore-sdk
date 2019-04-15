@@ -9,7 +9,10 @@ Composer_create(name, path)
 \arguments{
 \item{name}{composer name}
 
-\item{path}{path of the composer file}
+\item{path}{path of the composer file (including file name)}
+}
+\value{
+operation message or error message
 }
 \description{
 Create a composer from a local file

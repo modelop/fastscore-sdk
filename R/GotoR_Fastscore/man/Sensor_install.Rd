@@ -9,6 +9,9 @@ Sensor_install(name)
 \arguments{
 \item{name}{sensor name}
 }
+\value{
+operation message or error message
+}
 \description{
 Install a sensor
 }

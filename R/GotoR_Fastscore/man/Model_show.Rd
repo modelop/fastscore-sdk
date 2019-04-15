@@ -9,6 +9,9 @@ Model_show(name)
 \arguments{
 \item{name}{model name}
 }
+\value{
+instance info or error message
+}
 \description{
 Show content of a model
 }

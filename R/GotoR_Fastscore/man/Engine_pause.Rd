@@ -9,6 +9,9 @@ Engine_pause(name)
 \arguments{
 \item{name}{engine name}
 }
+\value{
+operation message or error message
+}
 \description{
 Pause an engine
 }

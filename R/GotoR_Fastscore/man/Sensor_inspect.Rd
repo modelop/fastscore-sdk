@@ -9,6 +9,9 @@ Sensor_inspect(name)
 \arguments{
 \item{name}{sensor name}
 }
+\value{
+instance info or error message
+}
 \description{
 Inspect a sensor
 }
