@@ -13,9 +13,6 @@ import(namelist, type, dir)
 
 \item{dir}{directory path (example: ".../fastscore/library/")}
 }
-\value{
-operation message or error message
-}
 \description{
 import a list of certain instances from a given directory
 }

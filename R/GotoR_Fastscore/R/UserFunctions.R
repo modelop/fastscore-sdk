@@ -6,7 +6,6 @@
 #' @param namelist a list of instance names
 #' @param type instance type ("model", "schema", "stream")
 #' @param dir directory path (example: ".../fastscore/library/")
-#' @return operation message or error message
 #' @examples 
 #' import(list("array-double", "string"), "schema", "fastscore/library/")
 import <- function (namelist, type, dir) {
@@ -19,17 +18,17 @@ import <- function (namelist, type, dir) {
   if (type == "schema"){
     for (x in namelist) {
       dir <- paste(lib, type, "s/", x, ".avsc", sep = "")
-      return(Schema_add(x, dir))
+      Schema_add(x, dir)
     }
   } else if (type == "stream"){
     for (x in namelist) {
       dir <- paste(lib, type, "s/", x, ".json", sep = "")
-      return(Stream_add(x, dir))
+      Stream_add(x, dir)
     }
   } else {
     for (x in namelist) {
       dir <- paste(lib, type, "s/", x, sep = "")
-      return(Model_add(x, dir))
+      Model_add(x, dir)
     }
   }
 }
@@ -37,7 +36,6 @@ import <- function (namelist, type, dir) {
 #' remove all model/stream/schema loaded
 #' @export
 #' @param type type of instance to clear ("model", "schema", "stream")
-#' @return operation message or error message
 #' @examples 
 #' remove_all("model")
 remove_all <- function(type){
@@ -49,7 +47,7 @@ remove_all <- function(type){
   else { 
     for (x in Model_list()) {
       y <- strsplit(x, " | ")[[1]][1]
-      return(Model_remove(y))
+      Model_remove(y)
     } 
   }
 }

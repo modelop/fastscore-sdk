@@ -36,11 +36,8 @@ Config_set("~/fastscore/config.yaml")
 ```
 lib <- "~/fastscore/library/"
 import(list("model1.py", "model2.R"), "model", lib)
-# [1] "Model updated."
 import(list("array-double", "string"), "schema", lib)
-# [1] "Schema updated."
 import(list("array-double-input", "string-output"), "stream", lib)
-# [1] "Stream updated."
 ```
 3. loading and firing up engine
 ```
