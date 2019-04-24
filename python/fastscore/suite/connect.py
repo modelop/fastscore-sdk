@@ -64,9 +64,6 @@ class Connect(InstanceBase):
         if not '://' in proxy_prefix:
             raise FastScoreError("Proxy prefix must be an URL, e.g. https://dashboard:8000")
 
-        if not proxy_prefix.startswith('https:'):
-            raise FastScoreError("Proxy prefix must use HTTPS scheme")
-
         # https://localhost:8000/api/1/service
         x = urlparse(configuration.host)
         base_path = x.path
