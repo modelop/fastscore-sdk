@@ -4,7 +4,8 @@ from setuptools import find_packages, setup
 setup(
     name="fastscore",
     description="FastScore SDK",
-    version=versioneer.get_version(),
+    #version=versioneer.get_version(),
+    version="1.9",
     cmdclass=versioneer.get_cmdclass(),
     packages=find_packages(),
     use_2to3=True,
