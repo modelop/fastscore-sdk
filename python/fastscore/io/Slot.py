@@ -3,17 +3,29 @@ class Slot(object):
     def __init__(self, n):
         self.state = acquireSlotState(n)
 
+    def __iter__(self):
+        return self
+
+    def next(self):
+        data = self.read()
+        if data is None:
+            raise StopIteration
+        else:
+            return data
+
     def read(self, format='pandas', with_seqno=False):
         if format != 'pandas':
             print "Format '%s' not supported" % format
             sys.exit(1)
-        return self.state.dataframe
+        if self.state.dataframes:
+            return self.state.dataframes.pop()
+        return None
 
     def write(self, rec):
         self.state.write(rec)
 
-    def load(self, dataframe):
-        self.state.load(dataframe)
+    def load(self, dataframes):
+        self.state.load(dataframes)
 
     def output(self):
         return self.state.output
@@ -30,8 +42,12 @@ class SlotState(object):
     def write(self, rec):
         self.output.append(rec)
 
-    def load(self, dataframe):
-        self.dataframe = dataframe
+    def load(self, dataframes):
+        if isinstance(dataframes, list):
+            self.dataframes = dataframes
+            self.dataframes.reverse()
+        else:
+            self.dataframes = [dataframes]
 
 
 __slotState = dict()
