@@ -15,8 +15,7 @@ class Slot(object):
 
     def read(self, format='pandas', with_seqno=False):
         if format != 'pandas':
-            print "Format '%s' not supported" % format
-            sys.exit(1)
+            raise ValueError("format must be 'pandas'")
         if self.state.dataframes:
             return self.state.dataframes.pop()
         return None
