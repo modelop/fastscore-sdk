@@ -1,0 +1,8 @@
+{
+    "name":"cpi",
+    "type":"record",
+    "fields":[
+        {"name": "Date", "type":"double"},
+        {"name": "CPI", "type": "double"}
+    ]
+}

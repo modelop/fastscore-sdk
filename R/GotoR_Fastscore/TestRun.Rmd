@@ -1,0 +1,45 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# Connect to local fleet and set configuration
+```{r}
+library(FastscoreRSDK)
+Connect(proxy_prefix="https://localhost:8000")
+Config_set("./config.yaml")
+Sys.sleep(10) 
+# give system time to load configuration
+Get_Fleet()
+```
+# Define load model information
+```{r}
+Model_add(name =  "extract.R", path = "./library/models/extract.R")
+
+Schema_add(name = "cpi", path = "./library/schemas/cpi.avsc")
+Schema_add(name = "close", path = "./library/schemas/close.avsc")
+Schema_add(name = "double", path = "./library/schemas/double.avsc")
+Schema_add(name = "adjustment", path = "./library/schemas/adjustment.avsc")
+
+Stream_add(name = "input_cpi", path = "./library/streams/input_cpi.json")
+Stream_add(name = "input_closing", path = "./library/streams/input_closing.json")
+Stream_add(name = "double-output", path = "./library/streams/double-output.json")
+Stream_add(name = "adjustment-output", path = "./library/streams/adjustment-output.json")
+```
+# Deploy model
+```{r}
+Stream_attach(slot = 0, stream_name = "input_cpi", engine_name = "engine-1")
+Stream_attach(2, "input_closing", "engine-1")
+
+Stream_attach(1, "double-output", "engine-1")
+Stream_attach(3, "adjustment-output", "engine-1")
+Stream_attach(5, "double-output", "engine-1")
+
+Model_load(model_name = "extract.R", engine_name = "engine-1")
+```
+```{r}
+Engine_inspect("engine-1")
+```
+```{r}
+Engine_reset("engine-1")
+```
+

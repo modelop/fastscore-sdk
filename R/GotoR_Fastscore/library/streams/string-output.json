@@ -1,0 +1,11 @@
+{
+  "Description": "write output to the specified file",
+  "Loop": false,
+  "Transport": {
+    "Type": "file",
+    "Path": "/data/schemaOutputString.jsons"
+  },
+  "Envelope": "delimited",
+  "Encoding": "json",
+  "Schema": {"$ref":"string"}
+}

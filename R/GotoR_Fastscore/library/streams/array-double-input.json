@@ -1,0 +1,11 @@
+{
+  "Description": "read input from the specified file",
+  "Loop": false,
+  "Transport": {
+    "Type": "file",
+    "Path": "/data/schemaInputArrayDouble.jsons"
+  },
+  "Envelope": "delimited",
+  "Encoding": "json",
+  "Schema": {"$ref":"array-double"}
+}

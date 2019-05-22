@@ -1,0 +1,12 @@
+
+{
+  "Version": "1.2",
+  "Loop": true,
+  "Transport": {
+    "Type": "file",
+    "Path": "/data/cpi.jsons"
+  },
+  "Envelope": "delimited",
+  "Encoding": "json",
+  "Schema": {"$ref":"cpi"}
+}

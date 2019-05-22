@@ -1,0 +1,8 @@
+{
+    "type":"record",
+    "name":"adjustment",
+    "fields":[
+        {"type":"double", "name":"LR"},
+        {"type":"double", "name":"CPI"}
+    ]
+}

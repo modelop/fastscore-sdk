@@ -1,0 +1,19 @@
+fastscore:
+  fleet:
+    - api: model-manage
+      host: model-manage
+      port: 8002
+    - api: engine
+      host: engine-1
+      port: 8003
+   
+
+  db:
+    type: mysql
+    host: mm-mysql
+    port: 3306
+    username: root
+    password: root
+
+  pneumo:
+    type: rest
