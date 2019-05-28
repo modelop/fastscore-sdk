@@ -6,19 +6,14 @@ fastscore:
     - api: engine
       host: engine-1
       port: 8003
-    - api: engine
-      host: engine-2
-      port: 8003
+   
 
   db:
     type: mysql
-    host: database
+    host: mm-mysql
     port: 3306
     username: root
     password: root
 
   pneumo:
-    type: kafka
-    bootstrap:
-      - kafka:9092
-    topic: notify
+    type: rest

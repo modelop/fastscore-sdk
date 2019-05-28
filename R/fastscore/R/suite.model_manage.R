@@ -123,7 +123,7 @@ ModelManage <- setRefClass("ModelManage",
 
 
         #added functions starts here
-        model_load_from_file = function(name, path = "./fastscore/library/models/"){
+        model_load_from_file = function(name, path = "./library/models/"){
           if(!file.exists(paste(path, name, sep=""))){
             stop("FastScore Error: model file does not exists in directory (check if extension is included in name).")
           }
@@ -133,7 +133,7 @@ ModelManage <- setRefClass("ModelManage",
           .self$save_model(model)
         },
 
-        schema_load_from_file = function(name, path = "./fastscore/library/schemas/"){
+        schema_load_from_file = function(name, path = "./library/schemas/"){
           if(!file.exists(paste(path, name, ".avsc", sep=""))){
             stop("FastScore Error: schema file does not exists in directory. (DO NOT included extension in name)")
           }
@@ -143,7 +143,7 @@ ModelManage <- setRefClass("ModelManage",
           .self$save_schema(schema)
         },
 
-        stream_load_from_file = function(name, path = "./fastscore/library/streams/"){
+        stream_load_from_file = function(name, path = "./library/streams/"){
           if(!file.exists(paste(path, name, ".json", sep=""))){
             stop("FastScore Error: stream file does not exists in directory. (DO NOT included extension in name)")
           }

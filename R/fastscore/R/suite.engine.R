@@ -213,7 +213,7 @@ Engine <- setRefClass("Engine",
         run_in_library = function(modalmanage, model_name, attachment_list = list(), input_list, output_list){
           #load all schemas in first lines of model
           in_out_total <- length(input_list) + length(output_list)
-          model_lines <- readLines(paste("./fastscore/library/models/", model_name, sep=""), n = in_out_total)
+          model_lines <- readLines(paste("./library/models/", model_name, sep=""), n = in_out_total)
           model_schema <- list()
           for(i in 1:in_out_total){
             model_schema[i] <- strsplit(model_lines[i], ": ")[[1]][2]

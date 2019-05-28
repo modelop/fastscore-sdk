@@ -1,0 +1,32 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Setup wd, and connect to local fleet
+```{r}
+library(fastscore)
+connect <- Connect(proxy_prefix="https://localhost:8000")
+config <- paste(readLines("./config.yaml"), collapse="\r\n")
+connect$configure(config)
+Sys.sleep(3) #give system time to load configuration
+engine <- connect$get("engine-1")
+mm <- connect$get("model-manage-1")
+```
+Define load model information
+```{r}
+mm$model_load_from_file("echo-array-double.R", "./library/models/")
+mm$schema_load_from_file("array-double", "./library/schemas/")
+mm$stream_load_from_file("array-double-input", "./library/streams/")
+mm$stream_load_from_file("array-double-output", "./library/streams/")
+```
+Deploy model
+```{r}
+engine$input_set(0, mm$stream_get("array-double-input"))
+engine$output_set(1, mm$stream_get("array-double-output"))
+engine$load_model(mm$model_get("echo-array-double.R"))
+```
+Stop engine
+```{r}
+engine$unload_model()
+```
+
