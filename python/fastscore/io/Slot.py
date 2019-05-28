@@ -6,7 +6,7 @@ class Slot(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         data = self.read()
         if data is None:
             raise StopIteration
