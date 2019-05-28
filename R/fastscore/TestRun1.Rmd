@@ -2,7 +2,10 @@
 title: "R Notebook"
 output: html_notebook
 ---
-Setup wd, and connect to local fleet
+install dependencies
+install.packages(c("curl", "jsonlite", "mime", "openssl", "R6", "yaml", "httr"))
+
+Setup, connect to local fleet
 ```{r}
 library(fastscore)
 connect <- Connect(proxy_prefix="https://localhost:8000")
