@@ -39,7 +39,26 @@ Model_load(model_name = "extract.R", engine_name = "engine-1")
 ```{r}
 Engine_inspect("engine-1")
 ```
+# This model is using looping inputs. DON'T let it run for too long
 ```{r}
 Engine_reset("engine-1")
+```
+# The following codes are for testing purposes
+```{r}
+Attachment_upload("extract.R", "file-contains-1234.tgz", "./library/attachments/file-contains-1234.tgz")
+Attachment_list("extract.R")
+Attachment_download("extract.R", "file-contains-1234.tgz", "./file-contains-1234.tgz")
+Attachment_remove("extract.R", "file-contains-1234.tgz")
+
+Config_show()
+Engine_pause("engine-1")
+Engine_unpause("engine-1")
+
+Model_list()
+Model_inspect("engine-1")
+Model_show("extract.R")
+
+Stream_inspect("input_cpi", "engine-1")
+Stream_sample("input_cpi", "engine-1", 15)
 ```
 

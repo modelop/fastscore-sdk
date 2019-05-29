@@ -195,7 +195,7 @@ func Stream_inspect(name *C.char, enginename *C.char) *C.char {
 		default:
 			return C.CString("Fastscore Error --- Unknown stream descriptor")
 		}
-		res = append(res, strconv.Itoa(v.Slot) + v.Name + transportType + strconv.FormatBool(v.EOF))
+		res = append(res, strconv.Itoa(v.Slot) + "|" + v.Name +"|" + transportType + "|" + strconv.FormatBool(v.EOF))
 	}
 
 	return C.CString(ArrayToString(res))

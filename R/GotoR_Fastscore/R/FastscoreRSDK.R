@@ -1310,8 +1310,9 @@ class(`Stream_detach`) = c("SWIGFunction", class('Stream_detach'))
 {
   p0 = as(stream_name, "character"); 
   p1 = as(engine_name, "character"); 
-  ;.Call('R_swig_Stream_inspect', p0, p1, PACKAGE='FastscoreRSDK');
-  
+  ;ans = .Call('R_swig_Stream_inspect', p0, p1, PACKAGE='FastscoreRSDK');
+  ans <- StringToList(ans)
+  ans
 }
 
 attr(`Stream_inspect`, 'returnType') = 'character'
