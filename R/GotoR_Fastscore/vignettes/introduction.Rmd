@@ -59,6 +59,10 @@ Engine_reset("all")
 ### Installation
 
 Currently this package is installed through source file and RStudio devtools.
+```
+R CMD INSTALL FastscoreRSDK.tar.gz
+```
+NOTE: for this to work, system needs to be able to locate the standard path for stdio.h and other utilities. For MacOS, Xcode includes a package to create links for such software to find the files.. Xcode 10 the package file is located at: /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
 
 ### Package documentation
 

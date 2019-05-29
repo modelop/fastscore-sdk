@@ -8,6 +8,15 @@ Info about this project
 - Some types conversion note: error to error-message-string, double-array to transformed-string-array
 
 
+### Installation
+
+- Download GoSDK with `go get github.com/opendatagroup/fastscore-sdk-go/sdk`
+- Run `R CMD INSTALL FastscoreRSDK.tar.gz`
+- OR use `GotoR_Fastscore.Rproj` to build and install
+
+**NOTE:** for this to work, system needs to be able to locate the standard path for stdio.h and other utilities. For MacOS, Xcode includes a package to create links for such software to find the files.. Xcode 10 the package file is located at: /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+
+
 ### Documentation
 
 R standard documentation is done through roxygen. Generated documentation files:
