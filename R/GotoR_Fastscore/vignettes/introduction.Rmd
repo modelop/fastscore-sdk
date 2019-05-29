@@ -27,7 +27,7 @@ A quick example of an interaction with Fastscore:
 1. initializing Fastscore
 ```
 library("FastscoreRSDK")
-GotoRFastscore::Connect("https://localhost:8000")
+FastscoreRSDK::Connect("https://localhost:8000")
 # [1] "proxy prefix: https://localhost:8000. Built on Thu Jan 10 18:18:37 UTC 2019"
 Config_set("~/fastscore/config.yaml")
 # [1] "Configuration set."

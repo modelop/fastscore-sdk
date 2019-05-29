@@ -28,8 +28,6 @@ typedef struct { const char *p; ptrdiff_t n; } _GoString_;
 
 
 
-
-
 /* End of preamble from import "C" comments.  */
 
 
@@ -84,18 +82,6 @@ extern char* Attachment_list(char* p0);
 
 extern char* Attachment_remove(char* p0, char* p1);
 
-extern char* Composer_list();
-
-extern char* Composer_create(char* p0, char* p1);
-
-extern char* Composer_show(char* p0);
-
-extern char* Composer_delete(char* p0);
-
-extern char* Composer_config_show();
-
-extern char* Composer_config_set(char* p0);
-
 extern char* Config_show();
 
 extern char* Config_set(char* p0);
@@ -139,22 +125,6 @@ extern char* Schema_show(char* p0);
 extern char* Schema_add(char* p0, char* p1);
 
 extern char* Schema_remove(char* p0);
-
-extern char* Sensor_show(char* p0);
-
-extern char* Sensor_list();
-
-extern char* Sensor_add(char* p0, char* p1);
-
-extern char* Sensor_remove(char* p0);
-
-extern char* Sensor_install(char* p0);
-
-extern char* Sensor_uninstall(char* p0);
-
-extern char* Sensor_points();
-
-extern char* Sensor_inspect(char* p0);
 
 extern char* Stream_show(char* p0);
 

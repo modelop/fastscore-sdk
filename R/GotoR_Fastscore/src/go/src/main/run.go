@@ -10,7 +10,7 @@ func Run(enginename *C.char, modelname *C.char, stream_name0 *C.char, stream_nam
   streamname0 := C.GoString(stream_name0)
   streamname1 := C.GoString(stream_name1)
   
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   eng, err := con.GetEngine(C.GoString(enginename))
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -63,12 +63,12 @@ func Run(enginename *C.char, modelname *C.char, stream_name0 *C.char, stream_nam
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
 
-  err = eng.AttachStream(stream1, 1)
+  _, err = eng.AttachStream(stream1, 1)
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
 
-  err = eng.AttachStream(stream0, 0)
+  _, err = eng.AttachStream(stream0, 0)
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}

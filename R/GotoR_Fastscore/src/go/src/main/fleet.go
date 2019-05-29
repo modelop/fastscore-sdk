@@ -7,7 +7,7 @@ import (
 
 //export Get_Fleet
 func Get_Fleet() *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   r, err := con.Fleet()
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())

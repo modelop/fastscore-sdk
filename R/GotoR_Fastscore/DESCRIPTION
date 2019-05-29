@@ -1,6 +1,6 @@
-Package: GotoRFastscore
+Package: FastscoreRSDK
 Type: Package
-Title: First try to use GoSDK in R
+Title: Fastscore R SDK (GoVersion)
 Version: 0.1.0
 Authoers@R: c( person("Nan", "Shi", email = "nan.shi@opendatagroup.com", role = c("aut", "cre")) )
 Discription: First try to use GoSDK in R
@@ -8,3 +8,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 License: TBD
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -1,18 +1,20 @@
 package main
 import (
     "C"
+    "os"
     "github.com/opendatagroup/fastscore-sdk-go/sdk"
     "gopkg.in/yaml.v2"
-	  "io/ioutil"
 )
 
 //export Config_show
 func Config_show() *C.char {
-  connect := sdk.NewConnect(proxy_path)
-	cfg, err := connect.GetConfig()
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
+	cfg, err := connect.GetConfig()  // get Configuration
+	
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
+	
 	d, err := yaml.Marshal(&cfg)
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -23,14 +25,13 @@ func Config_show() *C.char {
 
 //export Config_set
 func Config_set(path *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
-	file, err := ioutil.ReadFile(C.GoString(path))
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
+	file, err := os.Open(C.GoString(path))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
 
-	config := string(file)
-	err = connect.SetConfig(config)
+	err = connect.SetConfig(file)
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	} else {

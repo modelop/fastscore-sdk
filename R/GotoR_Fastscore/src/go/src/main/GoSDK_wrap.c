@@ -1986,7 +1986,7 @@ R_swig_Attachment_download ( SEXP p0, SEXP p1, SEXP p2)
   arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
   arg2 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p1, 0))));
   arg3 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p2, 0))));
-  result = (char *)Attachment_download(arg1,arg2, arg3);
+  result = (char *)Attachment_download(arg1,arg2,arg3);
   r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
   free(arg1);
   free(arg2);
@@ -2034,123 +2034,6 @@ R_swig_Attachment_remove ( SEXP p0, SEXP p1)
   r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
   free(arg1);
   free(arg2);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Composer_list ( )
-{
-  char *result = 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  result = (char *)Composer_list();
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Composer_create ( SEXP p0, SEXP p1)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  arg2 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p1, 0))));
-  result = (char *)Composer_create(arg1,arg2);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  free(arg2);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Composer_show ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Composer_show(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Composer_delete ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Composer_delete(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Composer_config_show ( )
-{
-  char *result = 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  result = (char *)Composer_config_show();
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Composer_config_set ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Composer_config_set(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
   vmaxset(r_vmax);
   if(r_nprotect)  Rf_unprotect(r_nprotect);
   
@@ -2622,163 +2505,6 @@ R_swig_Schema_remove ( SEXP p0)
   
   arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
   result = (char *)Schema_remove(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_show ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Sensor_show(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_list ( )
-{
-  char *result = 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  result = (char *)Sensor_list();
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_add ( SEXP p0, SEXP p1)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  arg2 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p1, 0))));
-  result = (char *)Sensor_add(arg1,arg2);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  free(arg2);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_remove ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Sensor_remove(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_install ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Sensor_install(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_uninstall ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Sensor_uninstall(arg1);
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  free(arg1);
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_points ( )
-{
-  char *result = 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  result = (char *)Sensor_points();
-  r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
-  vmaxset(r_vmax);
-  if(r_nprotect)  Rf_unprotect(r_nprotect);
-  
-  return r_ans;
-}
-
-
-SWIGEXPORT SEXP
-R_swig_Sensor_inspect ( SEXP p0)
-{
-  char *result = 0 ;
-  char *arg1 = (char *) 0 ;
-  unsigned int r_nprotect = 0;
-  SEXP r_ans = R_NilValue ;
-  VMAXTYPE r_vmax = vmaxget() ;
-  
-  arg1 = (char *)(SWIG_strdup(CHAR(STRING_ELT(p0, 0))));
-  result = (char *)Sensor_inspect(arg1);
   r_ans = result ? Rf_mkString((char *)(result)) : R_NilValue;
   free(arg1);
   vmaxset(r_vmax);
@@ -3334,16 +3060,11 @@ SWIGINTERN R_CallMethodDef CallEntries[] = {
    {"R_swig_Stream_attach", (DL_FUNC) &R_swig_Stream_attach, 3},
    {"R_swig_Engine_reset", (DL_FUNC) &R_swig_Engine_reset, 1},
    {"R_swig_Model_add", (DL_FUNC) &R_swig_Model_add, 2},
-   {"R_swig_Sensor_install", (DL_FUNC) &R_swig_Sensor_install, 1},
-   {"R_swig_Sensor_uninstall", (DL_FUNC) &R_swig_Sensor_uninstall, 1},
-   {"R_swig_Composer_list", (DL_FUNC) &R_swig_Composer_list, 0},
-   {"R_swig_Sensor_list", (DL_FUNC) &R_swig_Sensor_list, 0},
    {"R_swig_GoInterface_t_set", (DL_FUNC) &R_swig_GoInterface_t_set, 2},
    {"R_swig_Model_show", (DL_FUNC) &R_swig_Model_show, 1},
    {"R_swig_GoSlice_len_get", (DL_FUNC) &R_swig_GoSlice_len_get, 2},
    {"R_swig_Schema_show", (DL_FUNC) &R_swig_Schema_show, 1},
    {"R_swig_Config_set", (DL_FUNC) &R_swig_Config_set, 1},
-   {"R_swig_Composer_config_set", (DL_FUNC) &R_swig_Composer_config_set, 1},
    {"R_swig_Attachment_download", (DL_FUNC) &R_swig_Attachment_download, 3},
    {"R_swig_Schema_add", (DL_FUNC) &R_swig_Schema_add, 2},
    {"R_swig_Stream_detach", (DL_FUNC) &R_swig_Stream_detach, 2},
@@ -3352,17 +3073,13 @@ SWIGINTERN R_CallMethodDef CallEntries[] = {
    {"R_swig_Model_remove", (DL_FUNC) &R_swig_Model_remove, 1},
    {"R_swig_Run", (DL_FUNC) &R_swig_Run, 4},
    {"R_swig_Schema_remove", (DL_FUNC) &R_swig_Schema_remove, 1},
-   {"R_swig_Sensor_remove", (DL_FUNC) &R_swig_Sensor_remove, 1},
    {"R_swig_Stream_remove", (DL_FUNC) &R_swig_Stream_remove, 1},
    {"R_swig_Stream_sample", (DL_FUNC) &R_swig_Stream_sample, 3},
    {"R_swig_Use", (DL_FUNC) &R_swig_Use, 1},
-   {"R_swig_Composer_show", (DL_FUNC) &R_swig_Composer_show, 1},
-   {"R_swig_Sensor_show", (DL_FUNC) &R_swig_Sensor_show, 1},
    {"R_swig_Stream_list", (DL_FUNC) &R_swig_Stream_list, 0},
    {"R_swig_GoSlice_data_get", (DL_FUNC) &R_swig_GoSlice_data_get, 1},
    {"R_swig__GoString__p_get", (DL_FUNC) &R_swig__GoString__p_get, 1},
    {"R_swig_Config_show", (DL_FUNC) &R_swig_Config_show, 0},
-   {"R_swig_Composer_config_show", (DL_FUNC) &R_swig_Composer_config_show, 0},
    {"R_swig_Attachment_list", (DL_FUNC) &R_swig_Attachment_list, 1},
    {"R_swig_Model_scale", (DL_FUNC) &R_swig_Model_scale, 2},
    {"R_swig_Stream_add", (DL_FUNC) &R_swig_Stream_add, 2},
@@ -3371,20 +3088,15 @@ SWIGINTERN R_CallMethodDef CallEntries[] = {
    {"R_swig_new_GoSlice", (DL_FUNC) &R_swig_new_GoSlice, 0},
    {"R_swig_GoSlice_cap_get", (DL_FUNC) &R_swig_GoSlice_cap_get, 2},
    {"R_swig_Model_output", (DL_FUNC) &R_swig_Model_output, 2},
-   {"R_swig_Sensor_add", (DL_FUNC) &R_swig_Sensor_add, 2},
    {"R_swig__GoString__p_set", (DL_FUNC) &R_swig__GoString__p_set, 2},
    {"R_swig_Connect", (DL_FUNC) &R_swig_Connect, 1},
    {"R_swig_GoSlice_cap_set", (DL_FUNC) &R_swig_GoSlice_cap_set, 2},
-   {"R_swig_Composer_delete", (DL_FUNC) &R_swig_Composer_delete, 1},
-   {"R_swig_Composer_create", (DL_FUNC) &R_swig_Composer_create, 2},
-   {"R_swig_Sensor_points", (DL_FUNC) &R_swig_Sensor_points, 0},
    {"R_swig__GoString__n_get", (DL_FUNC) &R_swig__GoString__n_get, 2},
    {"R_swig_new__GoString_", (DL_FUNC) &R_swig_new__GoString_, 0},
    {"R_swig_delete__GoString_", (DL_FUNC) &R_swig_delete__GoString_, 1},
    {"R_swig_Stream_show", (DL_FUNC) &R_swig_Stream_show, 1},
    {"R_swig_Engine_inspect", (DL_FUNC) &R_swig_Engine_inspect, 1},
    {"R_swig_Model_inspect", (DL_FUNC) &R_swig_Model_inspect, 1},
-   {"R_swig_Sensor_inspect", (DL_FUNC) &R_swig_Sensor_inspect, 1},
    {"R_swig_Stream_inspect", (DL_FUNC) &R_swig_Stream_inspect, 2},
    {"R_swig_Model_input", (DL_FUNC) &R_swig_Model_input, 2},
    {"R_swig__GoString__n_set", (DL_FUNC) &R_swig__GoString__n_set, 2},
@@ -3400,7 +3112,7 @@ SWIGINTERN R_CallMethodDef CallEntries[] = {
    {NULL, NULL, 0}
 };
 
-SWIGEXPORT void R_init_GotoRFastscore(DllInfo *dll) {
+SWIGEXPORT void R_init_FastscoreRSDK(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
 
 

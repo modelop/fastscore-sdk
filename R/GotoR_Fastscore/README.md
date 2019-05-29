@@ -1,6 +1,13 @@
 Info about this project
 ===
 
+### Reccent updates: (2019-05-29)
+
+- Adjusted package according to recent Fastscore GoSDK changes (link: https://github.com/opendatagroup/fastscore-sdk-go/tree/master/sdk)
+- Removed composer & conductor & sensor functions
+- Some types conversion note: error to error-message-string, double-array to transformed-string-array
+
+
 ### Documentation
 
 R standard documentation is done through roxygen. Generated documentation files:
@@ -108,15 +115,13 @@ ans
 
 - Get_Fleet
 - Attachment_list
-- Composer_list
 - Model_list
 - Schema_list
-- Sensor_list
 - Stream_list
 - Model_inspect
 - Stream_inspect
 - Stream_sample
-- Sensor_points
+
 
 ### Roxygen comments 
 

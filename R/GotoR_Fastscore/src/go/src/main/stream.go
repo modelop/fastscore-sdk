@@ -5,13 +5,13 @@ import (
 	  "encoding/json"
 	  "strconv"
 	  "strings"
-	  "github.com/opendatagroup/fastscore-sdk-go/sdk/swagger"
+    "github.com/opendatagroup/fastscore-sdk-go/sdk/swagger/models"
 	  "io/ioutil"
 )
 
 //export Stream_show
 func Stream_show(name *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -32,7 +32,7 @@ func Stream_show(name *C.char) *C.char {
 
 //export Stream_list
 func Stream_list() *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -53,7 +53,7 @@ func Stream_list() *C.char {
 
 //export Stream_add
 func Stream_add(name *C.char, path *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -72,7 +72,7 @@ func Stream_add(name *C.char, path *C.char) *C.char {
 	  	return C.CString("Fastscore Error --- " + err.Error())
 	  }
 
-    var desc swagger.StreamDescriptor
+    var desc models.StreamDescriptor
 
     err = json.Unmarshal(file, &desc)
     if err != nil {
@@ -102,7 +102,7 @@ func Stream_add(name *C.char, path *C.char) *C.char {
 
 //export Stream_remove
 func Stream_remove(name *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -117,7 +117,7 @@ func Stream_remove(name *C.char) *C.char {
 
 //export Stream_attach
 func Stream_attach(slot int, name *C.char, enginename *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	e, err := connect.GetEngine(C.GoString(enginename))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -143,7 +143,7 @@ func Stream_attach(slot int, name *C.char, enginename *C.char) *C.char {
 	  }
   }
 
-	err = e.AttachStream(stream, slot)
+	_, err = e.AttachStream(stream, slot)
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	} else {
@@ -153,7 +153,7 @@ func Stream_attach(slot int, name *C.char, enginename *C.char) *C.char {
 
 //export Stream_detach
 func Stream_detach(slot int, enginename *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	e, err := connect.GetEngine(C.GoString(enginename))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -169,7 +169,7 @@ func Stream_detach(slot int, enginename *C.char) *C.char {
 
 //export Stream_inspect
 func Stream_inspect(name *C.char, enginename *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	e, err := connect.GetEngine(C.GoString(enginename))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -203,7 +203,7 @@ func Stream_inspect(name *C.char, enginename *C.char) *C.char {
 
 //export Stream_sample
 func Stream_sample(name *C.char, enginename *C.char, count int) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	e, err := connect.GetEngine(C.GoString(enginename))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())

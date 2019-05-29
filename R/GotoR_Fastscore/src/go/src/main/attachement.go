@@ -13,16 +13,16 @@ func Attachment_upload(mname *C.char, aname *C.char, apath *C.char) *C.char {
 	att_name := C.GoString(aname)
 	att_path := C.GoString(apath)
 	
-  connect := sdk.NewConnect(proxy_path)
-	m, err := connect.LookupManage()
-	model, err := m.Model(model_name)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
+	m, err := connect.LookupManage()  // lookup model manage
+	model, err := m.Model(model_name)  // lookup model
 
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
 
-	atype := guessAttachmentType(att_path)
-	datasize, err := guessDataSize(att_path)
+	atype := guessAttachmentType(att_path)  // look up attachment type
+	datasize, err := guessDataSize(att_path)  // look up attachment size
 
 	if atype == "unknown" {
 		return C.CString("Fastscore attachment can only accept .tgz, .zip, .tar.gz.")
@@ -38,7 +38,8 @@ func Attachment_upload(mname *C.char, aname *C.char, apath *C.char) *C.char {
 		Datasize:     datasize,
 		Model:        model,
 	}
-
+  
+  // update model attachements
 	model.Attachments = append(model.Attachments, &att)
 
 
@@ -59,7 +60,7 @@ func Attachment_upload(mname *C.char, aname *C.char, apath *C.char) *C.char {
 
 //export Attachment_download
 func Attachment_download(mname *C.char, aname *C.char, path *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -67,7 +68,8 @@ func Attachment_download(mname *C.char, aname *C.char, path *C.char) *C.char {
 	model_name := C.GoString(mname)
 	att_name := C.GoString(aname)
 	att_path := C.GoString(path)
-
+  
+  // download attachment
 	err = m.DownloadAttachment(model_name, att_name, att_path)
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -78,7 +80,7 @@ func Attachment_download(mname *C.char, aname *C.char, path *C.char) *C.char {
 
 //export Attachment_list
 func Attachment_list(modelname *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -90,7 +92,8 @@ func Attachment_list(modelname *C.char) *C.char {
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
-
+  
+  // cannot pass double array, use ArrayToString
   var res []string
   for _, v := range attnames {
     a, err := m.Attachment(model_name, v)
@@ -105,7 +108,7 @@ func Attachment_list(modelname *C.char) *C.char {
 
 //export Attachment_remove
 func Attachment_remove(mname *C.char, aname *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -113,7 +116,8 @@ func Attachment_remove(mname *C.char, aname *C.char) *C.char {
 
 	model_name := C.GoString(mname)
 	att_name := C.GoString(aname)
-
+  
+  // delete attachment
 	err = m.DeleteAttachment(model_name, att_name)
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())

@@ -10,7 +10,7 @@ import (
 
 //export Use
 func Use(enginename *C.char) *C.char{
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
   instanceinfo, err := connect.Fleet()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())

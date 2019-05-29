@@ -2,13 +2,14 @@ package main
 
 import (
     "C"
-    "github.com/opendatagroup/fastscore-sdk-go/sdk"
     "io/ioutil"
     "strconv"
     "bufio"
     "os"
     "strings"
     "path/filepath"
+    
+    "github.com/opendatagroup/fastscore-sdk-go/sdk"
 )
 
 //export Model_add
@@ -23,7 +24,7 @@ func Model_add(name *C.char, path *C.char) *C.char{
   var mtype string
   mtype = guessModelType(C.GoString(path))
   
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   mm, err := con.LookupManage()
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -51,7 +52,7 @@ func Model_add(name *C.char, path *C.char) *C.char{
 
 //export Model_show
 func Model_show(name *C.char) *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   mm, err := con.LookupManage()
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -67,7 +68,7 @@ func Model_show(name *C.char) *C.char{
 
 //export Model_list
 func Model_list() *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   mm, err := con.LookupManage()
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -95,7 +96,7 @@ func Model_list() *C.char{
 
 //export Model_remove
 func Model_remove(name *C.char) *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   mm, err := con.LookupManage()
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -111,15 +112,17 @@ func Model_remove(name *C.char) *C.char{
 
 //export Model_load
 func Model_load(modelname *C.char, enginename *C.char) *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   mm, err := con.LookupManage()
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
+	
   eng, err := con.GetEngine(C.GoString(enginename))
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
 	}
+	
   model, err := mm.Model(C.GoString(modelname))
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -138,9 +141,11 @@ func Model_load(modelname *C.char, enginename *C.char) *C.char{
 }
 // TODO: OverrideList
 
+// TODO: Model_unload
+
 //export Model_inspect
 func Model_inspect(enginename *C.char) *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   eng, err := con.GetEngine(C.GoString(enginename))
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -178,7 +183,7 @@ func Model_inspect(enginename *C.char) *C.char{
 
 //export Model_input
 func Model_input(enginename *C.char, slot int) *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
 	eng, err := con.GetEngine(C.GoString(enginename))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -187,6 +192,7 @@ func Model_input(enginename *C.char, slot int) *C.char{
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		data, _ := reader.ReadString('\n')
+		data = strings.TrimSuffix(data, "\n")
 		if len(data) == 0 {
 			break
 		}
@@ -200,7 +206,7 @@ func Model_output(enginename *C.char, slot int) *C.char{
   if slot == 0{
     slot = 1
   }
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
 	eng, err := con.GetEngine(C.GoString(enginename))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -223,8 +229,11 @@ func Model_output(enginename *C.char, slot int) *C.char{
 
 //export Model_scale
 func Model_scale(enginename *C.char, scale int) *C.char{
-	con := sdk.NewConnect(proxy_path)
-	eng, _ := con.GetEngine(C.GoString(enginename))
+	con := sdk.NewConnect(proxy_path, "", "", "", "")
+	eng, err := con.GetEngine(C.GoString(enginename))
+	if err != nil {
+		return C.CString("Fastscore Error --- " + err.Error())
+	}
 	return C.CString(eng.Scale(scale).Error())
 }
 

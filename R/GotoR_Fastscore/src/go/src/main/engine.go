@@ -7,7 +7,7 @@ import (
 
 //export Engine_inspect
 func Engine_inspect(name *C.char) *C.char{
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   eng, err := con.GetEngine(C.GoString(name))
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -24,7 +24,7 @@ func Engine_inspect(name *C.char) *C.char{
 
 //export Engine_pause
 func Engine_pause(name *C.char) *C.char {
-	con := sdk.NewConnect(proxy_path)
+	con := sdk.NewConnect(proxy_path, "", "", "", "")
   eng, err := con.GetEngine(C.GoString(name))
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -40,7 +40,7 @@ func Engine_pause(name *C.char) *C.char {
 
 //export Engine_unpause
 func Engine_unpause(name *C.char) *C.char {
-	con := sdk.NewConnect(proxy_path)
+	con := sdk.NewConnect(proxy_path, "", "", "", "")
   eng, err := con.GetEngine(C.GoString(name))
   if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -56,7 +56,7 @@ func Engine_unpause(name *C.char) *C.char {
 
 //export Engine_reset
 func Engine_reset(name *C.char) *C.char {
-  con := sdk.NewConnect(proxy_path)
+  con := sdk.NewConnect(proxy_path, "", "", "", "")
   
   if C.GoString(name) == "all" {
 	  emap, err := con.Engines()
@@ -86,3 +86,5 @@ func Engine_reset(name *C.char) *C.char {
 	  return C.CString(eng.Name + " reset.")
 	}
 }
+
+// engine file options not included here, please use Fastscore GoCLI

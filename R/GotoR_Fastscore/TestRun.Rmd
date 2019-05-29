@@ -5,7 +5,7 @@ output: html_notebook
 # Connect to local fleet and set configuration
 ```{r}
 library(FastscoreRSDK)
-Connect(proxy_prefix="https://localhost:8000")
+Connect("https://localhost:8000")
 Config_set("./config.yaml")
 Sys.sleep(10) 
 # give system time to load configuration

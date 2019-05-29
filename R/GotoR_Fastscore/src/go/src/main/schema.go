@@ -9,7 +9,7 @@ import (
 
 //export Schema_list
 func Schema_list() *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -25,7 +25,7 @@ func Schema_list() *C.char {
 
 //export Schema_show
 func Schema_show(name *C.char) *C.char {
-	connect := sdk.NewConnect(proxy_path)
+	connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -46,7 +46,7 @@ func Schema_show(name *C.char) *C.char {
 
 //export Schema_add
 func Schema_add(name *C.char, path *C.char) *C.char {
-  connect := sdk.NewConnect(proxy_path)
+  connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	file, err := ioutil.ReadFile(C.GoString(path))
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -86,7 +86,7 @@ func Schema_add(name *C.char, path *C.char) *C.char {
 
 //export Schema_remove
 func Schema_remove(name *C.char) *C.char {
-	connect := sdk.NewConnect(proxy_path)
+	connect := sdk.NewConnect(proxy_path, "", "", "", "")
 	m, err := connect.LookupManage()
 	if err != nil {
 		return C.CString("Fastscore Error --- " + err.Error())
@@ -98,3 +98,5 @@ func Schema_remove(name *C.char) *C.char {
 	  return C.CString("Schema removed.")
 	}
 }
+
+// TODO Schema_infer
