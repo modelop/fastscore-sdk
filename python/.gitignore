@@ -8,5 +8,3 @@ fastscore/requirements.txt
 fastscore/setup.py
 fastscore/test-requirements.txt
 fastscore/tox.ini
-fastscore/v1/
-fastscore/v2/
