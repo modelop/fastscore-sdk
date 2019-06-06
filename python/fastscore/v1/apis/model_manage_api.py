@@ -767,9 +767,9 @@ class ModelManageApi(object):
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
-                                        _preload_content=params.get('_preload_content', True),
+                                        _preload_content=params.get('_preload_content', False),
                                         _request_timeout=params.get('_request_timeout'),
-                                        collection_formats=collection_formats)
+                                        collection_formats=collection_formats).data
 
     def attachment_head(self, instance, model, attachment, **kwargs):
         """
