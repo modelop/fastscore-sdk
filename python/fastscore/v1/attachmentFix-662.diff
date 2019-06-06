@@ -1,0 +1,29 @@
+diff --git a/python/fastscore/v1/apis/model_manage_api.py b/python/fastscore/v1/apis/model_manage_api.py
+index ee497a3..8945365 100644
+--- a/python/fastscore/v1/apis/model_manage_api.py
++++ b/python/fastscore/v1/apis/model_manage_api.py
+@@ -767,9 +767,9 @@ class ModelManageApi(object):
+                                         auth_settings=auth_settings,
+                                         callback=params.get('callback'),
+                                         _return_http_data_only=params.get('_return_http_data_only'),
+-                                        _preload_content=params.get('_preload_content', True),
++                                        _preload_content=params.get('_preload_content', False),
+                                         _request_timeout=params.get('_request_timeout'),
+-                                        collection_formats=collection_formats)
++                                        collection_formats=collection_formats).data
+ 
+     def attachment_head(self, instance, model, attachment, **kwargs):
+         """
+diff --git a/python/fastscore/v1/rest.py b/python/fastscore/v1/rest.py
+index e607292..796ea28 100644
+--- a/python/fastscore/v1/rest.py
++++ b/python/fastscore/v1/rest.py
+@@ -181,7 +181,7 @@ class RESTClientObject(object):
+                 # Pass a `string` parameter directly in the body to support
+                 # other content types than Json when `body` argument is provided
+                 # in serialized form
+-                elif isinstance(body, str):
++                elif isinstance(body, str) or isinstance(body, bytes):
+                     request_body = body
+                     r = self.pool_manager.request(method, url,
+                                                   body=request_body,
