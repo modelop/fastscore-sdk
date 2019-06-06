@@ -11,10 +11,9 @@ Info about this project
 ### Installation
 
 - Download GoSDK with `go get github.com/opendatagroup/fastscore-sdk-go/sdk`
-- Run `R CMD INSTALL FastscoreRSDK.tar.gz`
-- OR use `GotoR_Fastscore.Rproj` to build and install
-
-**NOTE:** for this to work, system needs to be able to locate the standard path for stdio.h and other utilities. For MacOS, Xcode includes a package to create links for such software to find the files.. Xcode 10 the package file is located at: /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+- Run `R CMD INSTALL FastscoreRSDK.tar.gz` (**NOTE:** for this to work, system needs to be able to locate the standard path for stdio.h and other utilities. For MacOS, Xcode includes a package to create links for such software to find the files.. Xcode 10 the package file is located at: /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg)
+- OR use `GotoR_Fastscore.Rproj` to build and install (change GOPATH in src/Makevar if necessary)
+- A dockerfile is included as an example of how to setup Go dependency and install, either from bash or from Rproj.
 
 
 ### Documentation
