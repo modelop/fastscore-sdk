@@ -1,3 +1,7 @@
+import json
+
+from ._schemer import _infer
+from .errors import FastScoreError
 
 class SchemaMetadata(object):
     def __init__(self, name):
@@ -34,6 +38,20 @@ class Schema(object):
     def source(self, source):
         self._source = source
 
+    @staticmethod
+    def infer(name, samples, model_manage=None, verbose=False):
+        """
+        Infer a schema from samples
+
+        :param name: Name of the schema to be inferred
+        :param samples: A list of dicts (JSON-encoded samples)
+
+        :param model_manage: (Optional) An instance of Model-Manage to attach the schema to
+        """
+        schema = _infer(samples, verbose=verbose)
+        return Schema(name, source=json.dumps(schema), model_manage=model_manage)
+
+
     def update(self, model_manage=None):
         """
         Saves the schema to Model Manage.
@@ -43,7 +61,7 @@ class Schema(object):
 
         """
         if model_manage == None and self._mm == None:
-            raise FastScore("Schema '%s' not associated with Model Manage" % self.name)
+            raise FastScoreError("Schema '%s' not associated with Model Manage" % self.name)
         if self._mm == None:
             self._mm = model_manage
         return self._mm.save_schema(self)
