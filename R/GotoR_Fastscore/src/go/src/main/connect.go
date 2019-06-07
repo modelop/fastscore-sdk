@@ -9,18 +9,18 @@ var proxy_path = "https://localhost:8000"
 
 //export Connect
 func Connect(path *C.char) *C.char{
-  proxyprefix := C.GoString(path)
+  proxy_path= C.GoString(path)
   // Allow http calls
 	// Adding checks on proxy prefix to avoid invalid URLs
-	if !strings.Contains(proxyprefix, "://") {
+	if !strings.Contains(proxy_path, "://") {
 		return C.CString("Fastscore Error --- Proxy prefix must be an URL, e.g. https://dashboard:8000")
 	}
-	if !strings.HasPrefix(proxyprefix, "https:") && !strings.HasPrefix(proxyprefix, "http:") {
+	if !strings.HasPrefix(proxy_path, "https:") && !strings.HasPrefix(proxy_path, "http:") {
 		return C.CString("Fastscore Error --- Proxy prefix must use HTTPS scheme")
 	}
-	last := proxyprefix[len(proxyprefix)-1:]
+	last := proxy_path[len(proxy_path)-1:]
 	if last == "/" {
-		proxyprefix = proxyprefix[:len(proxyprefix)-1]
+		proxy_path = proxy_path[:len(proxy_path)-1]
 	}
   
   con := sdk.NewConnect(proxy_path, "", "", "", "")

@@ -10,7 +10,8 @@ Connect <- setRefClass("Connect",
         proxy_prefix="character",
         resolved="list",
         preferred="list",
-        target="InstanceBase" #Or NULL?
+        target="InstanceBase", #Or NULL?
+        insecure="logical"
     ),
     methods = list(
         initialize = function(...){
@@ -20,6 +21,13 @@ Connect <- setRefClass("Connect",
             .self$api <- "connect"
             .self$swg <- ConnectAPI$new()
             .self
+
+            if(!("insecure" %in% names(list(...)))){
+              .self$insecure <- FALSE
+            }
+            if(insecure == TRUE){
+              httr::set_config(config(ssl_verifyhost = FALSE, ssl_verifypeer = FALSE))
+            }
         },
         pneumo = function(){
             return(PneumoSock$new(proxy_prefix = .self$proxy_prefix))

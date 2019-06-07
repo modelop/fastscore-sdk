@@ -30,9 +30,11 @@ ConnectAPI <- setRefClass("ConnectAPI",
         },
         config_put_with_http_info = function(instance, config, content_type){
             prefix <- proxy_prefix()
+
             r <- PUT(paste(prefix, instance, '/1/config', sep=''),
-                    add_headers('Content-Type'=content_type),
-                    body=config)
+                     add_headers('Content-Type'=content_type),
+                     body=config)
+
             return(status_code(r))
         },
         config_get = function(instance, q=NULL, accept='application/x-yaml'){

@@ -45,7 +45,7 @@ ENV HOME ~
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
 # copy package and dependency
-COPY FastscoreRSDK.tar.gz /src/
+# COPY FastscoreRSDK.tar.gz /src/
 COPY src.tar.gz /src/
 COPY RSDK.tar.gz /src/
 WORKDIR /src

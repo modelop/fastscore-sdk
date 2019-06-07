@@ -8,6 +8,7 @@ SchemaMetadata <- setRefClass("SchemaMetadata",
     )
 )
 
+#' Schema object for Fastscore
 #' @export Schema
 Schema <- setRefClass("Schema",
     fields=list(
