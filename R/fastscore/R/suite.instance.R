@@ -1,4 +1,3 @@
-#' @export
 InstanceBase <- setRefClass("InstanceBase",
     fields = list(
         name="character",
@@ -27,6 +26,17 @@ InstanceBase <- setRefClass("InstanceBase",
     )
 
 )
+
+#' Check instance health
+#' @name InstanceBase_check_health
+#' @return if the instance is healthy
+NULL
+InstanceBase$methods(
+  check_health = function(){
+    return(.self$swg$health_get(.self$name))
+  }
+)
+
 
 ActiveSensorBag <- setRefClass("ActiveSensorBag",
     fields = list(

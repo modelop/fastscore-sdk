@@ -1,0 +1,72 @@
+---
+title: "Fastscore R-SDK Example 2"
+output: html_notebook
+---
+install dependencies for Fastscore R-SDK, if necessary
+install.packages(c("curl", "jsonlite", "mime", "openssl", "R6", "yaml", "httr", "rjson"))
+
+Things that need to be customized as you go through:
+1. proxy_prefix for connection
+2. engine name of the engine using
+3. library path for local file upload (mode/schema/stream/attachment)
+4. If running file-input-stream example, then need to change input/output stream description file path (check /library/streams/), and also put corresponding json files (in /data/) into engine.
+
+Check fastscore.pdf for more detail information of this package
+
+Setup, connect to fleet
+```{r}
+library(fastscore)
+connect <- Connect(proxy_prefix="enter-your-proxy", insecure = TRUE)  # connect to a Fastscore fleet
+
+# setup Fastscore configuration separately
+```
+Define instance objects
+```{r}
+connect$fleet()  # take a look at the fleet
+engine <- connect$get(name = "engine-1")  # define engine object we are going to use, change engine name if necessary
+mm <- connect$get(name = "model-manage-1")  # define model-manage object
+```
+Define load model information
+```{r}
+# load model from local directory, naming should including extensions for model language tyle
+mm$model_load_from_file(name = "echo-array-double.R", path = "./library/models/")  
+
+# load schema from local directory, without extensions since schema should always be .avsc format
+# also schema name should match with the smart comments at the beginning of model script
+mm$schema_load_from_file(name = "array-double", path = "./library/schemas/")  
+
+# load stream from local directory, without extensions since schema should always be .json format
+# output stream. This is a REST stream that waits for input/output
+
+mm$stream_load_from_file(name = "rest", path = "./library/streams/")
+```
+Deploy model with rest stream
+```{r}
+engine$unload_model()  # reset engine for next deployment
+
+engine$load_model(model = mm$model_get("echo-array-double.R"))  # load model into engine
+engine$input_set(slot = 0, stream = mm$stream_get("rest"))  # set input stream, use even slot numbers 0, 2, 4, etc.
+engine$output_set(slot = 1, stream = mm$stream_get("rest"))  # set output stream, use odd slot numbers 1, 3, 5, etc.
+engine$score("[123.123, 234.234]", encode = FALSE)  # send input to engine, and return output
+```
+Stop engine
+```{r}
+engine$unload_model()  # reset engine for next deployment
+```
+Deploy model with file stream (need to copy input file into engine container first)
+```{r}
+# input stream. This is an input from file, make sure file is loaded into engine/container with porper path set in stream description
+mm$stream_load_from_file(name = "array-double-input", path = "./library/streams/")
+# output stream. This is an output written to file, the resulting file with be saved in the engine with path descripted in output stream description
+mm$stream_load_from_file(name = "array-double-output", path = "./library/streams/")
+
+engine$unload_model()  # reset engine for next deployment
+
+engine$load_model(mm$model_get("echo-array-double.R"))  # load model into engine
+engine$input_set(0, mm$stream_get("array-double-input"))  # set input stream, use even slot numbers 0, 2, 4, etc.
+engine$output_set(1, mm$stream_get("array-double-output"))  # set output stream, use odd slot numbers 1, 3, 5, etc.
+```
+Stop engine
+```{r}
+engine$unload_model()  # reset engine for next deployment
+```

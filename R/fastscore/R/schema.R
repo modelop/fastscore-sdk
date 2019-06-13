@@ -8,8 +8,12 @@ SchemaMetadata <- setRefClass("SchemaMetadata",
     )
 )
 
-#' Schema object for Fastscore
+#' @title Schema
+#' @description A class that represents a FastScore Schema
 #' @export Schema
+#' @field name schema name
+#' @field source schema source code
+#' @field model_manage the modelmanage it belongs to
 Schema <- setRefClass("Schema",
     fields=list(
         name="character",

@@ -138,9 +138,9 @@ AvroField <- setRefClass("AvroField",
     avroType="AvroType"
     ))
 
-#' Convert a JSON Avro schema to an AvroType.
-#' @param x The JSON Avro schema
-#' @param fromString Should x be first deserialized from a string? (Default: TRUE)
+# Convert a JSON Avro schema to an AvroType.
+# @param x The JSON Avro schema
+# @param fromString Should x be first deserialized from a string? (Default: TRUE)
 #' @export
 jsonNodeToAvroType <- function(x, fromString=TRUE){
   if(fromString){
@@ -224,7 +224,7 @@ jsonNodeToAvroType <- function(x, fromString=TRUE){
   stop(paste('Unable to decode schema', x))
 }
 
-#' @export
+
 avroTypeToJsonNode <- function(schema, toString=TRUE){
   out <- NULL
   if(class(schema) == 'AvroNull'){
@@ -289,11 +289,11 @@ avroTypeToJsonNode <- function(schema, toString=TRUE){
   }
 }
 
-#' Decode a JSON object as a given fastscore.datatype.AvroType.
-#' @return An R object
-#' @param avroType The AvroType of this object
-#' @param value A JSON object
-#' @param fromString If TRUE, value is a JSON string. (Default: TRUE)
+# Decode a JSON object as a given fastscore.datatype.AvroType.
+# @return An R object
+# @param avroType The AvroType of this object
+# @param value A JSON object
+# @param fromString If TRUE, value is a JSON string. (Default: TRUE)
 #' @export
 jsonDecoder <- function(avroType, value, fromString=TRUE){
   if(fromString){
@@ -400,12 +400,12 @@ jsonDecoder <- function(avroType, value, fromString=TRUE){
   stop(paste(value, 'does not match schema', avroType$name))
 }
 
-#' Encode an object as JSON, given fastscore.datatype.AvroType.
-#' @return a JSON object.
-#' @param avroType The type of this object.
-#' @param value The contents to encode.
-#' @param tagged If true, represent unions as "{tag:value}"; if false, represent them as value.
-#' @param toString If true, encode the result as a JSON string (default: TRUE).
+# Encode an object as JSON, given fastscore.datatype.AvroType.
+# @return a JSON object.
+# @param avroType The type of this object.
+# @param value The contents to encode.
+# @param tagged If true, represent unions as "{tag:value}"; if false, represent them as value.
+# @param toString If true, encode the result as a JSON string (default: TRUE).
 #' @export
 jsonEncoder <- function(avroType, value, tagged=TRUE, toString=TRUE){
   result <- NULL
@@ -505,10 +505,10 @@ jsonEncoder <- function(avroType, value, tagged=TRUE, toString=TRUE){
 
 }
 
-#' Check whether the given data matches the given schema.
-#' @return TRUE if data satisfies avroType, and FALSE otherwise.
-#' @param data The datum to test.
-#' @param avroType An AvroType object.
+# Check whether the given data matches the given schema.
+# @return TRUE if data satisfies avroType, and FALSE otherwise.
+# @param data The datum to test.
+# @param avroType An AvroType object.
 #' @export
 checkData <- function(data, avroType){
   if(class(avroType) == 'AvroNull'){

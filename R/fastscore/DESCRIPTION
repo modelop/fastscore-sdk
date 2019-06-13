@@ -3,7 +3,7 @@ Title: FastScore SDK
 Version: 0.0.0.9000
 Authors@R: person("Matthew", "Mahowald", email = "matthew.mahowald@opendatagroup.com", role = c("aut", "cre"))
 Description: FastScore R SDK and Jupyter Notebook extensions
-Depends: R (>= 3.3.2), curl, jsonlite, mime, openssl (>= 0.8), R6, yaml, httr
+Depends: R (>= 3.3.2), curl, jsonlite, mime, openssl (>= 0.8), R6, yaml, httr, rjson
 License: TBD
 Encoding: UTF-8
 LazyData: true
@@ -28,7 +28,6 @@ Collate:
     'codec.datatype.R'
     'constants.R'
     'deploy.model.R'
-    'errors.R'
     'pneumo.R'
     'schema.R'
     'sensor.R'
@@ -36,8 +35,6 @@ Collate:
     'stream.R'
     'suite.connect.R'
     'suite.engine.R'
-    'utils.R'
-    'version.R'
 RoxygenNote: 6.1.1
 Suggests: 
     testthat

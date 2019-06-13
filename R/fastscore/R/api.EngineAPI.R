@@ -78,7 +78,7 @@ EngineAPI <- setRefClass("EngineAPI",
         job_io_input = function(instance, data, id){
             prefix <- proxy_prefix()
             r <- POST(paste(prefix, instance, '/1/job/input/', id, sep=''),
-                add_headers('Content-Type'='application/octet-stream'),
+                add_headers('Content-Type'='application/json'),
                 body=data)
             if(status_code(r) != 204){
                 stop("FastScoreError: REST stream transport not found.")

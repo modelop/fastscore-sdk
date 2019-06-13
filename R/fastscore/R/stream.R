@@ -6,7 +6,12 @@ StreamMetadata <- setRefClass("StreamMetaData",
     )
 )
 
+#' @title Stream
+#' @description A class that represents a FastScore Stream
 #' @export Stream
+#' @field name stream name
+#' @field desc stream description
+#' @field model_manage the modelmanage it belongs to
 Stream <- setRefClass("Stream",
     fields = list(
         name="character",

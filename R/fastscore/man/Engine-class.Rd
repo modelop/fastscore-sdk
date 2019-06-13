@@ -4,10 +4,8 @@
 \name{Engine-class}
 \alias{Engine-class}
 \alias{Engine}
-\title{Engine
-A class that represents a FastScore Engine}
+\title{Engine}
 \description{
-Engine
 A class that represents a FastScore Engine
 }
 

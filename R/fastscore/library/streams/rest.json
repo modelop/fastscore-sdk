@@ -1,7 +1,4 @@
 {
-  "Transport": {
-    "Type": "REST"
-  },
-  "Encoding": "json",
-  "Envelope": null
+  "Transport": "REST",
+  "Encoding": "json"
 }

@@ -4,8 +4,18 @@
 \name{Schema-class}
 \alias{Schema-class}
 \alias{Schema}
-\title{Schema object for Fastscore}
+\title{Schema}
 \description{
-Schema object for Fastscore
+A class that represents a FastScore Schema
 }
+\section{Fields}{
+
+\describe{
+\item{\code{name}}{schema name}
+
+\item{\code{source}}{schema source code}
+
+\item{\code{model_manage}}{the modelmanage it belongs to}
+}}
+
 

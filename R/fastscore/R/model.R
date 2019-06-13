@@ -6,6 +6,12 @@ ModelMetadata <- setRefClass("ModelMetadata",
         mtype="character"
         ))
 
+#' @title Model
+#' @description A class that represents a FastScore Model
+#' @field model_manage the modelmanage it belongs to
+#' @field name model name
+#' @field mtype model type
+#' @field source model source code
 #' @export Model
 Model <- setRefClass("Model",
     fields=list(
@@ -18,6 +24,8 @@ Model <- setRefClass("Model",
         saved = function(){
           if(is.null(.self$model_manage)){
             stop(paste("FastScoreError: Model ", .self$name, " not saved (use update() method)."))
+          } else {
+            return(TRUE)
           }
         },
         update = function(model_manage = NULL){
@@ -29,29 +37,10 @@ Model <- setRefClass("Model",
             }
             .self$model_manage$save_model(.self)
         },
-        attachment_list = function(){
-            .self$saved()
-            .self$model_manage$swg$attachment_list(.self$model_manage$name, .self$name)
-        },
-        attachment_get = function(name){
-          .self$saved()
-          r <- GET(paste(proxy_prefix(), .self$model_manage$name, "/1/model/", .self$name, "/attachment/", name, sep=""))
-          ct = headers(r)['content-type']
-          sz = as.integer(headers(r)['content-length'])
-          for(atype in names(ATTACHMENT_CONTENT_TYPES)){
-            if(ATTACHMENT_CONTENT_TYPES[[atype]] == ct){
-              return(list(atype, sz))
-              }
-          }
-          return(paste("FastScoreError: Unexpected model MIME type:", ct))
-        },
+
         attachment_download = function(name){
           .self$saved()
          return(api.get_attachment(.self, name))
-        },
-        attachment_delete = function(name){
-          .self$saved()
-          return(api.remove_attachment(.self$name, name))
         },
         attachment_save = function(att){
           .self$saved()
@@ -102,5 +91,40 @@ Model <- setRefClass("Model",
           .self$saved()
           engine$load_model(.self)
         }
-        )
+      )
+)
+
+#' List all attachments of this model
+#' @name Model_attachment_list
+#' @return a list of attachment type and size
+NULL
+Model$methods(
+  attachment_list = function(){
+    .self$saved()
+    .self$model_manage$swg$attachment_list(.self$model_manage$name, .self$name)
+  },
+  attachment_get = function(name){
+    .self$saved()
+    r <- GET(paste(proxy_prefix(), .self$model_manage$name, "/1/model/", .self$name, "/attachment/", name, sep=""))
+    ct = headers(r)['content-type']
+    sz = as.integer(headers(r)['content-length'])
+    for(atype in names(ATTACHMENT_CONTENT_TYPES)){
+      if(ATTACHMENT_CONTENT_TYPES[[atype]] == ct){
+        return(list(atype, sz))
+      }
+    }
+    return(paste("FastScoreError: Unexpected model MIME type:", ct))
+  }
+)
+
+#' Delete an attachments from this model
+#' @name Model_attachment_delete
+#' @param name attachment name
+#' @return if an attachment is successfully removed
+NULL
+Model$methods(
+  attachment_delete = function(name){
+    .self$saved()
+    return(api.remove_attachment(.self$name, name))
+  }
 )
