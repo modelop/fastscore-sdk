@@ -1,6 +1,7 @@
 
 import random
 from itertools import groupby
+from orderedset import OrderedSet
 from datetime import datetime
 import re
 
@@ -116,7 +117,7 @@ def optional_fields(data, rsets, verbose=False, **kwargs):
 
 def fieldsets(data, max_field_count=100, uuid_field_names=False, **kwargs):
     if isinstance(data, dict):
-        names = set(data.keys())
+        names = OrderedSet(data.keys())
         # map or record
         if len(names) > 0 and len(names) <= max_field_count:
             if uuid_field_names or \
