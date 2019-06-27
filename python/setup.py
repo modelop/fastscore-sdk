@@ -18,7 +18,8 @@ setup(
         "websocket-client>=0.37.0",
         "six",
         "urllib3>=1.20",
-        "certifi>=2017.4.17"
+        "certifi>=2017.4.17",
+        "orderedset"
     ],
     test_suite="test",
     tests_require=[
