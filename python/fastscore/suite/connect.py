@@ -207,7 +207,7 @@ class Connect(InstanceBase):
         """
         return self._pneumo
 
-    def lookup(self, sname):
+    def lookup(self, sname, skipUnhealthy=True):
         """
         Retrieves an preferred/default instance of a named service.
 
@@ -219,22 +219,21 @@ class Connect(InstanceBase):
         :returns: a FastScore instance object.
         """
         if sname in self._preferred:
-            return self.get(self._preferred[sname])
+            return self.get(self._preferred[sname], skipUnhealthy)
         try:
             xx = self.swg.connect_get(self.name, api=sname)
         except Exception as e:
             raise FastScoreError("Cannot retrieve fleet info", caused_by=e)
         for x in xx:
-            if x.health == 'ok':
-                return self.get(x.name)
+            if ((x.health == 'ok') or (skipUnhealthy == False)):
+                return self.get(x.name, skipUnhealthy)
         if len(xx) == 0:
             m = "No instances of service '%s' configured" % sname
         elif len(xx) == 1:
             m = "'%s' instance is unhealthy" % xx[0].name
         else:
             m = "All %d instances of service '%s' are unhealthy" % len(xx)
-        # Return state regardless of whether it is healthy or not
-        #raise FastScoreError(m)
+        raise FastScoreError(m)
 
     def get(self, name, skipUnhealthy=True):
         """
@@ -255,7 +254,7 @@ class Connect(InstanceBase):
             xx = self.swg.connect_get(self.name, name=name)
         except Exception as e:
             raise FastScoreError("Cannot retrieve '%s' instance info" % name, caused_by=e)
-        if len(xx) > 0 and xx[0].health == 'ok':
+        if ((len(xx) > 0 and xx[0].health == 'ok') or (skipUnhealthy == False)):
             x = xx[0]
             instance = Connect.make_instance(x.api, name)
             self._resolved[name] = instance
@@ -264,8 +263,7 @@ class Connect(InstanceBase):
             m = "Instance '%s' not found" % name
         else:
             m = "Instance '%s' is unhealthy" % name
-        # Return state regardless of whether it is healthy or not
-        #raise FastScoreError(m)
+        raise FastScoreError(m)
 
     def prefer(self, sname, name):
         """
