@@ -254,7 +254,7 @@ class Connect(InstanceBase):
             xx = self.swg.connect_get(self.name, name=name)
         except Exception as e:
             raise FastScoreError("Cannot retrieve '%s' instance info" % name, caused_by=e)
-        if ((len(xx) > 0 and xx[0].health == 'ok') or (skipUnhealthy == False)):
+        if ((len(xx) > 0) and (xx[0].health == 'ok' or skipUnhealthy == False)):
             x = xx[0]
             instance = Connect.make_instance(x.api, name)
             self._resolved[name] = instance
