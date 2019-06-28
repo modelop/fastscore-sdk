@@ -122,7 +122,7 @@ class Connect(InstanceBase):
         """
         self._basic_auth_secret = auth_secret
         set_auth_header_secret(auth_secret, self.swg.api_client, self.swg2.api_client)
-    
+
     def set_session_cookie(self, session_cookie):
         """
         Set session cookie
@@ -233,9 +233,10 @@ class Connect(InstanceBase):
             m = "'%s' instance is unhealthy" % xx[0].name
         else:
             m = "All %d instances of service '%s' are unhealthy" % len(xx)
-        raise FastScoreError(m)
+        # Return state regardless of whether it is healthy or not
+        #raise FastScoreError(m)
 
-    def get(self, name):
+    def get(self, name, skipUnhealthy=True):
         """
         Retrieves a (cached) reference to the named instance.
 
@@ -263,7 +264,8 @@ class Connect(InstanceBase):
             m = "Instance '%s' not found" % name
         else:
             m = "Instance '%s' is unhealthy" % name
-        raise FastScoreError(m)
+        # Return state regardless of whether it is healthy or not
+        #raise FastScoreError(m)
 
     def prefer(self, sname, name):
         """
