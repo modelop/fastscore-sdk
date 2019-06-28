@@ -1,7 +1,7 @@
 
 import random
 from itertools import groupby
-from orderedset import OrderedSet
+from ordered_set import OrderedSet
 from datetime import datetime
 import re
 

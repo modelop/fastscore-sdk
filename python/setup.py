@@ -19,7 +19,7 @@ setup(
         "six",
         "urllib3>=1.20",
         "certifi>=2017.4.17",
-        "orderedset"
+        "ordered_set"
     ],
     test_suite="test",
     tests_require=[
