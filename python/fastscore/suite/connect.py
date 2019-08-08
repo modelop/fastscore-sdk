@@ -420,7 +420,7 @@ class Connect(InstanceBase):
         """
         try:
             with open(savefile, "r") as f:
-                cap = yaml.load(f)
+                cap = yaml.load(f, Loader=yaml.FullLoader)
                 ldap_secret = cap['ldap-auth-secret'] if 'ldap-auth-secret' in cap else None
                 basic_auth_secret = cap['basic-auth-secret'] if 'basic-auth-secret' in cap else None
                 oauth_secret = cap['oauth2-secret'] if 'oauth2-secret' in cap else None
