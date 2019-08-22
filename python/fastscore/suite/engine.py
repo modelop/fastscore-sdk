@@ -172,6 +172,44 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Stream write error", caused_by=e)
 
+    def roundtrip(self, data, input_slot=0, output_slot=1):
+        """
+        Score data by writing to a REST stream attached on input_slot
+        and waiting for a response on a REST stream attached on output_slot.
+
+        :param data: The data to write to the stream. (string)
+        :param input_slot: The input slot. (default 0)
+        :param output_slot: The output slot. (default 1)
+
+        Example:
+        >>> from fastscore.suite import Connect
+        >>> c = Connect()
+        >>> engine = c.lookup('engine')
+        >>> engine.state
+            RUNNING
+        >>> engine.score("1")
+            "2"
+        """
+        try:
+            headers = {
+                'Authorization': self.swg.api_client.default_headers['Authorization']
+            }
+        except KeyError:
+            headers = {}
+        params = {
+            'host': self.swg.api_client.host,
+            'instance': self.name,
+            'input_slot' : input_slot,
+            'output_slot': output_slot
+        }
+        path = "{host}/{instance}/2/active/model/roundtrip/{input_slot}/{output_slot}".format(**params)
+        r = requests.post(path, verify=False, headers=headers, data=data)
+        
+        if r.status_code == 200:
+            return r.content
+        else:
+            raise FastScoreError(r.content)
+
     def output(self, slot):
         """
         Reads data from the REST stream attached to the slot.
