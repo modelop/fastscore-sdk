@@ -16,16 +16,16 @@ steps:
     AWS_SECRET_ACCESS_KEY:
       from_secret: aws_secret_access_key
     GIT_PASS:
-      from_secret: git_pass
+      from_secret: GIT_PASS
     GIT_USER:
-      from_secret: git_user
+      from_secret: GIT_USER
     CLOUDREPO_USERNAME:
       from_secret: CLOUDREPO_USERNAME
     CLOUDREPO_PASSPHRASE:
       from_secret: CLOUDREPO_PASSPHRASE
   commands:
   - aws ecr get-login --no-include-email --region us-east-2 | sh
-  - "git clone https://$GIT_USER:$GIT_PASS@github.com/opendatagroup/fastscore-test.git"
+  - git clone https://$GIT_USER:$GIT_PASS@github.com/opendatagroup/fastscore-test.git
   - ./fastscore-test/fastest pull-env
   - "./fastscore-test/fastest copy-wheel SDK \"python/dist/fastscore-*.whl\""
   - ./fastscore-test/all.sh
