@@ -38,7 +38,7 @@ steps:
   - ./fastscore-test/create-pypirc.sh
   ## TO DO : install twine on fastscore/maker base image
   - pip3 install twine
-  - twine upload dist/* --repository cloudrepo
+  - twine upload python/dist/* --repository cloudrepo
   volumes:
   - name: docker.sock
     path: /var/run/docker.sock
