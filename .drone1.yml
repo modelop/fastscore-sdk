@@ -5,16 +5,20 @@ steps:
 - name: build
   image: fastscore/maker
   commands:
-  - cd python && python3 setup.py bdist_wheel
+  - cd python && python3 setup.py bdist_wheel 
+  - sleep 1800
 
 - name: fastscore-test
-  pull: if-not-exists
   image: fastscore/maker
   environment:
-    GIT_USER:
-      from_secret: GIT_USER
+    AWS_ACCESS_KEY_ID:
+      from_secret: aws_access_key_id
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: aws_secret_access_key
     GIT_PASS:
       from_secret: GIT_PASS
+    GIT_USER:
+      from_secret: GIT_USER
     CLOUDREPO_USERNAME:
       from_secret: CLOUDREPO_USERNAME
     CLOUDREPO_PASSPHRASE:
@@ -22,8 +26,7 @@ steps:
     REPO_NAME:
       from_secret: REPO_NAME
   commands:
-  - git clone https://$GIT_USER:$GIT_PASS@github.com/opendatagroup/fastscore-test.git
-  - sleep 1800
+  - git clone https://$${GIT_USER}:$${GIT_PASS}@github.com/opendatagroup/fastscore-test.git
   - ./fastscore-test/fastest pull-env
   - ./fastscore-test/fastest copy-wheel SDK python/dist/fastscore-*.whl
   - aws ecr get-login --no-include-email --region us-east-2 | sh
