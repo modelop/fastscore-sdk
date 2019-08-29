@@ -2,6 +2,13 @@ kind: pipeline
 name: fastscore-sdk
 
 steps:
+- name: git-clone
+  pull: default
+  image: plugins/git
+  settings:
+    tags: true
+    recursive: true
+
 - name: build
   image: fastscore/maker
   commands:
@@ -32,6 +39,7 @@ steps:
   - ./fastscore-test/fastest pull-env
   - ./fastscore-test/fastest copy-wheel SDK python/dist/fastscore-*.whl
   - aws ecr get-login --no-include-email --region us-east-2 | sh
+  - sleep 1800 
   - ./fastscore-test/all.sh
   ## Upload wheels
   - chmod +rwx ./fastscore-test/create-pypirc.sh
