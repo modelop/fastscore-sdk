@@ -11,27 +11,28 @@ steps:
   pull: if-not-exists
   image: fastscore/maker
   environment:
-    AWS_ACCESS_KEY_ID:
-      from_secret: aws_access_key_id
-    AWS_SECRET_ACCESS_KEY:
-      from_secret: aws_secret_access_key
-    GIT_PASS:
-      from_secret: GIT_PASS
     GIT_USER:
       from_secret: GIT_USER
+    GIT_PASS:
+      from_secret: GIT_PASS
     CLOUDREPO_USERNAME:
       from_secret: CLOUDREPO_USERNAME
     CLOUDREPO_PASSPHRASE:
       from_secret: CLOUDREPO_PASSPHRASE
+    REPO_NAME:
+      from_secret: REPO_NAME
   commands:
-  - aws ecr get-login --no-include-email --region us-east-2 | sh
   - git clone https://$GIT_USER:$GIT_PASS@github.com/opendatagroup/fastscore-test.git
+  - sleep 1800
   - ./fastscore-test/fastest pull-env
-  - "./fastscore-test/fastest copy-wheel SDK \"python/dist/fastscore-*.whl\""
+  - ./fastscore-test/fastest copy-wheel SDK python/dist/fastscore-*.whl
+  - aws ecr get-login --no-include-email --region us-east-2 | sh
   - ./fastscore-test/all.sh
+  ## Upload wheels
   - chmod +rwx ./fastscore-test/create-pypirc.sh
-  - export REPO_NAME="fastscore-sdk" | envsubst ${REPO_NAME} < ./fastscore-test/settings.template
   - ./fastscore-test/create-pypirc.sh
+  ## TO DO : install twine on fastscore/maker base image
+  - pip3 install twine
   - twine upload dist/* --repository cloudrepo
   volumes:
   - name: docker.sock
