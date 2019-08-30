@@ -39,7 +39,6 @@ steps:
   - ./fastscore-test/fastest pull-env
   - ./fastscore-test/fastest copy-wheel SDK python/dist/fastscore-*.whl
   - aws ecr get-login --no-include-email --region us-east-2 | sh
-  - sleep 1800 
   - ./fastscore-test/all.sh
   ## Upload wheels
   - chmod +rwx ./fastscore-test/create-pypirc.sh
