@@ -125,6 +125,7 @@ class Model(object):
         * **python3**: a Python 3 model.
         * **R**: an R model.
         * **java**: a Java model.
+        * **scala**: a Scala model.
         * **c**: a C model.
         * **octave**: an Octave model.
         * **jupyter**: an Jupyter model.

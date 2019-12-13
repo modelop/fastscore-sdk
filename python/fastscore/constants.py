@@ -9,6 +9,7 @@ MODEL_CONTENT_TYPES = {
     'R':          'application/vnd.fastscore.model-r',
     'r':          'application/vnd.fastscore.model-r',
     'java':       'application/vnd.fastscore.model-java',
+    'scala':      'application/vnd.fastscore.model-scala',
     'c':          'application/vnd.fastscore.model-c',
     'octave':     'application/vnd.fastscore.model-m',
     'jupyter':    'application/vnd.fastscore.model-jupyter',
