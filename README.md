@@ -1,3 +1,1 @@
 # fastscore-sdk
-
-test
