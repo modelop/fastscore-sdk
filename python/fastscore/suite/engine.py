@@ -172,7 +172,7 @@ class Engine(InstanceBase):
         except Exception as e:
             raise FastScoreError("Stream write error", caused_by=e)
 
-    def roundtrip(self, data, input_slot=0, output_slot=1):
+    def roundtrip(self, data, input_slot=0, output_slot=1, timeout=0):
         """
         Score data by writing to a REST stream attached on input_slot
         and waiting for a response on a REST stream attached on output_slot.
@@ -180,6 +180,7 @@ class Engine(InstanceBase):
         :param data: The data to write to the stream. (string)
         :param input_slot: The input slot. (default 0)
         :param output_slot: The output slot. (default 1)
+        :param timeout: The timeout to use. (default 0, which means use the engine default)
 
         Example:
         >>> from fastscore.suite import Connect
@@ -203,7 +204,12 @@ class Engine(InstanceBase):
             'output_slot': output_slot
         }
         path = "{host}/{instance}/2/active/model/roundtrip/{input_slot}/{output_slot}".format(**params)
-        r = requests.post(path, verify=False, headers=headers, data=data)
+
+        qParams = {}
+        if timeout > 0:
+            qParams['timeout'] = timeout
+
+        r = requests.post(path, params=qParams, verify=False, headers=headers, data=data)
         
         if r.status_code == 200:
             return r.content
